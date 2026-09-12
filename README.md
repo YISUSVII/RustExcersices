@@ -45,27 +45,27 @@ Concurrency, async, macros, unsafe Rust and real projects
 
 ## Learning roadmap
 
-| Level | Topic                         | Difficulty   | Status |
-| ----- | ----------------------------- | ------------ | ------ |
-| 0     | Setup                         | Beginner     | ⬜      |
-| 1     | Basics                        | Beginner     | ⬜      |
-| 2     | Control Flow                  | Beginner     | ⬜      |
-| 3     | Functions                     | Beginner     | ⬜      |
-| 4     | Ownership & Borrowing         | Intermediate | ⬜      |
-| 5     | Structs & Enums               | Intermediate | ⬜      |
-| 6     | Pattern Matching              | Intermediate | ⬜      |
-| 7     | Collections & Strings         | Intermediate | ⬜      |
-| 8     | Error Handling                | Intermediate | ⬜      |
-| 9     | Generics, Traits, Lifetimes   | Advanced     | ⬜      |
-| 10    | Iterators & Closures          | Advanced     | ⬜      |
-| 11    | Modules & Crates              | Advanced     | ⬜      |
-| 12    | Testing                       | Advanced     | ⬜      |
-| 13    | Smart Pointers                | Advanced     | ⬜      |
-| 14    | Concurrency                   | Advanced     | ⬜      |
-| 15    | Async Rust                    | Advanced     | ⬜      |
-| 16    | Macros                        | Advanced     | ⬜      |
-| 17    | Advanced Rust                 | Ninja        | ⬜      |
-| 18    | Projects                      | Ninja        | ⬜      |
+| Level | Topic                       | Difficulty   | Status |
+| ----- | --------------------------- | ------------ | ------ |
+| 0     | Setup                       | Beginner     | ⬜      |
+| 1     | Basics                      | Beginner     | ⬜      |
+| 2     | Control Flow                | Beginner     | ⬜      |
+| 3     | Functions                   | Beginner     | ⬜      |
+| 4     | Ownership & Borrowing       | Intermediate | ⬜      |
+| 5     | Structs & Enums             | Intermediate | ⬜      |
+| 6     | Pattern Matching            | Intermediate | ⬜      |
+| 7     | Collections & Strings       | Intermediate | ⬜      |
+| 8     | Error Handling              | Intermediate | ⬜      |
+| 9     | Generics, Traits, Lifetimes | Advanced     | ⬜      |
+| 10    | Iterators & Closures        | Advanced     | ⬜      |
+| 11    | Modules & Crates            | Advanced     | ⬜      |
+| 12    | Testing                     | Advanced     | ⬜      |
+| 13    | Smart Pointers              | Advanced     | ⬜      |
+| 14    | Concurrency                 | Advanced     | ⬜      |
+| 15    | Async Rust                  | Advanced     | ⬜      |
+| 16    | Macros                      | Advanced     | ⬜      |
+| 17    | Advanced Rust               | Ninja        | ⬜      |
+| 18    | Projects                    | Ninja        | ⬜      |
 
 ## Repository structure
 
@@ -91,6 +91,7 @@ RustExercises/
 ├── 16-macros/
 ├── 17-advanced-rust/
 ├── 18-projects/
+├── <module>/exercises/
 ├── solutions/
 └── resources/
 ```
