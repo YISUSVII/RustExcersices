@@ -1,11 +1,13 @@
 fn c_to_f(celsius: f64) -> f64 {
     // TODO: implement
-    celsius
+    let _ = celsius;
+    unimplemented!("Implement c_to_f using F = C * 9.0 / 5.0 + 32.0")
 }
 
 fn f_to_c(fahrenheit: f64) -> f64 {
     // TODO: implement
-    fahrenheit
+    let _ = fahrenheit;
+    unimplemented!("Implement f_to_c using C = (F - 32.0) * 5.0 / 9.0")
 }
 
 fn main() {

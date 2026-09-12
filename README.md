@@ -83,6 +83,8 @@ RustExercises/
 └── resources/
 ```
 
+> Note: each populated learning level includes an `exercises/` directory, and `solutions/` mirrors solved files by level.
+
 ## Recommended learning order
 
 1. `00-setup` → install tools and first project.

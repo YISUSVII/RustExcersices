@@ -2,13 +2,21 @@ fn is_prime(n: u64) -> bool {
     if n < 2 {
         return false;
     }
+    if n == 2 {
+        return true;
+    }
+    if n % 2 == 0 {
+        return false;
+    }
 
-    let limit = (n as f64).sqrt() as u64;
-    for d in 2..=limit {
+    let mut d = 3_u64;
+    while d * d <= n {
         if n % d == 0 {
             return false;
         }
+        d += 2;
     }
+
     true
 }
 
