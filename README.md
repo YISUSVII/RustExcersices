@@ -72,26 +72,13 @@ Concurrency, async, macros, unsafe Rust and real projects
 ```text
 RustExercises/
 ├── README.md
-├── 00-setup/
-├── 01-basics/
-├── 02-control-flow/
-├── 03-functions/
-├── 04-ownership-borrowing/
-├── 05-structs-enums/
-├── 06-pattern-matching/
-├── 07-collections/
-├── 08-error-handling/
-├── 09-generics-traits-lifetimes/
-├── 10-iterators-closures/
-├── 11-modules-crates/
-├── 12-testing/
-├── 13-smart-pointers/
-├── 14-concurrency/
-├── 15-async-rust/
-├── 16-macros/
-├── 17-advanced-rust/
-├── 18-projects/
-├── <module>/exercises/
+├── 00-setup/README.md
+├── 01-basics/README.md
+├── 01-basics/exercises/
+├── 02-control-flow/README.md
+├── 03-functions/README.md
+├── 04-ownership-borrowing/README.md
+├── ... (continue through 18-projects, each with README.md)
 ├── solutions/
 └── resources/
 ```
@@ -99,9 +86,9 @@ RustExercises/
 ## Recommended learning order
 
 1. `00-setup` → install tools and first project.
-2. `01` to `04` → fundamentals and ownership mastery.
-3. `05` to `10` → idiomatic Rust building blocks.
-4. `11` to `17` → professional-level concepts.
+2. `01-basics` to `04-ownership-borrowing` → fundamentals and ownership mastery.
+3. `05-structs-enums` to `10-iterators-closures` → idiomatic Rust building blocks.
+4. `11-modules-crates` to `17-advanced-rust` → professional-level concepts.
 5. `18-projects` → capstone implementations.
 
 ## How to run exercises

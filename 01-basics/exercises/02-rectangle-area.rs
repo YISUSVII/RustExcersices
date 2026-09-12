@@ -1,6 +1,10 @@
 fn area(width: f64, height: f64) -> f64 {
-    // TODO: reject negative numbers by returning 0.0 or handling with Result in bonus
-    width * height
+    // TODO bonus: return Result instead of 0.0 for invalid dimensions
+    if width < 0.0 || height < 0.0 {
+        0.0
+    } else {
+        width * height
+    }
 }
 
 fn main() {
