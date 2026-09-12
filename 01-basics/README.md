@@ -34,12 +34,12 @@ let arr = [1, 2, 3, 4];
 
 ## Exercises
 
-- Temperature converter
-- Rectangle area calculator
-- Basic calculator
-- Unit converter
-
-See `exercises/` for detailed prompts.
+| # | Exercise | Starter |
+| - | -------- | ------- |
+| 01 | Temperature converter | `exercises/01-temperature-converter.rs` |
+| 02 | Rectangle area | `exercises/02-rectangle-area.rs` |
+| 03 | Basic calculator | `exercises/03-basic-calculator.rs` |
+| 04 | Unit converter | `exercises/04-unit-converter.rs` |
 
 ## Hints
 

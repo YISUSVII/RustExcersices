@@ -31,11 +31,11 @@ for i in 1..=5 {
 
 ## Exercises
 
-- FizzBuzz
-- Fibonacci sequence
-- Prime checker
-
-See `exercises/`.
+| # | Exercise | Starter |
+| - | -------- | ------- |
+| 05 | FizzBuzz | `exercises/05-fizzbuzz.rs` |
+| 06 | Fibonacci | `exercises/06-fibonacci.rs` |
+| 07 | Prime checker | `exercises/07-prime-checker.rs` |
 
 ## Hints
 

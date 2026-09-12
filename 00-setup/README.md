@@ -37,9 +37,11 @@ fn main() {
 
 ## Exercises
 
-1. **Install and verify**: Install Rust and confirm `rustc --version` and `cargo --version` work.
-2. **First project**: Create `hello_rust` and run it.
-3. **Tooling drill**: Run `cargo check`, `cargo fmt`, and `cargo clippy`.
+| # | Exercise | Path |
+| - | -------- | ---- |
+| 00a | Install and verify | `exercises/00a-install-verify.md` |
+| 00b | First project checklist | `exercises/00b-first-project.md` |
+| 00c | Hello starter (optional in-repo) | `exercises/00c-hello-rust/` |
 
 ## Hints
 

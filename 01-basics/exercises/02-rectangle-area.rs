@@ -1,10 +1,7 @@
 fn area(width: f64, height: f64) -> f64 {
-    // TODO bonus: return Result instead of 0.0 for invalid dimensions
-    if width < 0.0 || height < 0.0 {
-        0.0
-    } else {
-        width * height
-    }
+    // TODO: return 0.0 for negative dimensions, otherwise width * height
+    let _ = (width, height);
+    unimplemented!("Implement area")
 }
 
 fn main() {

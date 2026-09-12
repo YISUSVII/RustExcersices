@@ -48,6 +48,12 @@ fn first_word(s: &str) -> &str {
 
 See `exercises/`.
 
+| # | Exercise | Starter |
+| - | -------- | ------- |
+| 09 | Move vs Clone | `exercises/09-move-vs-clone.rs` |
+| 10 | Mutable Borrowing | `exercises/10-mutable-borrowing.rs` |
+| 11 | Safe String Slices | `exercises/11-string-slices.rs` |
+
 ## Hints
 
 - Read compiler errors fully; they usually explain the exact rule violated.

@@ -34,9 +34,9 @@ fn main() {
 
 ## Exercises
 
-- Break a mini calculator into reusable functions
-
-See `exercises/`.
+| # | Exercise | Starter |
+| - | -------- | ------- |
+| 08 | Reusable calculator | `exercises/08-reusable-calculator.rs` |
 
 ## Hints
 
