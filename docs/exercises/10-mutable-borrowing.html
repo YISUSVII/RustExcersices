@@ -19,7 +19,7 @@
   <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
   <div class="top-actions">
     <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
-    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <a class="top-link" href="https://github.com/YISUSVII/rust-study" target="_blank" rel="noopener">GitHub</a>
     <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
   </div>
 </header>
@@ -162,7 +162,7 @@
     <span class="code-actions">
       <button class="btn small copy-btn" type="button">Copy</button>
       <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=fn%20main%28%29%20%7B%0A%20%20%20%20let%20mut%20text%20%3D%20String%3A%3Afrom%28%22Rust%22%29%3B%0A%20%20%20%20let%20len_ref%20%3D%20%26text%3B%0A%0A%20%20%20%20//%20Intentional%20broken%20line%20for%20learning%20%28E0502%29%3A%0A%20%20%20%20text.push_str%28%22%20language%22%29%3B%0A%0A%20%20%20%20println%21%28%22Length%20before%20update%3A%20%7B%7D%22%2C%20len_ref.len%28%29%29%3B%0A%20%20%20%20println%21%28%22Updated%20text%3A%20%7Btext%7D%22%29%3B%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
-      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/04-ownership-borrowing/exercises/10-mutable-borrowing.rs" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/rust-study/blob/main/04-ownership-borrowing/exercises/10-mutable-borrowing.rs" target="_blank" rel="noopener">GitHub</a>
     </span>
   </div>
   <pre class="code" data-lang="rust"><code><span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
@@ -186,7 +186,7 @@
     <span class="code-actions">
       <button class="btn small copy-btn" type="button">Copy</button>
       <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=fn%20append_suffix%28text%3A%20%26mut%20String%2C%20suffix%3A%20%26str%29%20%7B%0A%20%20%20%20text.push_str%28suffix%29%3B%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20mut%20text%20%3D%20String%3A%3Afrom%28%22Rust%22%29%3B%0A%0A%20%20%20%20let%20before_len%20%3D%20text.len%28%29%3B%0A%20%20%20%20append_suffix%28%26mut%20text%2C%20%22%20language%22%29%3B%0A%0A%20%20%20%20println%21%28%22Length%20before%20update%3A%20%7Bbefore_len%7D%22%29%3B%0A%20%20%20%20println%21%28%22Updated%20text%3A%20%7Btext%7D%22%29%3B%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
-      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/04-ownership-borrowing/10-mutable-borrowing.rs" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/rust-study/blob/main/solutions/04-ownership-borrowing/10-mutable-borrowing.rs" target="_blank" rel="noopener">GitHub</a>
     </span>
   </div>
   <pre class="code" data-lang="rust"><code><span class="tok-keyword">fn</span> <span class="tok-fn">append_suffix</span>(text: &amp;<span class="tok-keyword">mut</span> <span class="tok-type">String</span>, suffix: &amp;<span class="tok-type">str</span>) {
@@ -211,7 +211,7 @@
 </section>
 <nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/09-move-vs-clone.html"><small>← Previous</small>09 · Move vs Clone</a><a class="pager-link next" href="../exercises/11-user-model.html"><small>Next →</small>11 · User Model</a></nav>
 </article>
-<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/rust-study" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
 </main>
 </div>
 <script src="../assets/app.js"></script>

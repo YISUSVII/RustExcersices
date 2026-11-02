@@ -18,10 +18,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
-REPO_URL = "https://github.com/YISUSVII/RustExcersices"
+REPO_URL = "https://github.com/YISUSVII/rust-study"
 BRANCH = "main"
 SITE_TITLE = "Rust Study — Zero → Ninja"
-SITE_BASE = "/RustExcersices/"
+SITE_BASE = "/rust-study/"
 BLOG_URL = "https://yisusvii.github.io/"
 LEVEL_RE = re.compile(r"^(\d\d)-[a-z0-9-]+$")
 EXERCISE_RE = re.compile(r"^(\d\d)-([a-z0-9-]+)\.md$")

@@ -19,7 +19,7 @@
   <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
   <div class="top-actions">
     <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
-    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <a class="top-link" href="https://github.com/YISUSVII/rust-study" target="_blank" rel="noopener">GitHub</a>
     <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
   </div>
 </header>
@@ -162,7 +162,7 @@
     <span class="code-actions">
       <button class="btn small copy-btn" type="button">Copy</button>
       <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=fn%20is_prime%28n%3A%20u64%29%20-%3E%20bool%20%7B%0A%20%20%20%20if%20n%20%3C%202%20%7B%0A%20%20%20%20%20%20%20%20return%20false%3B%0A%20%20%20%20%7D%0A%20%20%20%20if%20n%20%3D%3D%202%20%7B%0A%20%20%20%20%20%20%20%20return%20true%3B%0A%20%20%20%20%7D%0A%20%20%20%20if%20n%20%25%202%20%3D%3D%200%20%7B%0A%20%20%20%20%20%20%20%20return%20false%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20let%20mut%20d%20%3D%203_u64%3B%0A%20%20%20%20while%20d%20%2A%20d%20%3C%3D%20n%20%7B%0A%20%20%20%20%20%20%20%20if%20n%20%25%20d%20%3D%3D%200%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20false%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20d%20%2B%3D%202%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20true%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20for%20n%20in%20%5B2%2C%204%2C%2013%2C%2025%5D%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%7Bn%7D%3A%20%7B%7D%22%2C%20is_prime%28n%29%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
-      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/02-control-flow/exercises/07-prime-checker.rs" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/rust-study/blob/main/02-control-flow/exercises/07-prime-checker.rs" target="_blank" rel="noopener">GitHub</a>
     </span>
   </div>
   <pre class="code" data-lang="rust"><code><span class="tok-keyword">fn</span> <span class="tok-fn">is_prime</span>(n: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">bool</span> {
@@ -203,7 +203,7 @@
     <span class="code-actions">
       <button class="btn small copy-btn" type="button">Copy</button>
       <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=fn%20is_prime%28n%3A%20u64%29%20-%3E%20bool%20%7B%0A%20%20%20%20if%20n%20%3C%202%20%7B%0A%20%20%20%20%20%20%20%20return%20false%3B%0A%20%20%20%20%7D%0A%20%20%20%20if%20n%20%3D%3D%202%20%7B%0A%20%20%20%20%20%20%20%20return%20true%3B%0A%20%20%20%20%7D%0A%20%20%20%20if%20n%20%25%202%20%3D%3D%200%20%7B%0A%20%20%20%20%20%20%20%20return%20false%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20let%20mut%20d%20%3D%203_u64%3B%0A%20%20%20%20while%20d%20%2A%20d%20%3C%3D%20n%20%7B%0A%20%20%20%20%20%20%20%20if%20n%20%25%20d%20%3D%3D%200%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20false%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20d%20%2B%3D%202%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20true%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20for%20n%20in%20%5B2%2C%204%2C%2013%2C%2025%5D%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%7Bn%7D%3A%20%7B%7D%22%2C%20is_prime%28n%29%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
-      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/02-control-flow/07-prime-checker.rs" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/rust-study/blob/main/solutions/02-control-flow/07-prime-checker.rs" target="_blank" rel="noopener">GitHub</a>
     </span>
   </div>
   <pre class="code" data-lang="rust"><code><span class="tok-keyword">fn</span> <span class="tok-fn">is_prime</span>(n: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">bool</span> {
@@ -242,7 +242,7 @@
 </section>
 <nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/06-fibonacci.html"><small>← Previous</small>06 · Fibonacci Sequence</a><a class="pager-link next" href="../exercises/08-reusable-calculator.html"><small>Next →</small>08 · Reusable Functions Calculator</a></nav>
 </article>
-<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/rust-study" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
 </main>
 </div>
 <script src="../assets/app.js"></script>

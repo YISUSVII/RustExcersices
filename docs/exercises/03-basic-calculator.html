@@ -19,7 +19,7 @@
   <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
   <div class="top-actions">
     <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
-    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <a class="top-link" href="https://github.com/YISUSVII/rust-study" target="_blank" rel="noopener">GitHub</a>
     <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
   </div>
 </header>
@@ -162,7 +162,7 @@
     <span class="code-actions">
       <button class="btn small copy-btn" type="button">Copy</button>
       <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=fn%20add%28a%3A%20i32%2C%20b%3A%20i32%29%20-%3E%20i32%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20%28a%2C%20b%29%3B%0A%20%20%20%20unimplemented%21%28%22Implement%20add%22%29%0A%7D%0A%0Afn%20sub%28a%3A%20i32%2C%20b%3A%20i32%29%20-%3E%20i32%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20%28a%2C%20b%29%3B%0A%20%20%20%20unimplemented%21%28%22Implement%20sub%22%29%0A%7D%0A%0Afn%20mul%28a%3A%20i32%2C%20b%3A%20i32%29%20-%3E%20i32%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20%28a%2C%20b%29%3B%0A%20%20%20%20unimplemented%21%28%22Implement%20mul%22%29%0A%7D%0A%0Afn%20div%28a%3A%20i32%2C%20b%3A%20i32%29%20-%3E%20Option%3Ci32%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20return%20None%20when%20b%20%3D%3D%200%0A%20%20%20%20let%20_%20%3D%20%28a%2C%20b%29%3B%0A%20%20%20%20unimplemented%21%28%22Implement%20div%22%29%0A%7D%0A%0Afn%20calculate%28a%3A%20i32%2C%20b%3A%20i32%2C%20op%3A%20char%29%20-%3E%20Option%3Ci32%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20route%20operators%20to%20add/sub/mul/div%20functions%0A%20%20%20%20//%20Suggested%20behavior%20for%20operators%3A%0A%20%20%20%20//%20%27%2B%27%20%3D%3E%20Some%28add%28a%2C%20b%29%29%0A%20%20%20%20//%20%27-%27%20%3D%3E%20Some%28sub%28a%2C%20b%29%29%0A%20%20%20%20//%20%27%2A%27%20%3D%3E%20Some%28mul%28a%2C%20b%29%29%0A%20%20%20%20//%20%27/%27%20%3D%3E%20div%28a%2C%20b%29%0A%20%20%20%20let%20_%20%3D%20%28a%2C%20b%2C%20op%29%3B%0A%20%20%20%20unimplemented%21%28%22Implement%20calculate%20using%20reusable%20functions%22%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20println%21%28%22%7B%3A%3F%7D%22%2C%20calculate%288%2C%202%2C%20%27/%27%29%29%3B%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
-      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/01-basics/exercises/03-basic-calculator.rs" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/rust-study/blob/main/01-basics/exercises/03-basic-calculator.rs" target="_blank" rel="noopener">GitHub</a>
     </span>
   </div>
   <pre class="code" data-lang="rust"><code><span class="tok-keyword">fn</span> <span class="tok-fn">add</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>) -&gt; <span class="tok-type">i32</span> {
@@ -214,7 +214,7 @@
     <span class="code-actions">
       <button class="btn small copy-btn" type="button">Copy</button>
       <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=fn%20calculate%28a%3A%20i32%2C%20b%3A%20i32%2C%20op%3A%20char%29%20-%3E%20Option%3Ci32%3E%20%7B%0A%20%20%20%20match%20op%20%7B%0A%20%20%20%20%20%20%20%20%27%2B%27%20%3D%3E%20Some%28a%20%2B%20b%29%2C%0A%20%20%20%20%20%20%20%20%27-%27%20%3D%3E%20Some%28a%20-%20b%29%2C%0A%20%20%20%20%20%20%20%20%27%2A%27%20%3D%3E%20Some%28a%20%2A%20b%29%2C%0A%20%20%20%20%20%20%20%20%27/%27%20if%20b%20%21%3D%200%20%3D%3E%20Some%28a%20/%20b%29%2C%0A%20%20%20%20%20%20%20%20_%20%3D%3E%20None%2C%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20println%21%28%22%7B%3A%3F%7D%22%2C%20calculate%288%2C%202%2C%20%27/%27%29%29%3B%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
-      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/01-basics/03-basic-calculator.rs" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/rust-study/blob/main/solutions/01-basics/03-basic-calculator.rs" target="_blank" rel="noopener">GitHub</a>
     </span>
   </div>
   <pre class="code" data-lang="rust"><code><span class="tok-keyword">fn</span> <span class="tok-fn">calculate</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>, op: <span class="tok-type">char</span>) -&gt; <span class="tok-type">Option</span>&lt;<span class="tok-type">i32</span>&gt; {
@@ -239,7 +239,7 @@
 </section>
 <nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/02-rectangle-area.html"><small>← Previous</small>02 · Rectangle Area Calculator</a><a class="pager-link next" href="../exercises/04-unit-converter.html"><small>Next →</small>04 · Unit Converter</a></nav>
 </article>
-<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/rust-study" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
 </main>
 </div>
 <script src="../assets/app.js"></script>

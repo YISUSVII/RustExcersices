@@ -4,7 +4,7 @@ A practical, progressive Rust course repository designed to take you from **abso
 
 This repo is focused on **learning Rust by building** (not interview drills or DevOps-heavy content).
 
-🌐 **Browse the course online:** <https://yisusvii.github.io/RustExcersices/> — navigate every chapter, read each exercise, and explore starter code and reference solutions (with one-click Rust Playground links).
+🌐 **Browse the course online:** <https://yisusvii.github.io/rust-study/> — navigate every chapter, read each exercise, and explore starter code and reference solutions (with one-click Rust Playground links).
 
 ## Prerequisites
 
@@ -130,7 +130,7 @@ python3 scripts/build_site.py        # regenerate docs/
 python3 -m http.server -d docs 8000  # preview at http://localhost:8000
 ```
 
-The `Validate exercises and deploy site` workflow (`.github/workflows/pages.yml`) runs the checks on every pull request and deploys `docs/` to GitHub Pages on pushes to `main`. In **Settings → Pages**, set the source to **GitHub Actions**. Pages serves a project site at `/<repository-name>/`, so `SITE_BASE` in `scripts/build_site.py` must match the repository name (`/RustExcersices/`) for the site to live at `https://yisusvii.github.io/RustExcersices/`.
+The `Validate exercises and deploy site` workflow (`.github/workflows/pages.yml`) runs the checks on every pull request and deploys `docs/` to GitHub Pages on pushes to `main`. In **Settings → Pages**, set the source to **GitHub Actions**. Pages serves a project site at `/<repository-name>/`, so `SITE_BASE` in `scripts/build_site.py` must match the repository name (`/rust-study/`) for the site to live at `https://yisusvii.github.io/rust-study/`.
 
 ## Progress checklist
 
