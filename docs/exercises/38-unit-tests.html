@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>38 · Unit Tests · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Write a thorough unit-test suite for already-implemented functions, covering happy paths, edge cases, error values and expected panics.">
+<meta property="og:title" content="38 · Unit Tests · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Write a thorough unit-test suite for already-implemented functions, covering happy paths, edge cases, error values and expected panics.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/12-testing.html">Level 12 — Testing</a><span>/</span><span>Exercise 38</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 38 · Level 12 — Testing</div>
+  <h1>Unit Tests</h1>
+  <p class="lead">Write a thorough unit-test suite for already-implemented functions, covering happy paths, edge cases, error values and expected panics.</p>
+  <div class="meta"><span class="badge diff-intermediate">Intermediate</span><span class="chip">`#[cfg(test)]`</span><span class="chip">`#[test]`</span><span class="chip">`assert!`</span><span class="chip">`assert_eq!`</span><span class="chip">`assert_ne!`</span><span class="chip">custom failure messages</span><span class="chip">`#[should_panic(expected = &quot;...&quot;)]`</span><span class="chip">tests returning `Result&lt;()</span><span class="chip">E&gt;`</span><span class="chip">`use super::*`</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="38"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<p>The starter file already contains working implementations of:</p>
+<ul><li><code>is_palindrome(s: &amp;str) -&gt; bool</code> — ignores case and non-alphanumeric characters.</li><li><code>divide(a: i32, b: i32) -&gt; Result&lt;i32, String&gt;</code> — errors on division by zero and on overflow (<code>i32::MIN / -1</code>).</li><li><code>parse_rgb(hex: &amp;str) -&gt; Result&lt;(u8, u8, u8), String&gt;</code> — parses <code>"#rrggbb"</code> (the <code>#</code> is optional).</li><li><code>BoundedStack&lt;T&gt;</code> with <code>new(capacity: usize) -&gt; Self</code> (<strong>panics</strong> if <code>capacity == 0</code>), <code>push(&amp;mut self, item: T) -&gt; Result&lt;(), T&gt;</code>, <code>pop(&amp;mut self) -&gt; Option&lt;T&gt;</code>, <code>peek(&amp;self) -&gt; Option&lt;&amp;T&gt;</code>, <code>len(&amp;self) -&gt; usize</code>, <code>is_empty(&amp;self) -&gt; bool</code>.</li></ul>
+<p>Your job is to replace every <code>todo!()</code> in the <code>#[cfg(test)] mod tests</code> block:</p>
+<ol><li><code>palindrome_ignores_case_and_punctuation</code> — at least one positive and one negative case, with a custom message on the negative assertion.</li><li><code>palindrome_edge_cases</code> — empty string, punctuation-only string, a unicode word.</li><li><code>divide_happy_path_truncates_toward_zero</code> — check <code>7 / 2</code> and <code>-7 / 2</code>.</li><li><code>divide_reports_errors</code> — division by zero (exact message) and overflow (message <em>contains</em> <code>"overflow"</code>).</li><li><code>parse_rgb_with_and_without_hash</code> — make the test return <code>Result&lt;(), String&gt;</code> and use <code>?</code> instead of <code>unwrap()</code>.</li><li><code>parse_rgb_rejects_bad_input</code> — wrong length, non-hex digits, non-ASCII input.</li><li><code>stack_is_lifo_and_bounded</code> — fill the stack, assert <code>push</code> hands the item back when full, then check <code>peek</code>, <code>len</code> and LIFO <code>pop</code> order down to <code>None</code>.</li><li><code>stack_with_zero_capacity_panics</code> — add <code>#[should_panic(expected = "capacity must be greater than zero")]</code>.</li></ol>
+<p>Run your tests with:</p>
+<pre class="code" data-lang="bash"><code>rustc --edition 2021 --test 38-unit-tests.rs -o unit_tests &amp;&amp; ./unit_tests
+# or, inside a Cargo project:
+cargo test</code></pre>
+<h2 id="expected-behavior">Expected behavior</h2>
+<ul><li>Before you start: <code>test result: FAILED. 0 passed; 8 failed</code>.</li><li>When you finish: <code>test result: ok. 8 passed; 0 failed</code>.</li><li>Temporarily break an implementation (e.g. change <code>checked_div</code> to <code>/</code>) and confirm at least one test fails with a clear message.</li></ul>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li><code>assert!(cond, "message with {}", value)</code> — the message is only built when the assertion fails.</li><li><code>assert_eq!(left, right)</code> prints both values on failure; your types need <code>Debug</code> + <code>PartialEq</code>.</li><li><code>unwrap_err()</code> is handy to inspect an error message: <code>assert!(err.contains("overflow"))</code>.</li><li>A test returning <code>Result</code> fails if it returns <code>Err</code>; you cannot combine that with <code>#[should_panic]</code>.</li><li>Filter tests by name: <code>./unit_tests divide</code> runs only tests whose name contains <code>divide</code>.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<ul><li>Add a deliberately slow test marked <code>#[ignore]</code> and run it with <code>./unit_tests --ignored</code>.</li><li>Move the tests into a Cargo project's <code>tests/</code> folder as an <strong>integration test</strong> — what has to become <code>pub</code>?</li></ul></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">12-testing/exercises/38-unit-tests.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=///%20Returns%20true%20if%20%60s%60%20reads%20the%20same%20forwards%20and%20backwards%2C%0A///%20ignoring%20case%20and%20any%20non-alphanumeric%20characters.%0Afn%20is_palindrome%28s%3A%20%26str%29%20-%3E%20bool%20%7B%0A%20%20%20%20let%20cleaned%3A%20Vec%3Cchar%3E%20%3D%20s%0A%20%20%20%20%20%20%20%20.chars%28%29%0A%20%20%20%20%20%20%20%20.filter%28%7Cc%7C%20c.is_alphanumeric%28%29%29%0A%20%20%20%20%20%20%20%20.flat_map%28char%3A%3Ato_lowercase%29%0A%20%20%20%20%20%20%20%20.collect%28%29%3B%0A%20%20%20%20cleaned.iter%28%29.eq%28cleaned.iter%28%29.rev%28%29%29%0A%7D%0A%0A///%20Integer%20division%20that%20reports%20errors%20instead%20of%20panicking.%0Afn%20divide%28a%3A%20i32%2C%20b%3A%20i32%29%20-%3E%20Result%3Ci32%2C%20String%3E%20%7B%0A%20%20%20%20if%20b%20%3D%3D%200%20%7B%0A%20%20%20%20%20%20%20%20return%20Err%28%22division%20by%20zero%22.to_string%28%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20a.checked_div%28b%29%0A%20%20%20%20%20%20%20%20.ok_or_else%28%7C%7C%20format%21%28%22overflow%20dividing%20%7Ba%7D%20by%20%7Bb%7D%22%29%29%0A%7D%0A%0A///%20Parses%20a%20hex%20color%20like%20%22%23ff8800%22%20%28the%20%60%23%60%20is%20optional%29.%0Afn%20parse_rgb%28hex%3A%20%26str%29%20-%3E%20Result%3C%28u8%2C%20u8%2C%20u8%29%2C%20String%3E%20%7B%0A%20%20%20%20let%20digits%20%3D%20hex.strip_prefix%28%27%23%27%29.unwrap_or%28hex%29%3B%0A%20%20%20%20if%20digits.len%28%29%20%21%3D%206%20%7C%7C%20%21digits.is_ascii%28%29%20%7B%0A%20%20%20%20%20%20%20%20return%20Err%28format%21%28%22expected%206%20hex%20digits%2C%20got%20%27%7Bhex%7D%27%22%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20let%20channel%20%3D%20%7Crange%3A%20std%3A%3Aops%3A%3ARange%3Cusize%3E%7C%20%7B%0A%20%20%20%20%20%20%20%20u8%3A%3Afrom_str_radix%28%26digits%5Brange%5D%2C%2016%29.map_err%28%7Ce%7C%20format%21%28%22invalid%20hex%20in%20%27%7Bhex%7D%27%3A%20%7Be%7D%22%29%29%0A%20%20%20%20%7D%3B%0A%20%20%20%20Ok%28%28channel%280..2%29%3F%2C%20channel%282..4%29%3F%2C%20channel%284..6%29%3F%29%29%0A%7D%0A%0A///%20A%20stack%20with%20a%20fixed%20maximum%20size.%0A%23%5Bderive%28Debug%29%5D%0Astruct%20BoundedStack%3CT%3E%20%7B%0A%20%20%20%20items%3A%20Vec%3CT%3E%2C%0A%20%20%20%20capacity%3A%20usize%2C%0A%7D%0A%0Aimpl%3CT%3E%20BoundedStack%3CT%3E%20%7B%0A%20%20%20%20///%20%23%20Panics%0A%20%20%20%20///%20Panics%20if%20%60capacity%60%20is%20zero%20%E2%80%94%20that%20is%20a%20programming%20error%2C%20not%20a%20runtime%20condition.%0A%20%20%20%20fn%20new%28capacity%3A%20usize%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28capacity%20%3E%200%2C%20%22capacity%20must%20be%20greater%20than%20zero%22%29%3B%0A%20%20%20%20%20%20%20%20Self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20items%3A%20Vec%3A%3Awith_capacity%28capacity%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20capacity%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20///%20Pushes%20an%20item%2C%20handing%20it%20back%20as%20%60Err%28item%29%60%20when%20the%20stack%20is%20full.%0A%20%20%20%20fn%20push%28%26mut%20self%2C%20item%3A%20T%29%20-%3E%20Result%3C%28%29%2C%20T%3E%20%7B%0A%20%20%20%20%20%20%20%20if%20self.items.len%28%29%20%3D%3D%20self.capacity%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20Err%28item%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20self.items.push%28item%29%3B%0A%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20pop%28%26mut%20self%29%20-%3E%20Option%3CT%3E%20%7B%0A%20%20%20%20%20%20%20%20self.items.pop%28%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20peek%28%26self%29%20-%3E%20Option%3C%26T%3E%20%7B%0A%20%20%20%20%20%20%20%20self.items.last%28%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20len%28%26self%29%20-%3E%20usize%20%7B%0A%20%20%20%20%20%20%20%20self.items.len%28%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20is_empty%28%26self%29%20-%3E%20bool%20%7B%0A%20%20%20%20%20%20%20%20self.items.is_empty%28%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22is_palindrome%28%5C%22A%20man%2C%20a%20plan%2C%20a%20canal%3A%20Panama%5C%22%29%20%3D%20%7B%7D%22%2C%0A%20%20%20%20%20%20%20%20is_palindrome%28%22A%20man%2C%20a%20plan%2C%20a%20canal%3A%20Panama%22%29%0A%20%20%20%20%29%3B%0A%20%20%20%20println%21%28%22divide%287%2C%202%29%20%3D%20%7B%3A%3F%7D%22%2C%20divide%287%2C%202%29%29%3B%0A%20%20%20%20println%21%28%22divide%281%2C%200%29%20%3D%20%7B%3A%3F%7D%22%2C%20divide%281%2C%200%29%29%3B%0A%20%20%20%20println%21%28%22divide%28i32%3A%3AMIN%2C%20-1%29%20%3D%20%7B%3A%3F%7D%22%2C%20divide%28i32%3A%3AMIN%2C%20-1%29%29%3B%0A%20%20%20%20println%21%28%22parse_rgb%28%5C%22%23ff8800%5C%22%29%20%3D%20%7B%3A%3F%7D%22%2C%20parse_rgb%28%22%23ff8800%22%29%29%3B%0A%20%20%20%20println%21%28%22parse_rgb%28%5C%22%23zz0000%5C%22%29%20%3D%20%7B%3A%3F%7D%22%2C%20parse_rgb%28%22%23zz0000%22%29%29%3B%0A%0A%20%20%20%20let%20mut%20stack%20%3D%20BoundedStack%3A%3Anew%282%29%3B%0A%20%20%20%20println%21%28%22push%201%20-%3E%20%7B%3A%3F%7D%22%2C%20stack.push%281%29%29%3B%0A%20%20%20%20println%21%28%22push%202%20-%3E%20%7B%3A%3F%7D%22%2C%20stack.push%282%29%29%3B%0A%20%20%20%20println%21%28%22push%203%20-%3E%20%7B%3A%3F%7D%20%28full%29%22%2C%20stack.push%283%29%29%3B%0A%20%20%20%20println%21%28%22peek%20-%3E%20%7B%3A%3F%7D%2C%20len%20-%3E%20%7B%7D%22%2C%20stack.peek%28%29%2C%20stack.len%28%29%29%3B%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22pop%20-%3E%20%7B%3A%3F%7D%2C%20pop%20-%3E%20%7B%3A%3F%7D%2C%20pop%20-%3E%20%7B%3A%3F%7D%22%2C%0A%20%20%20%20%20%20%20%20stack.pop%28%29%2C%0A%20%20%20%20%20%20%20%20stack.pop%28%29%2C%0A%20%20%20%20%20%20%20%20stack.pop%28%29%0A%20%20%20%20%29%3B%0A%20%20%20%20println%21%28%22is_empty%20-%3E%20%7B%7D%22%2C%20stack.is_empty%28%29%29%3B%0A%7D%0A%0A//%20The%20functions%20above%20are%20already%20implemented.%20Your%20job%20is%20to%20write%20the%20tests.%0A//%20Run%20them%20with%3A%0A//%20%20%20rustc%20--edition%202021%20--test%2038-unit-tests.rs%20-o%20unit_tests%20%26%26%20./unit_tests%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20palindrome_ignores_case_and_punctuation%28%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20assert%20that%20%22A%20man%2C%20a%20plan%2C%20a%20canal%3A%20Panama%22%20and%20%22Racecar%22%20are%20palindromes%0A%20%20%20%20%20%20%20%20//%20%20%20%20%20%20%20and%20that%20%22hello%22%20is%20not%20%28add%20a%20custom%20failure%20message%29.%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20is_palindrome%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22write%20assertions%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20palindrome_edge_cases%28%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20empty%20string%2C%20punctuation-only%20string%2C%20unicode%20letters%0A%20%20%20%20%20%20%20%20todo%21%28%22write%20assertions%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20divide_happy_path_truncates_toward_zero%28%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%207%20/%202%20and%20-7%20/%202%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20divide%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22write%20assertions%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20divide_reports_errors%28%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20division%20by%20zero%20and%20i32%3A%3AMIN%20/%20-1%20%28check%20the%20message%20contains%20%22overflow%22%29%0A%20%20%20%20%20%20%20%20todo%21%28%22write%20assertions%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20parse_rgb_with_and_without_hash%28%29%20-%3E%20Result%3C%28%29%2C%20String%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20use%20%60%3F%60%20instead%20of%20unwrap%2C%20e.g.%20assert_eq%21%28parse_rgb%28%22%23ff8800%22%29%3F%2C%20%28255%2C%20136%2C%200%29%29%3B%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20parse_rgb%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22write%20assertions%2C%20then%20return%20Ok%28%28%29%29%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20parse_rgb_rejects_bad_input%28%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20too%20short%2C%20invalid%20hex%20digits%2C%20non-ASCII%20input%0A%20%20%20%20%20%20%20%20todo%21%28%22write%20assertions%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20stack_is_lifo_and_bounded%28%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20push%20until%20full%2C%20check%20push%20returns%20Err%28item%29%2C%20then%20peek/len/pop%20in%20LIFO%20order%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20BoundedStack%3A%3A%3Ci32%3E%3A%3Anew%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22write%20assertions%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20TODO%3A%20add%20%23%5Bshould_panic%28expected%20%3D%20%22...%22%29%5D%20so%20this%20test%20passes%20when%20%60new%280%29%60%20panics.%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20stack_with_zero_capacity_panics%28%29%20%7B%0A%20%20%20%20%20%20%20%20todo%21%28%22call%20BoundedStack%3A%3A%3Cu8%3E%3A%3Anew%280%29%22%29%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/12-testing/exercises/38-unit-tests.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-comment">/// Returns true if `s` reads the same forwards and backwards,</span>
+<span class="tok-comment">/// ignoring case and any non-alphanumeric characters.</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">is_palindrome</span>(s: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">bool</span> {
+    <span class="tok-keyword">let</span> cleaned: <span class="tok-type">Vec</span>&lt;<span class="tok-type">char</span>&gt; = s
+        .<span class="tok-fn">chars</span>()
+        .<span class="tok-fn">filter</span>(|c| c.<span class="tok-fn">is_alphanumeric</span>())
+        .<span class="tok-fn">flat_map</span>(<span class="tok-type">char</span>::to_lowercase)
+        .<span class="tok-fn">collect</span>();
+    cleaned.<span class="tok-fn">iter</span>().<span class="tok-fn">eq</span>(cleaned.<span class="tok-fn">iter</span>().<span class="tok-fn">rev</span>())
+}
+
+<span class="tok-comment">/// Integer division that reports errors instead of panicking.</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">divide</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">i32</span>, <span class="tok-type">String</span>&gt; {
+    <span class="tok-keyword">if</span> b == <span class="tok-number">0</span> {
+        <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-string">"division by zero"</span>.<span class="tok-fn">to_string</span>());
+    }
+    a.<span class="tok-fn">checked_div</span>(b)
+        .<span class="tok-fn">ok_or_else</span>(|| <span class="tok-macro">format!</span>(<span class="tok-string">"overflow dividing {a} by {b}"</span>))
+}
+
+<span class="tok-comment">/// Parses a hex color like "#ff8800" (the `#` is optional).</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">parse_rgb</span>(hex: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;(<span class="tok-type">u8</span>, <span class="tok-type">u8</span>, <span class="tok-type">u8</span>), <span class="tok-type">String</span>&gt; {
+    <span class="tok-keyword">let</span> digits = hex.<span class="tok-fn">strip_prefix</span>(<span class="tok-string">'#'</span>).<span class="tok-fn">unwrap_or</span>(hex);
+    <span class="tok-keyword">if</span> digits.<span class="tok-fn">len</span>() != <span class="tok-number">6</span> || !digits.<span class="tok-fn">is_ascii</span>() {
+        <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-macro">format!</span>(<span class="tok-string">"expected 6 hex digits, got '{hex}'"</span>));
+    }
+    <span class="tok-keyword">let</span> channel = |range: std::ops::<span class="tok-type">Range</span>&lt;<span class="tok-type">usize</span>&gt;| {
+        <span class="tok-type">u8</span>::<span class="tok-fn">from_str_radix</span>(&amp;digits[range], <span class="tok-number">16</span>).<span class="tok-fn">map_err</span>(|e| <span class="tok-macro">format!</span>(<span class="tok-string">"invalid hex in '{hex}': {e}"</span>))
+    };
+    <span class="tok-type">Ok</span>((<span class="tok-fn">channel</span>(<span class="tok-number">0</span>..<span class="tok-number">2</span>)?, <span class="tok-fn">channel</span>(<span class="tok-number">2</span>..<span class="tok-number">4</span>)?, <span class="tok-fn">channel</span>(<span class="tok-number">4</span>..<span class="tok-number">6</span>)?))
+}
+
+<span class="tok-comment">/// A stack with a fixed maximum size.</span>
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">BoundedStack</span>&lt;<span class="tok-type">T</span>&gt; {
+    items: <span class="tok-type">Vec</span>&lt;<span class="tok-type">T</span>&gt;,
+    capacity: <span class="tok-type">usize</span>,
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">T</span>&gt; <span class="tok-type">BoundedStack</span>&lt;<span class="tok-type">T</span>&gt; {
+    <span class="tok-comment">/// # Panics</span>
+    <span class="tok-comment">/// Panics if `capacity` is zero — that is a programming error, not a runtime condition.</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(capacity: <span class="tok-type">usize</span>) -&gt; <span class="tok-keyword">Self</span> {
+        <span class="tok-macro">assert!</span>(capacity &gt; <span class="tok-number">0</span>, <span class="tok-string">"capacity must be greater than zero"</span>);
+        <span class="tok-keyword">Self</span> {
+            items: <span class="tok-type">Vec</span>::<span class="tok-fn">with_capacity</span>(capacity),
+            capacity,
+        }
+    }
+
+    <span class="tok-comment">/// Pushes an item, handing it back as `Err(item)` when the stack is full.</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">push</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, item: <span class="tok-type">T</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">T</span>&gt; {
+        <span class="tok-keyword">if</span> <span class="tok-keyword">self</span>.items.<span class="tok-fn">len</span>() == <span class="tok-keyword">self</span>.capacity {
+            <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(item);
+        }
+        <span class="tok-keyword">self</span>.items.<span class="tok-fn">push</span>(item);
+        <span class="tok-type">Ok</span>(())
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">pop</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>) -&gt; <span class="tok-type">Option</span>&lt;<span class="tok-type">T</span>&gt; {
+        <span class="tok-keyword">self</span>.items.<span class="tok-fn">pop</span>()
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">peek</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">Option</span>&lt;&amp;<span class="tok-type">T</span>&gt; {
+        <span class="tok-keyword">self</span>.items.<span class="tok-fn">last</span>()
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">len</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">usize</span> {
+        <span class="tok-keyword">self</span>.items.<span class="tok-fn">len</span>()
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">is_empty</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">bool</span> {
+        <span class="tok-keyword">self</span>.items.<span class="tok-fn">is_empty</span>()
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"is_palindrome(\"A man, a plan, a canal: Panama\") = {}"</span>,
+        <span class="tok-fn">is_palindrome</span>(<span class="tok-string">"A man, a plan, a canal: Panama"</span>)
+    );
+    <span class="tok-macro">println!</span>(<span class="tok-string">"divide(7, 2) = {:?}"</span>, <span class="tok-fn">divide</span>(<span class="tok-number">7</span>, <span class="tok-number">2</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"divide(1, 0) = {:?}"</span>, <span class="tok-fn">divide</span>(<span class="tok-number">1</span>, <span class="tok-number">0</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"divide(i32::MIN, -1) = {:?}"</span>, <span class="tok-fn">divide</span>(<span class="tok-type">i32</span>::<span class="tok-type">MIN</span>, -<span class="tok-number">1</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"parse_rgb(\"#ff8800\") = {:?}"</span>, <span class="tok-fn">parse_rgb</span>(<span class="tok-string">"#ff8800"</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"parse_rgb(\"#zz0000\") = {:?}"</span>, <span class="tok-fn">parse_rgb</span>(<span class="tok-string">"#zz0000"</span>));
+
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> stack = <span class="tok-type">BoundedStack</span>::<span class="tok-fn">new</span>(<span class="tok-number">2</span>);
+    <span class="tok-macro">println!</span>(<span class="tok-string">"push 1 -&gt; {:?}"</span>, stack.<span class="tok-fn">push</span>(<span class="tok-number">1</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"push 2 -&gt; {:?}"</span>, stack.<span class="tok-fn">push</span>(<span class="tok-number">2</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"push 3 -&gt; {:?} (full)"</span>, stack.<span class="tok-fn">push</span>(<span class="tok-number">3</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"peek -&gt; {:?}, len -&gt; {}"</span>, stack.<span class="tok-fn">peek</span>(), stack.<span class="tok-fn">len</span>());
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"pop -&gt; {:?}, pop -&gt; {:?}, pop -&gt; {:?}"</span>,
+        stack.<span class="tok-fn">pop</span>(),
+        stack.<span class="tok-fn">pop</span>(),
+        stack.<span class="tok-fn">pop</span>()
+    );
+    <span class="tok-macro">println!</span>(<span class="tok-string">"is_empty -&gt; {}"</span>, stack.<span class="tok-fn">is_empty</span>());
+}
+
+<span class="tok-comment">// The functions above are already implemented. Your job is to write the tests.</span>
+<span class="tok-comment">// Run them with:</span>
+<span class="tok-comment">//   rustc --edition 2021 --test 38-unit-tests.rs -o unit_tests &amp;&amp; ./unit_tests</span>
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">palindrome_ignores_case_and_punctuation</span>() {
+        <span class="tok-comment">// TODO: assert that "A man, a plan, a canal: Panama" and "Racecar" are palindromes</span>
+        <span class="tok-comment">//       and that "hello" is not (add a custom failure message).</span>
+        <span class="tok-keyword">let</span> _ = is_palindrome;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"write assertions"</span>)
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">palindrome_edge_cases</span>() {
+        <span class="tok-comment">// TODO: empty string, punctuation-only string, unicode letters</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"write assertions"</span>)
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">divide_happy_path_truncates_toward_zero</span>() {
+        <span class="tok-comment">// TODO: 7 / 2 and -7 / 2</span>
+        <span class="tok-keyword">let</span> _ = divide;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"write assertions"</span>)
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">divide_reports_errors</span>() {
+        <span class="tok-comment">// TODO: division by zero and i32::MIN / -1 (check the message contains "overflow")</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"write assertions"</span>)
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">parse_rgb_with_and_without_hash</span>() -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">String</span>&gt; {
+        <span class="tok-comment">// TODO: use `?` instead of unwrap, e.g. assert_eq!(parse_rgb("#ff8800")?, (255, 136, 0));</span>
+        <span class="tok-keyword">let</span> _ = parse_rgb;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"write assertions, then return Ok(())"</span>)
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">parse_rgb_rejects_bad_input</span>() {
+        <span class="tok-comment">// TODO: too short, invalid hex digits, non-ASCII input</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"write assertions"</span>)
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">stack_is_lifo_and_bounded</span>() {
+        <span class="tok-comment">// TODO: push until full, check push returns Err(item), then peek/len/pop in LIFO order</span>
+        <span class="tok-keyword">let</span> _ = <span class="tok-type">BoundedStack</span>::&lt;<span class="tok-type">i32</span>&gt;::new;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"write assertions"</span>)
+    }
+
+    <span class="tok-comment">// TODO: add #[should_panic(expected = "...")] so this test passes when `new(0)` panics.</span>
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">stack_with_zero_capacity_panics</span>() {
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"call BoundedStack::&lt;u8&gt;::new(0)"</span>)
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/12-testing/38-unit-tests.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=///%20Returns%20true%20if%20%60s%60%20reads%20the%20same%20forwards%20and%20backwards%2C%0A///%20ignoring%20case%20and%20any%20non-alphanumeric%20characters.%0Afn%20is_palindrome%28s%3A%20%26str%29%20-%3E%20bool%20%7B%0A%20%20%20%20let%20cleaned%3A%20Vec%3Cchar%3E%20%3D%20s%0A%20%20%20%20%20%20%20%20.chars%28%29%0A%20%20%20%20%20%20%20%20.filter%28%7Cc%7C%20c.is_alphanumeric%28%29%29%0A%20%20%20%20%20%20%20%20.flat_map%28char%3A%3Ato_lowercase%29%0A%20%20%20%20%20%20%20%20.collect%28%29%3B%0A%20%20%20%20cleaned.iter%28%29.eq%28cleaned.iter%28%29.rev%28%29%29%0A%7D%0A%0A///%20Integer%20division%20that%20reports%20errors%20instead%20of%20panicking.%0Afn%20divide%28a%3A%20i32%2C%20b%3A%20i32%29%20-%3E%20Result%3Ci32%2C%20String%3E%20%7B%0A%20%20%20%20if%20b%20%3D%3D%200%20%7B%0A%20%20%20%20%20%20%20%20return%20Err%28%22division%20by%20zero%22.to_string%28%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20a.checked_div%28b%29%0A%20%20%20%20%20%20%20%20.ok_or_else%28%7C%7C%20format%21%28%22overflow%20dividing%20%7Ba%7D%20by%20%7Bb%7D%22%29%29%0A%7D%0A%0A///%20Parses%20a%20hex%20color%20like%20%22%23ff8800%22%20%28the%20%60%23%60%20is%20optional%29.%0Afn%20parse_rgb%28hex%3A%20%26str%29%20-%3E%20Result%3C%28u8%2C%20u8%2C%20u8%29%2C%20String%3E%20%7B%0A%20%20%20%20let%20digits%20%3D%20hex.strip_prefix%28%27%23%27%29.unwrap_or%28hex%29%3B%0A%20%20%20%20if%20digits.len%28%29%20%21%3D%206%20%7C%7C%20%21digits.is_ascii%28%29%20%7B%0A%20%20%20%20%20%20%20%20return%20Err%28format%21%28%22expected%206%20hex%20digits%2C%20got%20%27%7Bhex%7D%27%22%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20let%20channel%20%3D%20%7Crange%3A%20std%3A%3Aops%3A%3ARange%3Cusize%3E%7C%20%7B%0A%20%20%20%20%20%20%20%20u8%3A%3Afrom_str_radix%28%26digits%5Brange%5D%2C%2016%29.map_err%28%7Ce%7C%20format%21%28%22invalid%20hex%20in%20%27%7Bhex%7D%27%3A%20%7Be%7D%22%29%29%0A%20%20%20%20%7D%3B%0A%20%20%20%20Ok%28%28channel%280..2%29%3F%2C%20channel%282..4%29%3F%2C%20channel%284..6%29%3F%29%29%0A%7D%0A%0A///%20A%20stack%20with%20a%20fixed%20maximum%20size.%0A%23%5Bderive%28Debug%29%5D%0Astruct%20BoundedStack%3CT%3E%20%7B%0A%20%20%20%20items%3A%20Vec%3CT%3E%2C%0A%20%20%20%20capacity%3A%20usize%2C%0A%7D%0A%0Aimpl%3CT%3E%20BoundedStack%3CT%3E%20%7B%0A%20%20%20%20///%20%23%20Panics%0A%20%20%20%20///%20Panics%20if%20%60capacity%60%20is%20zero%20%E2%80%94%20that%20is%20a%20programming%20error%2C%20not%20a%20runtime%20condition.%0A%20%20%20%20fn%20new%28capacity%3A%20usize%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28capacity%20%3E%200%2C%20%22capacity%20must%20be%20greater%20than%20zero%22%29%3B%0A%20%20%20%20%20%20%20%20Self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20items%3A%20Vec%3A%3Awith_capacity%28capacity%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20capacity%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20///%20Pushes%20an%20item%2C%20handing%20it%20back%20as%20%60Err%28item%29%60%20when%20the%20stack%20is%20full.%0A%20%20%20%20fn%20push%28%26mut%20self%2C%20item%3A%20T%29%20-%3E%20Result%3C%28%29%2C%20T%3E%20%7B%0A%20%20%20%20%20%20%20%20if%20self.items.len%28%29%20%3D%3D%20self.capacity%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20Err%28item%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20self.items.push%28item%29%3B%0A%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20pop%28%26mut%20self%29%20-%3E%20Option%3CT%3E%20%7B%0A%20%20%20%20%20%20%20%20self.items.pop%28%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20peek%28%26self%29%20-%3E%20Option%3C%26T%3E%20%7B%0A%20%20%20%20%20%20%20%20self.items.last%28%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20len%28%26self%29%20-%3E%20usize%20%7B%0A%20%20%20%20%20%20%20%20self.items.len%28%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20is_empty%28%26self%29%20-%3E%20bool%20%7B%0A%20%20%20%20%20%20%20%20self.items.is_empty%28%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22is_palindrome%28%5C%22A%20man%2C%20a%20plan%2C%20a%20canal%3A%20Panama%5C%22%29%20%3D%20%7B%7D%22%2C%0A%20%20%20%20%20%20%20%20is_palindrome%28%22A%20man%2C%20a%20plan%2C%20a%20canal%3A%20Panama%22%29%0A%20%20%20%20%29%3B%0A%20%20%20%20println%21%28%22divide%287%2C%202%29%20%3D%20%7B%3A%3F%7D%22%2C%20divide%287%2C%202%29%29%3B%0A%20%20%20%20println%21%28%22divide%281%2C%200%29%20%3D%20%7B%3A%3F%7D%22%2C%20divide%281%2C%200%29%29%3B%0A%20%20%20%20println%21%28%22divide%28i32%3A%3AMIN%2C%20-1%29%20%3D%20%7B%3A%3F%7D%22%2C%20divide%28i32%3A%3AMIN%2C%20-1%29%29%3B%0A%20%20%20%20println%21%28%22parse_rgb%28%5C%22%23ff8800%5C%22%29%20%3D%20%7B%3A%3F%7D%22%2C%20parse_rgb%28%22%23ff8800%22%29%29%3B%0A%20%20%20%20println%21%28%22parse_rgb%28%5C%22%23zz0000%5C%22%29%20%3D%20%7B%3A%3F%7D%22%2C%20parse_rgb%28%22%23zz0000%22%29%29%3B%0A%0A%20%20%20%20let%20mut%20stack%20%3D%20BoundedStack%3A%3Anew%282%29%3B%0A%20%20%20%20println%21%28%22push%201%20-%3E%20%7B%3A%3F%7D%22%2C%20stack.push%281%29%29%3B%0A%20%20%20%20println%21%28%22push%202%20-%3E%20%7B%3A%3F%7D%22%2C%20stack.push%282%29%29%3B%0A%20%20%20%20println%21%28%22push%203%20-%3E%20%7B%3A%3F%7D%20%28full%29%22%2C%20stack.push%283%29%29%3B%0A%20%20%20%20println%21%28%22peek%20-%3E%20%7B%3A%3F%7D%2C%20len%20-%3E%20%7B%7D%22%2C%20stack.peek%28%29%2C%20stack.len%28%29%29%3B%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22pop%20-%3E%20%7B%3A%3F%7D%2C%20pop%20-%3E%20%7B%3A%3F%7D%2C%20pop%20-%3E%20%7B%3A%3F%7D%22%2C%0A%20%20%20%20%20%20%20%20stack.pop%28%29%2C%0A%20%20%20%20%20%20%20%20stack.pop%28%29%2C%0A%20%20%20%20%20%20%20%20stack.pop%28%29%0A%20%20%20%20%29%3B%0A%20%20%20%20println%21%28%22is_empty%20-%3E%20%7B%7D%22%2C%20stack.is_empty%28%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20//%20---%20is_palindrome%20-------------------------------------------------------%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20palindrome_ignores_case_and_punctuation%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28is_palindrome%28%22A%20man%2C%20a%20plan%2C%20a%20canal%3A%20Panama%22%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28is_palindrome%28%22Racecar%22%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%21is_palindrome%28%22hello%22%29%2C%20%22%27hello%27%20is%20not%20a%20palindrome%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20palindrome_edge_cases%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28is_palindrome%28%22%22%29%2C%20%22empty%20string%20counts%20as%20a%20palindrome%22%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28is_palindrome%28%22%21%21%21%22%29%2C%20%22punctuation-only%20reduces%20to%20empty%22%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28is_palindrome%28%22%C3%89t%C3%89%22%29%2C%20%22unicode%20letters%20are%20supported%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20---%20divide%20--------------------------------------------------------------%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20divide_happy_path_truncates_toward_zero%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28divide%287%2C%202%29%2C%20Ok%283%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28divide%28-7%2C%202%29%2C%20Ok%28-3%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20divide_reports_errors%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28divide%281%2C%200%29%2C%20Err%28%22division%20by%20zero%22.to_string%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20let%20err%20%3D%20divide%28i32%3A%3AMIN%2C%20-1%29.unwrap_err%28%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28err.contains%28%22overflow%22%29%2C%20%22unexpected%20message%3A%20%7Berr%7D%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20---%20parse_rgb%3A%20Result-returning%20tests%20can%20use%20%60%3F%60%20-----------------------%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20parse_rgb_with_and_without_hash%28%29%20-%3E%20Result%3C%28%29%2C%20String%3E%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28parse_rgb%28%22%23ff8800%22%29%3F%2C%20%28255%2C%20136%2C%200%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28parse_rgb%28%22000000%22%29%3F%2C%20%280%2C%200%2C%200%29%29%3B%0A%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20parse_rgb_rejects_bad_input%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28parse_rgb%28%22%23fff%22%29.is_err%28%29%2C%20%22too%20short%22%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28parse_rgb%28%22%23zz0000%22%29.is_err%28%29%2C%20%22not%20hex%22%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28parse_rgb%28%22%23ff%C3%A9000%22%29.is_err%28%29%2C%20%22non-ascii%20must%20not%20panic%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20---%20BoundedStack%20--------------------------------------------------------%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20stack_is_lifo_and_bounded%28%29%20-%3E%20Result%3C%28%29%2C%20i32%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20stack%20%3D%20BoundedStack%3A%3Anew%282%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28stack.is_empty%28%29%29%3B%0A%20%20%20%20%20%20%20%20stack.push%281%29%3F%3B%0A%20%20%20%20%20%20%20%20stack.push%282%29%3F%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28stack.push%283%29%2C%20Err%283%29%2C%20%22full%20stack%20must%20hand%20the%20item%20back%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28stack.peek%28%29%2C%20Some%28%262%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28stack.len%28%29%2C%202%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28stack.pop%28%29%2C%20Some%282%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28stack.pop%28%29%2C%20Some%281%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28stack.pop%28%29%2C%20None%29%3B%0A%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20%23%5Bshould_panic%28expected%20%3D%20%22capacity%20must%20be%20greater%20than%20zero%22%29%5D%0A%20%20%20%20fn%20stack_with_zero_capacity_panics%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20BoundedStack%3A%3A%3Cu8%3E%3A%3Anew%280%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/12-testing/38-unit-tests.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-comment">/// Returns true if `s` reads the same forwards and backwards,</span>
+<span class="tok-comment">/// ignoring case and any non-alphanumeric characters.</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">is_palindrome</span>(s: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">bool</span> {
+    <span class="tok-keyword">let</span> cleaned: <span class="tok-type">Vec</span>&lt;<span class="tok-type">char</span>&gt; = s
+        .<span class="tok-fn">chars</span>()
+        .<span class="tok-fn">filter</span>(|c| c.<span class="tok-fn">is_alphanumeric</span>())
+        .<span class="tok-fn">flat_map</span>(<span class="tok-type">char</span>::to_lowercase)
+        .<span class="tok-fn">collect</span>();
+    cleaned.<span class="tok-fn">iter</span>().<span class="tok-fn">eq</span>(cleaned.<span class="tok-fn">iter</span>().<span class="tok-fn">rev</span>())
+}
+
+<span class="tok-comment">/// Integer division that reports errors instead of panicking.</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">divide</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">i32</span>, <span class="tok-type">String</span>&gt; {
+    <span class="tok-keyword">if</span> b == <span class="tok-number">0</span> {
+        <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-string">"division by zero"</span>.<span class="tok-fn">to_string</span>());
+    }
+    a.<span class="tok-fn">checked_div</span>(b)
+        .<span class="tok-fn">ok_or_else</span>(|| <span class="tok-macro">format!</span>(<span class="tok-string">"overflow dividing {a} by {b}"</span>))
+}
+
+<span class="tok-comment">/// Parses a hex color like "#ff8800" (the `#` is optional).</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">parse_rgb</span>(hex: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;(<span class="tok-type">u8</span>, <span class="tok-type">u8</span>, <span class="tok-type">u8</span>), <span class="tok-type">String</span>&gt; {
+    <span class="tok-keyword">let</span> digits = hex.<span class="tok-fn">strip_prefix</span>(<span class="tok-string">'#'</span>).<span class="tok-fn">unwrap_or</span>(hex);
+    <span class="tok-keyword">if</span> digits.<span class="tok-fn">len</span>() != <span class="tok-number">6</span> || !digits.<span class="tok-fn">is_ascii</span>() {
+        <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-macro">format!</span>(<span class="tok-string">"expected 6 hex digits, got '{hex}'"</span>));
+    }
+    <span class="tok-keyword">let</span> channel = |range: std::ops::<span class="tok-type">Range</span>&lt;<span class="tok-type">usize</span>&gt;| {
+        <span class="tok-type">u8</span>::<span class="tok-fn">from_str_radix</span>(&amp;digits[range], <span class="tok-number">16</span>).<span class="tok-fn">map_err</span>(|e| <span class="tok-macro">format!</span>(<span class="tok-string">"invalid hex in '{hex}': {e}"</span>))
+    };
+    <span class="tok-type">Ok</span>((<span class="tok-fn">channel</span>(<span class="tok-number">0</span>..<span class="tok-number">2</span>)?, <span class="tok-fn">channel</span>(<span class="tok-number">2</span>..<span class="tok-number">4</span>)?, <span class="tok-fn">channel</span>(<span class="tok-number">4</span>..<span class="tok-number">6</span>)?))
+}
+
+<span class="tok-comment">/// A stack with a fixed maximum size.</span>
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">BoundedStack</span>&lt;<span class="tok-type">T</span>&gt; {
+    items: <span class="tok-type">Vec</span>&lt;<span class="tok-type">T</span>&gt;,
+    capacity: <span class="tok-type">usize</span>,
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">T</span>&gt; <span class="tok-type">BoundedStack</span>&lt;<span class="tok-type">T</span>&gt; {
+    <span class="tok-comment">/// # Panics</span>
+    <span class="tok-comment">/// Panics if `capacity` is zero — that is a programming error, not a runtime condition.</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(capacity: <span class="tok-type">usize</span>) -&gt; <span class="tok-keyword">Self</span> {
+        <span class="tok-macro">assert!</span>(capacity &gt; <span class="tok-number">0</span>, <span class="tok-string">"capacity must be greater than zero"</span>);
+        <span class="tok-keyword">Self</span> {
+            items: <span class="tok-type">Vec</span>::<span class="tok-fn">with_capacity</span>(capacity),
+            capacity,
+        }
+    }
+
+    <span class="tok-comment">/// Pushes an item, handing it back as `Err(item)` when the stack is full.</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">push</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, item: <span class="tok-type">T</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">T</span>&gt; {
+        <span class="tok-keyword">if</span> <span class="tok-keyword">self</span>.items.<span class="tok-fn">len</span>() == <span class="tok-keyword">self</span>.capacity {
+            <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(item);
+        }
+        <span class="tok-keyword">self</span>.items.<span class="tok-fn">push</span>(item);
+        <span class="tok-type">Ok</span>(())
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">pop</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>) -&gt; <span class="tok-type">Option</span>&lt;<span class="tok-type">T</span>&gt; {
+        <span class="tok-keyword">self</span>.items.<span class="tok-fn">pop</span>()
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">peek</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">Option</span>&lt;&amp;<span class="tok-type">T</span>&gt; {
+        <span class="tok-keyword">self</span>.items.<span class="tok-fn">last</span>()
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">len</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">usize</span> {
+        <span class="tok-keyword">self</span>.items.<span class="tok-fn">len</span>()
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">is_empty</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">bool</span> {
+        <span class="tok-keyword">self</span>.items.<span class="tok-fn">is_empty</span>()
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"is_palindrome(\"A man, a plan, a canal: Panama\") = {}"</span>,
+        <span class="tok-fn">is_palindrome</span>(<span class="tok-string">"A man, a plan, a canal: Panama"</span>)
+    );
+    <span class="tok-macro">println!</span>(<span class="tok-string">"divide(7, 2) = {:?}"</span>, <span class="tok-fn">divide</span>(<span class="tok-number">7</span>, <span class="tok-number">2</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"divide(1, 0) = {:?}"</span>, <span class="tok-fn">divide</span>(<span class="tok-number">1</span>, <span class="tok-number">0</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"divide(i32::MIN, -1) = {:?}"</span>, <span class="tok-fn">divide</span>(<span class="tok-type">i32</span>::<span class="tok-type">MIN</span>, -<span class="tok-number">1</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"parse_rgb(\"#ff8800\") = {:?}"</span>, <span class="tok-fn">parse_rgb</span>(<span class="tok-string">"#ff8800"</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"parse_rgb(\"#zz0000\") = {:?}"</span>, <span class="tok-fn">parse_rgb</span>(<span class="tok-string">"#zz0000"</span>));
+
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> stack = <span class="tok-type">BoundedStack</span>::<span class="tok-fn">new</span>(<span class="tok-number">2</span>);
+    <span class="tok-macro">println!</span>(<span class="tok-string">"push 1 -&gt; {:?}"</span>, stack.<span class="tok-fn">push</span>(<span class="tok-number">1</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"push 2 -&gt; {:?}"</span>, stack.<span class="tok-fn">push</span>(<span class="tok-number">2</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"push 3 -&gt; {:?} (full)"</span>, stack.<span class="tok-fn">push</span>(<span class="tok-number">3</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"peek -&gt; {:?}, len -&gt; {}"</span>, stack.<span class="tok-fn">peek</span>(), stack.<span class="tok-fn">len</span>());
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"pop -&gt; {:?}, pop -&gt; {:?}, pop -&gt; {:?}"</span>,
+        stack.<span class="tok-fn">pop</span>(),
+        stack.<span class="tok-fn">pop</span>(),
+        stack.<span class="tok-fn">pop</span>()
+    );
+    <span class="tok-macro">println!</span>(<span class="tok-string">"is_empty -&gt; {}"</span>, stack.<span class="tok-fn">is_empty</span>());
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-comment">// --- is_palindrome -------------------------------------------------------</span>
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">palindrome_ignores_case_and_punctuation</span>() {
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">is_palindrome</span>(<span class="tok-string">"A man, a plan, a canal: Panama"</span>));
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">is_palindrome</span>(<span class="tok-string">"Racecar"</span>));
+        <span class="tok-macro">assert!</span>(!<span class="tok-fn">is_palindrome</span>(<span class="tok-string">"hello"</span>), <span class="tok-string">"'hello' is not a palindrome"</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">palindrome_edge_cases</span>() {
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">is_palindrome</span>(<span class="tok-string">""</span>), <span class="tok-string">"empty string counts as a palindrome"</span>);
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">is_palindrome</span>(<span class="tok-string">"!!!"</span>), <span class="tok-string">"punctuation-only reduces to empty"</span>);
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">is_palindrome</span>(<span class="tok-string">"ÉtÉ"</span>), <span class="tok-string">"unicode letters are supported"</span>);
+    }
+
+    <span class="tok-comment">// --- divide --------------------------------------------------------------</span>
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">divide_happy_path_truncates_toward_zero</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">divide</span>(<span class="tok-number">7</span>, <span class="tok-number">2</span>), <span class="tok-type">Ok</span>(<span class="tok-number">3</span>));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">divide</span>(-<span class="tok-number">7</span>, <span class="tok-number">2</span>), <span class="tok-type">Ok</span>(-<span class="tok-number">3</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">divide_reports_errors</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">divide</span>(<span class="tok-number">1</span>, <span class="tok-number">0</span>), <span class="tok-type">Err</span>(<span class="tok-string">"division by zero"</span>.<span class="tok-fn">to_string</span>()));
+        <span class="tok-keyword">let</span> err = <span class="tok-fn">divide</span>(<span class="tok-type">i32</span>::<span class="tok-type">MIN</span>, -<span class="tok-number">1</span>).<span class="tok-fn">unwrap_err</span>();
+        <span class="tok-macro">assert!</span>(err.<span class="tok-fn">contains</span>(<span class="tok-string">"overflow"</span>), <span class="tok-string">"unexpected message: {err}"</span>);
+    }
+
+    <span class="tok-comment">// --- parse_rgb: Result-returning tests can use `?` -----------------------</span>
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">parse_rgb_with_and_without_hash</span>() -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">String</span>&gt; {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">parse_rgb</span>(<span class="tok-string">"#ff8800"</span>)?, (<span class="tok-number">255</span>, <span class="tok-number">136</span>, <span class="tok-number">0</span>));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">parse_rgb</span>(<span class="tok-string">"000000"</span>)?, (<span class="tok-number">0</span>, <span class="tok-number">0</span>, <span class="tok-number">0</span>));
+        <span class="tok-type">Ok</span>(())
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">parse_rgb_rejects_bad_input</span>() {
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">parse_rgb</span>(<span class="tok-string">"#fff"</span>).<span class="tok-fn">is_err</span>(), <span class="tok-string">"too short"</span>);
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">parse_rgb</span>(<span class="tok-string">"#zz0000"</span>).<span class="tok-fn">is_err</span>(), <span class="tok-string">"not hex"</span>);
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">parse_rgb</span>(<span class="tok-string">"#ffé000"</span>).<span class="tok-fn">is_err</span>(), <span class="tok-string">"non-ascii must not panic"</span>);
+    }
+
+    <span class="tok-comment">// --- BoundedStack --------------------------------------------------------</span>
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">stack_is_lifo_and_bounded</span>() -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">i32</span>&gt; {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> stack = <span class="tok-type">BoundedStack</span>::<span class="tok-fn">new</span>(<span class="tok-number">2</span>);
+        <span class="tok-macro">assert!</span>(stack.<span class="tok-fn">is_empty</span>());
+        stack.<span class="tok-fn">push</span>(<span class="tok-number">1</span>)?;
+        stack.<span class="tok-fn">push</span>(<span class="tok-number">2</span>)?;
+        <span class="tok-macro">assert_eq!</span>(stack.<span class="tok-fn">push</span>(<span class="tok-number">3</span>), <span class="tok-type">Err</span>(<span class="tok-number">3</span>), <span class="tok-string">"full stack must hand the item back"</span>);
+        <span class="tok-macro">assert_eq!</span>(stack.<span class="tok-fn">peek</span>(), <span class="tok-type">Some</span>(&amp;<span class="tok-number">2</span>));
+        <span class="tok-macro">assert_eq!</span>(stack.<span class="tok-fn">len</span>(), <span class="tok-number">2</span>);
+        <span class="tok-macro">assert_eq!</span>(stack.<span class="tok-fn">pop</span>(), <span class="tok-type">Some</span>(<span class="tok-number">2</span>));
+        <span class="tok-macro">assert_eq!</span>(stack.<span class="tok-fn">pop</span>(), <span class="tok-type">Some</span>(<span class="tok-number">1</span>));
+        <span class="tok-macro">assert_eq!</span>(stack.<span class="tok-fn">pop</span>(), <span class="tok-type">None</span>);
+        <span class="tok-type">Ok</span>(())
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-attr">#[should_panic(expected = "capacity must be greater than zero")]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">stack_with_zero_capacity_panics</span>() {
+        <span class="tok-keyword">let</span> _ = <span class="tok-type">BoundedStack</span>::&lt;<span class="tok-type">u8</span>&gt;::<span class="tok-fn">new</span>(<span class="tok-number">0</span>);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 38-unit-tests.rs -o 38-unit-tests &amp;&amp; ./38-unit-tests
+
+# run the unit tests
+rustc --edition 2021 --test 38-unit-tests.rs -o 38-unit-tests-tests &amp;&amp; ./38-unit-tests-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/37-multi-module-project.html"><small>← Previous</small>37 · Multi-Module Project</a><a class="pager-link next" href="../exercises/39-table-driven-tests.html"><small>Next →</small>39 · Table-Driven Tests</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

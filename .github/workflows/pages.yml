@@ -1,0 +1,60 @@
+name: Validate exercises and deploy site
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile, run and test starters and solutions
+        run: python scripts/check_exercises.py
+      - name: Build site
+        run: python scripts/build_site.py
+      - name: Ensure committed docs/ is up to date
+        run: |
+          if [ -n "$(git status --porcelain -- docs)" ]; then
+            git status --short -- docs
+            echo "::error::docs/ is stale. Run 'python3 scripts/build_site.py' and commit the result."
+            exit 1
+          fi
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/build_site.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

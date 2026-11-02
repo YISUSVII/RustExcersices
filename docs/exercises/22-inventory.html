@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>22 · Inventory Manager · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Manage stock levels in a `HashMap` with safe updates and reports.">
+<meta property="og:title" content="22 · Inventory Manager · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Manage stock levels in a `HashMap` with safe updates and reports.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/07-collections.html">Level 7 — Collections and Strings</a><span>/</span><span>Exercise 22</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 22 · Level 7 — Collections and Strings</div>
+  <h1>Inventory Manager</h1>
+  <p class="lead">Manage stock levels in a <code>HashMap</code> with safe updates and reports.</p>
+  <div class="meta"><span class="badge diff-intermediate">Intermediate</span><span class="chip">`HashMap&lt;String</span><span class="chip">Item&gt;`</span><span class="chip">`entry` API</span><span class="chip">`get_mut`</span><span class="chip">`Result` for invalid updates</span><span class="chip">iterator aggregation</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="22"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<p>Items are <code>Item { quantity: u32, price_cents: u64 }</code>. Implement <code>Inventory</code>:</p>
+<ol><li><code>Inventory::new() -&gt; Inventory</code></li><li><code>add(&amp;mut self, name: &amp;str, quantity: u32, price_cents: u64)</code> — insert a new item or increase the quantity of an existing one (and update its price).</li><li><code>remove(&amp;mut self, name: &amp;str, quantity: u32) -&gt; Result&lt;u32, String&gt;</code> — returns the remaining quantity; errors for unknown items or insufficient stock. Remove the entry when it reaches <code>0</code>.</li><li><code>total_value(&amp;self) -&gt; u64</code> — sum of <code>quantity * price_cents</code>.</li><li><code>low_stock(&amp;self, threshold: u32) -&gt; Vec&lt;&amp;str&gt;</code> — names with <code>quantity &lt; threshold</code>, sorted alphabetically.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<pre class="code" data-lang="text"><code>remove 3 apples -&gt; Ok(7)
+remove 5 kiwis -&gt; Err("unknown item: kiwi")
+remove 9 pears -&gt; Err("not enough pear: have 4, requested 9")
+remove 4 pears -&gt; Ok(0)
+total value: $9.80
+low stock (&lt; 8): ["apple", "banana"]</code></pre>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li><code>let item = self.items.get_mut(name).ok_or_else(|| format!(...))?;</code></li><li><code>low_stock</code> can return <code>&amp;str</code> borrowed from the map keys — no clones needed.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Format <code>total_value</code> as dollars with a <code>format_cents(cents: u64) -&gt; String</code> helper.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">07-collections/exercises/22-inventory.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Acollections%3A%3AHashMap%3B%0A%0A%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0Astruct%20Item%20%7B%0A%20%20%20%20quantity%3A%20u32%2C%0A%20%20%20%20price_cents%3A%20u64%2C%0A%7D%0A%0A%23%5Bderive%28Debug%2C%20Default%29%5D%0Astruct%20Inventory%20%7B%0A%20%20%20%20items%3A%20HashMap%3CString%2C%20Item%3E%2C%0A%7D%0A%0Aimpl%20Inventory%20%7B%0A%20%20%20%20fn%20new%28%29%20-%3E%20Inventory%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20todo%21%28%22Return%20an%20empty%20inventory%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20add%28%26mut%20self%2C%20name%3A%20%26str%2C%20quantity%3A%20u32%2C%20price_cents%3A%20u64%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20%28name%2C%20quantity%2C%20price_cents%29%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Use%20entry%28%29.or_insert%28...%29%20then%20bump%20quantity%20and%20set%20the%20price%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20remove%28%26mut%20self%2C%20name%3A%20%26str%2C%20quantity%3A%20u32%29%20-%3E%20Result%3Cu32%2C%20String%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20%28name%2C%20quantity%29%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22get_mut%20%2B%20ok_or_else%2C%20check%20stock%2C%20drop%20the%20entry%20at%200%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20total_value%28%26self%29%20-%3E%20u64%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20todo%21%28%22Sum%20quantity%20%2A%20price_cents%20over%20all%20items%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20low_stock%28%26self%2C%20threshold%3A%20u32%29%20-%3E%20Vec%3C%26str%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20threshold%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Names%20with%20quantity%20%3C%20threshold%2C%20sorted%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20format_cents%28cents%3A%20u64%29%20-%3E%20String%20%7B%0A%20%20%20%20format%21%28%22%24%7B%7D.%7B%3A02%7D%22%2C%20cents%20/%20100%2C%20cents%20%25%20100%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20mut%20inv%20%3D%20Inventory%3A%3Anew%28%29%3B%0A%20%20%20%20inv.add%28%22apple%22%2C%2010%2C%2050%29%3B%0A%20%20%20%20inv.add%28%22banana%22%2C%206%2C%2025%29%3B%0A%20%20%20%20inv.add%28%22pear%22%2C%204%2C%2080%29%3B%0A%20%20%20%20inv.add%28%22orange%22%2C%2012%2C%2040%29%3B%0A%0A%20%20%20%20println%21%28%22remove%203%20apples%20-%3E%20%7B%3A%3F%7D%22%2C%20inv.remove%28%22apple%22%2C%203%29%29%3B%0A%20%20%20%20println%21%28%22remove%205%20kiwis%20-%3E%20%7B%3A%3F%7D%22%2C%20inv.remove%28%22kiwi%22%2C%205%29%29%3B%0A%20%20%20%20println%21%28%22remove%209%20pears%20-%3E%20%7B%3A%3F%7D%22%2C%20inv.remove%28%22pear%22%2C%209%29%29%3B%0A%20%20%20%20println%21%28%22remove%204%20pears%20-%3E%20%7B%3A%3F%7D%22%2C%20inv.remove%28%22pear%22%2C%204%29%29%3B%0A%20%20%20%20println%21%28%22total%20value%3A%20%7B%7D%22%2C%20format_cents%28inv.total_value%28%29%29%29%3B%0A%20%20%20%20println%21%28%22low%20stock%20%28%3C%208%29%3A%20%7B%3A%3F%7D%22%2C%20inv.low_stock%288%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20add_accumulates_quantity%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20inv%20%3D%20Inventory%3A%3Anew%28%29%3B%0A%20%20%20%20%20%20%20%20inv.add%28%22x%22%2C%202%2C%20100%29%3B%0A%20%20%20%20%20%20%20%20inv.add%28%22x%22%2C%203%2C%20120%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20inv.items%5B%22x%22%5D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Item%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20quantity%3A%205%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20price_cents%3A%20120%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20remove_errors_and_cleanup%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20inv%20%3D%20Inventory%3A%3Anew%28%29%3B%0A%20%20%20%20%20%20%20%20inv.add%28%22x%22%2C%202%2C%20100%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28inv.remove%28%22y%22%2C%201%29.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28inv.remove%28%22x%22%2C%203%29.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28inv.remove%28%22x%22%2C%202%29%2C%20Ok%280%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%21inv.items.contains_key%28%22x%22%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20value_and_low_stock%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20inv%20%3D%20Inventory%3A%3Anew%28%29%3B%0A%20%20%20%20%20%20%20%20inv.add%28%22b%22%2C%201%2C%201000%29%3B%0A%20%20%20%20%20%20%20%20inv.add%28%22a%22%2C%202%2C%20250%29%3B%0A%20%20%20%20%20%20%20%20inv.add%28%22c%22%2C%2050%2C%201%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28inv.total_value%28%29%2C%201550%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28inv.low_stock%285%29%2C%20vec%21%5B%22a%22%2C%20%22b%22%5D%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28format_cents%281550%29%2C%20%22%2415.50%22%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/07-collections/exercises/22-inventory.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::collections::<span class="tok-type">HashMap</span>;
+
+<span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Item</span> {
+    quantity: <span class="tok-type">u32</span>,
+    price_cents: <span class="tok-type">u64</span>,
+}
+
+<span class="tok-attr">#[derive(Debug, Default)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Inventory</span> {
+    items: <span class="tok-type">HashMap</span>&lt;<span class="tok-type">String</span>, <span class="tok-type">Item</span>&gt;,
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Inventory</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>() -&gt; <span class="tok-type">Inventory</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Return an empty inventory"</span>)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">add</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, name: &amp;<span class="tok-type">str</span>, quantity: <span class="tok-type">u32</span>, price_cents: <span class="tok-type">u64</span>) {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-keyword">let</span> _ = (name, quantity, price_cents);
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Use entry().or_insert(...) then bump quantity and set the price"</span>)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">remove</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, name: &amp;<span class="tok-type">str</span>, quantity: <span class="tok-type">u32</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">u32</span>, <span class="tok-type">String</span>&gt; {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-keyword">let</span> _ = (name, quantity);
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"get_mut + ok_or_else, check stock, drop the entry at 0"</span>)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">total_value</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">u64</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Sum quantity * price_cents over all items"</span>)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">low_stock</span>(&amp;<span class="tok-keyword">self</span>, threshold: <span class="tok-type">u32</span>) -&gt; <span class="tok-type">Vec</span>&lt;&amp;<span class="tok-type">str</span>&gt; {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-keyword">let</span> _ = threshold;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Names with quantity &lt; threshold, sorted"</span>)
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">format_cents</span>(cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">String</span> {
+    <span class="tok-macro">format!</span>(<span class="tok-string">"${}.{:02}"</span>, cents / <span class="tok-number">100</span>, cents % <span class="tok-number">100</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> inv = <span class="tok-type">Inventory</span>::<span class="tok-fn">new</span>();
+    inv.<span class="tok-fn">add</span>(<span class="tok-string">"apple"</span>, <span class="tok-number">10</span>, <span class="tok-number">50</span>);
+    inv.<span class="tok-fn">add</span>(<span class="tok-string">"banana"</span>, <span class="tok-number">6</span>, <span class="tok-number">25</span>);
+    inv.<span class="tok-fn">add</span>(<span class="tok-string">"pear"</span>, <span class="tok-number">4</span>, <span class="tok-number">80</span>);
+    inv.<span class="tok-fn">add</span>(<span class="tok-string">"orange"</span>, <span class="tok-number">12</span>, <span class="tok-number">40</span>);
+
+    <span class="tok-macro">println!</span>(<span class="tok-string">"remove 3 apples -&gt; {:?}"</span>, inv.<span class="tok-fn">remove</span>(<span class="tok-string">"apple"</span>, <span class="tok-number">3</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"remove 5 kiwis -&gt; {:?}"</span>, inv.<span class="tok-fn">remove</span>(<span class="tok-string">"kiwi"</span>, <span class="tok-number">5</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"remove 9 pears -&gt; {:?}"</span>, inv.<span class="tok-fn">remove</span>(<span class="tok-string">"pear"</span>, <span class="tok-number">9</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"remove 4 pears -&gt; {:?}"</span>, inv.<span class="tok-fn">remove</span>(<span class="tok-string">"pear"</span>, <span class="tok-number">4</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"total value: {}"</span>, <span class="tok-fn">format_cents</span>(inv.<span class="tok-fn">total_value</span>()));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"low stock (&lt; 8): {:?}"</span>, inv.<span class="tok-fn">low_stock</span>(<span class="tok-number">8</span>));
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">add_accumulates_quantity</span>() {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> inv = <span class="tok-type">Inventory</span>::<span class="tok-fn">new</span>();
+        inv.<span class="tok-fn">add</span>(<span class="tok-string">"x"</span>, <span class="tok-number">2</span>, <span class="tok-number">100</span>);
+        inv.<span class="tok-fn">add</span>(<span class="tok-string">"x"</span>, <span class="tok-number">3</span>, <span class="tok-number">120</span>);
+        <span class="tok-macro">assert_eq!</span>(
+            inv.items[<span class="tok-string">"x"</span>],
+            <span class="tok-type">Item</span> {
+                quantity: <span class="tok-number">5</span>,
+                price_cents: <span class="tok-number">120</span>
+            }
+        );
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">remove_errors_and_cleanup</span>() {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> inv = <span class="tok-type">Inventory</span>::<span class="tok-fn">new</span>();
+        inv.<span class="tok-fn">add</span>(<span class="tok-string">"x"</span>, <span class="tok-number">2</span>, <span class="tok-number">100</span>);
+        <span class="tok-macro">assert!</span>(inv.<span class="tok-fn">remove</span>(<span class="tok-string">"y"</span>, <span class="tok-number">1</span>).<span class="tok-fn">is_err</span>());
+        <span class="tok-macro">assert!</span>(inv.<span class="tok-fn">remove</span>(<span class="tok-string">"x"</span>, <span class="tok-number">3</span>).<span class="tok-fn">is_err</span>());
+        <span class="tok-macro">assert_eq!</span>(inv.<span class="tok-fn">remove</span>(<span class="tok-string">"x"</span>, <span class="tok-number">2</span>), <span class="tok-type">Ok</span>(<span class="tok-number">0</span>));
+        <span class="tok-macro">assert!</span>(!inv.items.<span class="tok-fn">contains_key</span>(<span class="tok-string">"x"</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">value_and_low_stock</span>() {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> inv = <span class="tok-type">Inventory</span>::<span class="tok-fn">new</span>();
+        inv.<span class="tok-fn">add</span>(<span class="tok-string">"b"</span>, <span class="tok-number">1</span>, <span class="tok-number">1000</span>);
+        inv.<span class="tok-fn">add</span>(<span class="tok-string">"a"</span>, <span class="tok-number">2</span>, <span class="tok-number">250</span>);
+        inv.<span class="tok-fn">add</span>(<span class="tok-string">"c"</span>, <span class="tok-number">50</span>, <span class="tok-number">1</span>);
+        <span class="tok-macro">assert_eq!</span>(inv.<span class="tok-fn">total_value</span>(), <span class="tok-number">1550</span>);
+        <span class="tok-macro">assert_eq!</span>(inv.<span class="tok-fn">low_stock</span>(<span class="tok-number">5</span>), <span class="tok-macro">vec!</span>[<span class="tok-string">"a"</span>, <span class="tok-string">"b"</span>]);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">format_cents</span>(<span class="tok-number">1550</span>), <span class="tok-string">"$15.50"</span>);
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/07-collections/22-inventory.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Acollections%3A%3AHashMap%3B%0A%0A%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0Astruct%20Item%20%7B%0A%20%20%20%20quantity%3A%20u32%2C%0A%20%20%20%20price_cents%3A%20u64%2C%0A%7D%0A%0A%23%5Bderive%28Debug%2C%20Default%29%5D%0Astruct%20Inventory%20%7B%0A%20%20%20%20items%3A%20HashMap%3CString%2C%20Item%3E%2C%0A%7D%0A%0Aimpl%20Inventory%20%7B%0A%20%20%20%20fn%20new%28%29%20-%3E%20Inventory%20%7B%0A%20%20%20%20%20%20%20%20Inventory%3A%3Adefault%28%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20add%28%26mut%20self%2C%20name%3A%20%26str%2C%20quantity%3A%20u32%2C%20price_cents%3A%20u64%29%20%7B%0A%20%20%20%20%20%20%20%20let%20item%20%3D%20self.items.entry%28name.to_string%28%29%29.or_insert%28Item%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20quantity%3A%200%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20price_cents%2C%0A%20%20%20%20%20%20%20%20%7D%29%3B%0A%20%20%20%20%20%20%20%20item.quantity%20%2B%3D%20quantity%3B%0A%20%20%20%20%20%20%20%20item.price_cents%20%3D%20price_cents%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20remove%28%26mut%20self%2C%20name%3A%20%26str%2C%20quantity%3A%20u32%29%20-%3E%20Result%3Cu32%2C%20String%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20item%20%3D%20self%0A%20%20%20%20%20%20%20%20%20%20%20%20.items%0A%20%20%20%20%20%20%20%20%20%20%20%20.get_mut%28name%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.ok_or_else%28%7C%7C%20format%21%28%22unknown%20item%3A%20%7Bname%7D%22%29%29%3F%3B%0A%20%20%20%20%20%20%20%20if%20quantity%20%3E%20item.quantity%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20Err%28format%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22not%20enough%20%7Bname%7D%3A%20have%20%7B%7D%2C%20requested%20%7Bquantity%7D%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20item.quantity%0A%20%20%20%20%20%20%20%20%20%20%20%20%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20item.quantity%20-%3D%20quantity%3B%0A%20%20%20%20%20%20%20%20let%20remaining%20%3D%20item.quantity%3B%0A%20%20%20%20%20%20%20%20if%20remaining%20%3D%3D%200%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20self.items.remove%28name%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20Ok%28remaining%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20total_value%28%26self%29%20-%3E%20u64%20%7B%0A%20%20%20%20%20%20%20%20self.items%0A%20%20%20%20%20%20%20%20%20%20%20%20.values%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.map%28%7Citem%7C%20u64%3A%3Afrom%28item.quantity%29%20%2A%20item.price_cents%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.sum%28%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20low_stock%28%26self%2C%20threshold%3A%20u32%29%20-%3E%20Vec%3C%26str%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20names%3A%20Vec%3C%26str%3E%20%3D%20self%0A%20%20%20%20%20%20%20%20%20%20%20%20.items%0A%20%20%20%20%20%20%20%20%20%20%20%20.iter%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.filter%28%7C%28_%2C%20item%29%7C%20item.quantity%20%3C%20threshold%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.map%28%7C%28name%2C%20_%29%7C%20name.as_str%28%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.collect%28%29%3B%0A%20%20%20%20%20%20%20%20names.sort_unstable%28%29%3B%0A%20%20%20%20%20%20%20%20names%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20format_cents%28cents%3A%20u64%29%20-%3E%20String%20%7B%0A%20%20%20%20format%21%28%22%24%7B%7D.%7B%3A02%7D%22%2C%20cents%20/%20100%2C%20cents%20%25%20100%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20mut%20inv%20%3D%20Inventory%3A%3Anew%28%29%3B%0A%20%20%20%20inv.add%28%22apple%22%2C%2010%2C%2050%29%3B%0A%20%20%20%20inv.add%28%22banana%22%2C%206%2C%2025%29%3B%0A%20%20%20%20inv.add%28%22pear%22%2C%204%2C%2080%29%3B%0A%20%20%20%20inv.add%28%22orange%22%2C%2012%2C%2040%29%3B%0A%0A%20%20%20%20println%21%28%22remove%203%20apples%20-%3E%20%7B%3A%3F%7D%22%2C%20inv.remove%28%22apple%22%2C%203%29%29%3B%0A%20%20%20%20println%21%28%22remove%205%20kiwis%20-%3E%20%7B%3A%3F%7D%22%2C%20inv.remove%28%22kiwi%22%2C%205%29%29%3B%0A%20%20%20%20println%21%28%22remove%209%20pears%20-%3E%20%7B%3A%3F%7D%22%2C%20inv.remove%28%22pear%22%2C%209%29%29%3B%0A%20%20%20%20println%21%28%22remove%204%20pears%20-%3E%20%7B%3A%3F%7D%22%2C%20inv.remove%28%22pear%22%2C%204%29%29%3B%0A%20%20%20%20println%21%28%22total%20value%3A%20%7B%7D%22%2C%20format_cents%28inv.total_value%28%29%29%29%3B%0A%20%20%20%20println%21%28%22low%20stock%20%28%3C%208%29%3A%20%7B%3A%3F%7D%22%2C%20inv.low_stock%288%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20add_accumulates_quantity%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20inv%20%3D%20Inventory%3A%3Anew%28%29%3B%0A%20%20%20%20%20%20%20%20inv.add%28%22x%22%2C%202%2C%20100%29%3B%0A%20%20%20%20%20%20%20%20inv.add%28%22x%22%2C%203%2C%20120%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20inv.items%5B%22x%22%5D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Item%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20quantity%3A%205%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20price_cents%3A%20120%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20remove_errors_and_cleanup%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20inv%20%3D%20Inventory%3A%3Anew%28%29%3B%0A%20%20%20%20%20%20%20%20inv.add%28%22x%22%2C%202%2C%20100%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28inv.remove%28%22y%22%2C%201%29.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28inv.remove%28%22x%22%2C%203%29.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28inv.remove%28%22x%22%2C%202%29%2C%20Ok%280%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%21inv.items.contains_key%28%22x%22%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20value_and_low_stock%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20inv%20%3D%20Inventory%3A%3Anew%28%29%3B%0A%20%20%20%20%20%20%20%20inv.add%28%22b%22%2C%201%2C%201000%29%3B%0A%20%20%20%20%20%20%20%20inv.add%28%22a%22%2C%202%2C%20250%29%3B%0A%20%20%20%20%20%20%20%20inv.add%28%22c%22%2C%2050%2C%201%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28inv.total_value%28%29%2C%201550%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28inv.low_stock%285%29%2C%20vec%21%5B%22a%22%2C%20%22b%22%5D%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28format_cents%281550%29%2C%20%22%2415.50%22%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/07-collections/22-inventory.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::collections::<span class="tok-type">HashMap</span>;
+
+<span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Item</span> {
+    quantity: <span class="tok-type">u32</span>,
+    price_cents: <span class="tok-type">u64</span>,
+}
+
+<span class="tok-attr">#[derive(Debug, Default)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Inventory</span> {
+    items: <span class="tok-type">HashMap</span>&lt;<span class="tok-type">String</span>, <span class="tok-type">Item</span>&gt;,
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Inventory</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>() -&gt; <span class="tok-type">Inventory</span> {
+        <span class="tok-type">Inventory</span>::<span class="tok-fn">default</span>()
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">add</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, name: &amp;<span class="tok-type">str</span>, quantity: <span class="tok-type">u32</span>, price_cents: <span class="tok-type">u64</span>) {
+        <span class="tok-keyword">let</span> item = <span class="tok-keyword">self</span>.items.<span class="tok-fn">entry</span>(name.<span class="tok-fn">to_string</span>()).<span class="tok-fn">or_insert</span>(<span class="tok-type">Item</span> {
+            quantity: <span class="tok-number">0</span>,
+            price_cents,
+        });
+        item.quantity += quantity;
+        item.price_cents = price_cents;
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">remove</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, name: &amp;<span class="tok-type">str</span>, quantity: <span class="tok-type">u32</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">u32</span>, <span class="tok-type">String</span>&gt; {
+        <span class="tok-keyword">let</span> item = <span class="tok-keyword">self</span>
+            .items
+            .<span class="tok-fn">get_mut</span>(name)
+            .<span class="tok-fn">ok_or_else</span>(|| <span class="tok-macro">format!</span>(<span class="tok-string">"unknown item: {name}"</span>))?;
+        <span class="tok-keyword">if</span> quantity &gt; item.quantity {
+            <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-macro">format!</span>(
+                <span class="tok-string">"not enough {name}: have {}, requested {quantity}"</span>,
+                item.quantity
+            ));
+        }
+        item.quantity -= quantity;
+        <span class="tok-keyword">let</span> remaining = item.quantity;
+        <span class="tok-keyword">if</span> remaining == <span class="tok-number">0</span> {
+            <span class="tok-keyword">self</span>.items.<span class="tok-fn">remove</span>(name);
+        }
+        <span class="tok-type">Ok</span>(remaining)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">total_value</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">u64</span> {
+        <span class="tok-keyword">self</span>.items
+            .<span class="tok-fn">values</span>()
+            .<span class="tok-fn">map</span>(|item| <span class="tok-type">u64</span>::<span class="tok-fn">from</span>(item.quantity) * item.price_cents)
+            .<span class="tok-fn">sum</span>()
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">low_stock</span>(&amp;<span class="tok-keyword">self</span>, threshold: <span class="tok-type">u32</span>) -&gt; <span class="tok-type">Vec</span>&lt;&amp;<span class="tok-type">str</span>&gt; {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> names: <span class="tok-type">Vec</span>&lt;&amp;<span class="tok-type">str</span>&gt; = <span class="tok-keyword">self</span>
+            .items
+            .<span class="tok-fn">iter</span>()
+            .<span class="tok-fn">filter</span>(|(_, item)| item.quantity &lt; threshold)
+            .<span class="tok-fn">map</span>(|(name, _)| name.<span class="tok-fn">as_str</span>())
+            .<span class="tok-fn">collect</span>();
+        names.<span class="tok-fn">sort_unstable</span>();
+        names
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">format_cents</span>(cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">String</span> {
+    <span class="tok-macro">format!</span>(<span class="tok-string">"${}.{:02}"</span>, cents / <span class="tok-number">100</span>, cents % <span class="tok-number">100</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> inv = <span class="tok-type">Inventory</span>::<span class="tok-fn">new</span>();
+    inv.<span class="tok-fn">add</span>(<span class="tok-string">"apple"</span>, <span class="tok-number">10</span>, <span class="tok-number">50</span>);
+    inv.<span class="tok-fn">add</span>(<span class="tok-string">"banana"</span>, <span class="tok-number">6</span>, <span class="tok-number">25</span>);
+    inv.<span class="tok-fn">add</span>(<span class="tok-string">"pear"</span>, <span class="tok-number">4</span>, <span class="tok-number">80</span>);
+    inv.<span class="tok-fn">add</span>(<span class="tok-string">"orange"</span>, <span class="tok-number">12</span>, <span class="tok-number">40</span>);
+
+    <span class="tok-macro">println!</span>(<span class="tok-string">"remove 3 apples -&gt; {:?}"</span>, inv.<span class="tok-fn">remove</span>(<span class="tok-string">"apple"</span>, <span class="tok-number">3</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"remove 5 kiwis -&gt; {:?}"</span>, inv.<span class="tok-fn">remove</span>(<span class="tok-string">"kiwi"</span>, <span class="tok-number">5</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"remove 9 pears -&gt; {:?}"</span>, inv.<span class="tok-fn">remove</span>(<span class="tok-string">"pear"</span>, <span class="tok-number">9</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"remove 4 pears -&gt; {:?}"</span>, inv.<span class="tok-fn">remove</span>(<span class="tok-string">"pear"</span>, <span class="tok-number">4</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"total value: {}"</span>, <span class="tok-fn">format_cents</span>(inv.<span class="tok-fn">total_value</span>()));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"low stock (&lt; 8): {:?}"</span>, inv.<span class="tok-fn">low_stock</span>(<span class="tok-number">8</span>));
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">add_accumulates_quantity</span>() {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> inv = <span class="tok-type">Inventory</span>::<span class="tok-fn">new</span>();
+        inv.<span class="tok-fn">add</span>(<span class="tok-string">"x"</span>, <span class="tok-number">2</span>, <span class="tok-number">100</span>);
+        inv.<span class="tok-fn">add</span>(<span class="tok-string">"x"</span>, <span class="tok-number">3</span>, <span class="tok-number">120</span>);
+        <span class="tok-macro">assert_eq!</span>(
+            inv.items[<span class="tok-string">"x"</span>],
+            <span class="tok-type">Item</span> {
+                quantity: <span class="tok-number">5</span>,
+                price_cents: <span class="tok-number">120</span>
+            }
+        );
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">remove_errors_and_cleanup</span>() {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> inv = <span class="tok-type">Inventory</span>::<span class="tok-fn">new</span>();
+        inv.<span class="tok-fn">add</span>(<span class="tok-string">"x"</span>, <span class="tok-number">2</span>, <span class="tok-number">100</span>);
+        <span class="tok-macro">assert!</span>(inv.<span class="tok-fn">remove</span>(<span class="tok-string">"y"</span>, <span class="tok-number">1</span>).<span class="tok-fn">is_err</span>());
+        <span class="tok-macro">assert!</span>(inv.<span class="tok-fn">remove</span>(<span class="tok-string">"x"</span>, <span class="tok-number">3</span>).<span class="tok-fn">is_err</span>());
+        <span class="tok-macro">assert_eq!</span>(inv.<span class="tok-fn">remove</span>(<span class="tok-string">"x"</span>, <span class="tok-number">2</span>), <span class="tok-type">Ok</span>(<span class="tok-number">0</span>));
+        <span class="tok-macro">assert!</span>(!inv.items.<span class="tok-fn">contains_key</span>(<span class="tok-string">"x"</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">value_and_low_stock</span>() {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> inv = <span class="tok-type">Inventory</span>::<span class="tok-fn">new</span>();
+        inv.<span class="tok-fn">add</span>(<span class="tok-string">"b"</span>, <span class="tok-number">1</span>, <span class="tok-number">1000</span>);
+        inv.<span class="tok-fn">add</span>(<span class="tok-string">"a"</span>, <span class="tok-number">2</span>, <span class="tok-number">250</span>);
+        inv.<span class="tok-fn">add</span>(<span class="tok-string">"c"</span>, <span class="tok-number">50</span>, <span class="tok-number">1</span>);
+        <span class="tok-macro">assert_eq!</span>(inv.<span class="tok-fn">total_value</span>(), <span class="tok-number">1550</span>);
+        <span class="tok-macro">assert_eq!</span>(inv.<span class="tok-fn">low_stock</span>(<span class="tok-number">5</span>), <span class="tok-macro">vec!</span>[<span class="tok-string">"a"</span>, <span class="tok-string">"b"</span>]);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">format_cents</span>(<span class="tok-number">1550</span>), <span class="tok-string">"$15.50"</span>);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 22-inventory.rs -o 22-inventory &amp;&amp; ./22-inventory
+
+# run the unit tests
+rustc --edition 2021 --test 22-inventory.rs -o 22-inventory-tests &amp;&amp; ./22-inventory-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/21-duplicate-remover.html"><small>← Previous</small>21 · Duplicate Remover</a><a class="pager-link next" href="../exercises/23-text-analyzer.html"><small>Next →</small>23 · Text Analyzer</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

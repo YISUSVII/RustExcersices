@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>26 · Signup Form Validation · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Validate raw user input into a trusted type, reporting either the first error or every error.">
+<meta property="og:title" content="26 · Signup Form Validation · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Validate raw user input into a trusted type, reporting either the first error or every error.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/08-error-handling.html">Level 8 — Error Handling</a><span>/</span><span>Exercise 26</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 26 · Level 8 — Error Handling</div>
+  <h1>Signup Form Validation</h1>
+  <p class="lead">Validate raw user input into a trusted type, reporting either the first error or every error.</p>
+  <div class="meta"><span class="badge diff-intermediate">Intermediate</span><span class="chip">&quot;parse</span><span class="chip">don&#x27;t validate&quot;</span><span class="chip">error enums with data</span><span class="chip">`impl Display`</span><span class="chip">`?`</span><span class="chip">collecting multiple errors</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="26"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<p>Raw input arrives as <code>SignupForm&lt;'a&gt; { username: &amp;'a str, email: &amp;'a str, age: &amp;'a str, password: &amp;'a str }</code>.</p>
+<ol><li>Implement one validator per field, each returning <code>Result&lt;_, ValidationError&gt;</code>: - <code>validate_username(&amp;str) -&gt; Result&lt;String, ValidationError&gt;</code> — trimmed, non-empty (<code>EmptyUsername</code>), at most 16 chars (<code>UsernameTooLong { max: 16 }</code>), only alphanumerics or <code>_</code> (<code>InvalidUsernameChar(char)</code>). - <code>validate_email(&amp;str) -&gt; Result&lt;String, ValidationError&gt;</code> — exactly one <code>@</code> with non-empty local part and a domain containing a <code>.</code> (<code>InvalidEmail(String)</code>). - <code>validate_age(&amp;str) -&gt; Result&lt;u8, ValidationError&gt;</code> — must parse (<code>AgeNotANumber(String)</code>) and be in <code>13..=120</code> (<code>AgeOutOfRange(u32)</code>). - <code>validate_password(&amp;str) -&gt; Result&lt;(), ValidationError&gt;</code> — at least 8 chars, one digit, one uppercase letter (<code>WeakPassword(&amp;'static str)</code> with the reason).</li><li>Implement <code>std::fmt::Display</code> for <code>ValidationError</code> with human-readable messages.</li><li>Implement <code>validate(form: &amp;SignupForm) -&gt; Result&lt;ValidUser, ValidationError&gt;</code> — stops at the first error using <code>?</code>.</li><li>Implement <code>validate_all(form: &amp;SignupForm) -&gt; Result&lt;ValidUser, Vec&lt;ValidationError&gt;&gt;</code> — runs every validator and returns all errors at once.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<p>With the sample data in <code>main</code>:</p>
+<pre class="code" data-lang="text"><code>valid: ValidUser { username: "ferris", email: "ferris@rust-lang.org", age: 30 }
+first error: email 'nope' is invalid
+all errors:
+  - username contains invalid character '!'
+  - email 'nope' is invalid
+  - age must be a number, got 'ten'
+  - password is too weak: needs at least 8 characters</code></pre>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li>Validate in <code>validate</code> with <code>let username = validate_username(form.username)?;</code> etc.</li><li>In <code>validate_all</code>, <code>match</code> on each result and push errors into a <code>Vec</code>.</li><li>Parse to <code>u32</code> first so <code>"500"</code> produces <code>AgeOutOfRange(500)</code> instead of a parse error.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Implement <code>std::error::Error</code> for <code>ValidationError</code> and return <code>Box&lt;dyn Error&gt;</code> from a helper.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">08-error-handling/exercises/26-data-validation.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Afmt%3B%0A%0A%23%5Bderive%28Debug%29%5D%0Astruct%20SignupForm%3C%27a%3E%20%7B%0A%20%20%20%20username%3A%20%26%27a%20str%2C%0A%20%20%20%20email%3A%20%26%27a%20str%2C%0A%20%20%20%20age%3A%20%26%27a%20str%2C%0A%20%20%20%20password%3A%20%26%27a%20str%2C%0A%7D%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Astruct%20ValidUser%20%7B%0A%20%20%20%20username%3A%20String%2C%0A%20%20%20%20email%3A%20String%2C%0A%20%20%20%20age%3A%20u8%2C%0A%7D%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Aenum%20ValidationError%20%7B%0A%20%20%20%20EmptyUsername%2C%0A%20%20%20%20UsernameTooLong%20%7B%20max%3A%20usize%20%7D%2C%0A%20%20%20%20InvalidUsernameChar%28char%29%2C%0A%20%20%20%20InvalidEmail%28String%29%2C%0A%20%20%20%20AgeNotANumber%28String%29%2C%0A%20%20%20%20AgeOutOfRange%28u32%29%2C%0A%20%20%20%20WeakPassword%28%26%27static%20str%29%2C%0A%7D%0A%0Aimpl%20fmt%3A%3ADisplay%20for%20ValidationError%20%7B%0A%20%20%20%20fn%20fmt%28%26self%2C%20f%3A%20%26mut%20fmt%3A%3AFormatter%3C%27_%3E%29%20-%3E%20fmt%3A%3AResult%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20f%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22match%20self%20and%20write%21%20a%20human-readable%20message%20for%20each%20variant%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Aconst%20MAX_USERNAME%3A%20usize%20%3D%2016%3B%0A%0Afn%20validate_username%28raw%3A%20%26str%29%20-%3E%20Result%3CString%2C%20ValidationError%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20%28raw%2C%20MAX_USERNAME%29%3B%0A%20%20%20%20todo%21%28%22trim%2C%20then%20check%20empty%20/%20too%20long%20/%20invalid%20characters%22%29%0A%7D%0A%0Afn%20validate_email%28raw%3A%20%26str%29%20-%3E%20Result%3CString%2C%20ValidationError%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20raw%3B%0A%20%20%20%20todo%21%28%22split_once%28%27%40%27%29%20and%20check%20both%20parts%22%29%0A%7D%0A%0Afn%20validate_age%28raw%3A%20%26str%29%20-%3E%20Result%3Cu8%2C%20ValidationError%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20raw%3B%0A%20%20%20%20todo%21%28%22parse%20to%20u32%20with%20map_err%2C%20then%20range-check%2013..%3D120%22%29%0A%7D%0A%0Afn%20validate_password%28raw%3A%20%26str%29%20-%3E%20Result%3C%28%29%2C%20ValidationError%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20raw%3B%0A%20%20%20%20todo%21%28%22length%20%3E%3D%208%2C%20contains%20a%20digit%2C%20contains%20an%20uppercase%20letter%22%29%0A%7D%0A%0Afn%20validate%28form%3A%20%26SignupForm%29%20-%3E%20Result%3CValidUser%2C%20ValidationError%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20form%3B%0A%20%20%20%20todo%21%28%22Call%20each%20validator%20with%20%3F%20and%20build%20ValidUser%22%29%0A%7D%0A%0Afn%20validate_all%28form%3A%20%26SignupForm%29%20-%3E%20Result%3CValidUser%2C%20Vec%3CValidationError%3E%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20form%3B%0A%20%20%20%20todo%21%28%22Run%20every%20validator%20and%20collect%20all%20errors%20into%20a%20Vec%22%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20good%20%3D%20SignupForm%20%7B%0A%20%20%20%20%20%20%20%20username%3A%20%22ferris%22%2C%0A%20%20%20%20%20%20%20%20email%3A%20%22ferris%40rust-lang.org%22%2C%0A%20%20%20%20%20%20%20%20age%3A%20%2230%22%2C%0A%20%20%20%20%20%20%20%20password%3A%20%22Crab1234%22%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20let%20bad_email%20%3D%20SignupForm%20%7B%0A%20%20%20%20%20%20%20%20email%3A%20%22nope%22%2C%0A%20%20%20%20%20%20%20%20..good%0A%20%20%20%20%7D%3B%0A%20%20%20%20let%20all_bad%20%3D%20SignupForm%20%7B%0A%20%20%20%20%20%20%20%20username%3A%20%22ferris%21%22%2C%0A%20%20%20%20%20%20%20%20email%3A%20%22nope%22%2C%0A%20%20%20%20%20%20%20%20age%3A%20%22ten%22%2C%0A%20%20%20%20%20%20%20%20password%3A%20%22short%22%2C%0A%20%20%20%20%7D%3B%0A%0A%20%20%20%20match%20validate%28%26good%29%20%7B%0A%20%20%20%20%20%20%20%20Ok%28user%29%20%3D%3E%20println%21%28%22valid%3A%20%7Buser%3A%3F%7D%22%29%2C%0A%20%20%20%20%20%20%20%20Err%28e%29%20%3D%3E%20println%21%28%22unexpected%20error%3A%20%7Be%7D%22%29%2C%0A%20%20%20%20%7D%0A%20%20%20%20if%20let%20Err%28e%29%20%3D%20validate%28%26bad_email%29%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22first%20error%3A%20%7Be%7D%22%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20if%20let%20Err%28errors%29%20%3D%20validate_all%28%26all_bad%29%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22all%20errors%3A%22%29%3B%0A%20%20%20%20%20%20%20%20for%20e%20in%20errors%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20println%21%28%22%20%20-%20%7Be%7D%22%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20fn%20form%28%29%20-%3E%20SignupForm%3C%27static%3E%20%7B%0A%20%20%20%20%20%20%20%20SignupForm%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20username%3A%20%22ferris%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20email%3A%20%22f%40rust.org%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20age%3A%20%2230%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20password%3A%20%22Crab1234%22%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20valid_form_passes%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20user%20%3D%20validate%28%26form%28%29%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28user.age%2C%2030%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28validate_all%28%26form%28%29%29%2C%20Ok%28user%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20field_validators%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28validate_username%28%22%20%20%22%29%2C%20Err%28ValidationError%3A%3AEmptyUsername%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20validate_username%28%22a_very_long_username%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28ValidationError%3A%3AUsernameTooLong%20%7B%20max%3A%2016%20%7D%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28validate_email%28%22a%40b%22%29.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28validate_email%28%22%40b.com%22%29.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28validate_email%28%22a%40b.com%22%29.is_ok%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20validate_age%28%22500%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28ValidationError%3A%3AAgeOutOfRange%28500%29%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20validate_age%28%22x%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28ValidationError%3A%3AAgeNotANumber%28%22x%22.into%28%29%29%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20validate_password%28%22crab1234%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28ValidationError%3A%3AWeakPassword%28%22needs%20an%20uppercase%20letter%22%29%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20validate_stops_at_first_error%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20f%20%3D%20SignupForm%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20username%3A%20%22%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20age%3A%20%221%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20..form%28%29%0A%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28validate%28%26f%29%2C%20Err%28ValidationError%3A%3AEmptyUsername%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20validate_all_collects_every_error%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20f%20%3D%20SignupForm%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20username%3A%20%22%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20email%3A%20%22x%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20age%3A%20%221%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20password%3A%20%22p%22%2C%0A%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28validate_all%28%26f%29.unwrap_err%28%29.len%28%29%2C%204%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20display_messages%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20ValidationError%3A%3AInvalidEmail%28%22x%22.into%28%29%29.to_string%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22email%20%27x%27%20is%20invalid%22%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/08-error-handling/exercises/26-data-validation.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::fmt;
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">SignupForm</span>&lt;<span class="tok-lifetime">'a</span>&gt; {
+    username: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>,
+    email: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>,
+    age: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>,
+    password: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>,
+}
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">ValidUser</span> {
+    username: <span class="tok-type">String</span>,
+    email: <span class="tok-type">String</span>,
+    age: <span class="tok-type">u8</span>,
+}
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">ValidationError</span> {
+    <span class="tok-type">EmptyUsername</span>,
+    <span class="tok-type">UsernameTooLong</span> { max: <span class="tok-type">usize</span> },
+    <span class="tok-type">InvalidUsernameChar</span>(<span class="tok-type">char</span>),
+    <span class="tok-type">InvalidEmail</span>(<span class="tok-type">String</span>),
+    <span class="tok-type">AgeNotANumber</span>(<span class="tok-type">String</span>),
+    <span class="tok-type">AgeOutOfRange</span>(<span class="tok-type">u32</span>),
+    <span class="tok-type">WeakPassword</span>(&amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>),
+}
+
+<span class="tok-keyword">impl</span> fmt::<span class="tok-type">Display</span> <span class="tok-keyword">for</span> <span class="tok-type">ValidationError</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">fmt</span>(&amp;<span class="tok-keyword">self</span>, f: &amp;<span class="tok-keyword">mut</span> fmt::<span class="tok-type">Formatter</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; fmt::<span class="tok-type">Result</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-keyword">let</span> _ = f;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"match self and write! a human-readable message for each variant"</span>)
+    }
+}
+
+<span class="tok-keyword">const</span> <span class="tok-type">MAX_USERNAME</span>: <span class="tok-type">usize</span> = <span class="tok-number">16</span>;
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">validate_username</span>(raw: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">String</span>, <span class="tok-type">ValidationError</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = (raw, <span class="tok-type">MAX_USERNAME</span>);
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"trim, then check empty / too long / invalid characters"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">validate_email</span>(raw: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">String</span>, <span class="tok-type">ValidationError</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = raw;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"split_once('@') and check both parts"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">validate_age</span>(raw: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">u8</span>, <span class="tok-type">ValidationError</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = raw;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"parse to u32 with map_err, then range-check 13..=120"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">validate_password</span>(raw: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">ValidationError</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = raw;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"length &gt;= 8, contains a digit, contains an uppercase letter"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">validate</span>(form: &amp;<span class="tok-type">SignupForm</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">ValidUser</span>, <span class="tok-type">ValidationError</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = form;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Call each validator with ? and build ValidUser"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">validate_all</span>(form: &amp;<span class="tok-type">SignupForm</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">ValidUser</span>, <span class="tok-type">Vec</span>&lt;<span class="tok-type">ValidationError</span>&gt;&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = form;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Run every validator and collect all errors into a Vec"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> good = <span class="tok-type">SignupForm</span> {
+        username: <span class="tok-string">"ferris"</span>,
+        email: <span class="tok-string">"ferris@rust-lang.org"</span>,
+        age: <span class="tok-string">"30"</span>,
+        password: <span class="tok-string">"Crab1234"</span>,
+    };
+    <span class="tok-keyword">let</span> bad_email = <span class="tok-type">SignupForm</span> {
+        email: <span class="tok-string">"nope"</span>,
+        ..good
+    };
+    <span class="tok-keyword">let</span> all_bad = <span class="tok-type">SignupForm</span> {
+        username: <span class="tok-string">"ferris!"</span>,
+        email: <span class="tok-string">"nope"</span>,
+        age: <span class="tok-string">"ten"</span>,
+        password: <span class="tok-string">"short"</span>,
+    };
+
+    <span class="tok-keyword">match</span> <span class="tok-fn">validate</span>(&amp;good) {
+        <span class="tok-type">Ok</span>(user) =&gt; <span class="tok-macro">println!</span>(<span class="tok-string">"valid: {user:?}"</span>),
+        <span class="tok-type">Err</span>(e) =&gt; <span class="tok-macro">println!</span>(<span class="tok-string">"unexpected error: {e}"</span>),
+    }
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = <span class="tok-fn">validate</span>(&amp;bad_email) {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"first error: {e}"</span>);
+    }
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(errors) = <span class="tok-fn">validate_all</span>(&amp;all_bad) {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"all errors:"</span>);
+        <span class="tok-keyword">for</span> e <span class="tok-keyword">in</span> errors {
+            <span class="tok-macro">println!</span>(<span class="tok-string">"  - {e}"</span>);
+        }
+    }
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">form</span>() -&gt; <span class="tok-type">SignupForm</span>&lt;<span class="tok-lifetime">'static</span>&gt; {
+        <span class="tok-type">SignupForm</span> {
+            username: <span class="tok-string">"ferris"</span>,
+            email: <span class="tok-string">"f@rust.org"</span>,
+            age: <span class="tok-string">"30"</span>,
+            password: <span class="tok-string">"Crab1234"</span>,
+        }
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">valid_form_passes</span>() {
+        <span class="tok-keyword">let</span> user = <span class="tok-fn">validate</span>(&amp;<span class="tok-fn">form</span>()).<span class="tok-fn">unwrap</span>();
+        <span class="tok-macro">assert_eq!</span>(user.age, <span class="tok-number">30</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">validate_all</span>(&amp;<span class="tok-fn">form</span>()), <span class="tok-type">Ok</span>(user));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">field_validators</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">validate_username</span>(<span class="tok-string">"  "</span>), <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">EmptyUsername</span>));
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">validate_username</span>(<span class="tok-string">"a_very_long_username"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">UsernameTooLong</span> { max: <span class="tok-number">16</span> })
+        );
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">validate_email</span>(<span class="tok-string">"a@b"</span>).<span class="tok-fn">is_err</span>());
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">validate_email</span>(<span class="tok-string">"@b.com"</span>).<span class="tok-fn">is_err</span>());
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">validate_email</span>(<span class="tok-string">"a@b.com"</span>).<span class="tok-fn">is_ok</span>());
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">validate_age</span>(<span class="tok-string">"500"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">AgeOutOfRange</span>(<span class="tok-number">500</span>))
+        );
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">validate_age</span>(<span class="tok-string">"x"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">AgeNotANumber</span>(<span class="tok-string">"x"</span>.<span class="tok-fn">into</span>()))
+        );
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">validate_password</span>(<span class="tok-string">"crab1234"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">WeakPassword</span>(<span class="tok-string">"needs an uppercase letter"</span>))
+        );
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">validate_stops_at_first_error</span>() {
+        <span class="tok-keyword">let</span> f = <span class="tok-type">SignupForm</span> {
+            username: <span class="tok-string">""</span>,
+            age: <span class="tok-string">"1"</span>,
+            ..<span class="tok-fn">form</span>()
+        };
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">validate</span>(&amp;f), <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">EmptyUsername</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">validate_all_collects_every_error</span>() {
+        <span class="tok-keyword">let</span> f = <span class="tok-type">SignupForm</span> {
+            username: <span class="tok-string">""</span>,
+            email: <span class="tok-string">"x"</span>,
+            age: <span class="tok-string">"1"</span>,
+            password: <span class="tok-string">"p"</span>,
+        };
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">validate_all</span>(&amp;f).<span class="tok-fn">unwrap_err</span>().<span class="tok-fn">len</span>(), <span class="tok-number">4</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">display_messages</span>() {
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-type">ValidationError</span>::<span class="tok-type">InvalidEmail</span>(<span class="tok-string">"x"</span>.<span class="tok-fn">into</span>()).<span class="tok-fn">to_string</span>(),
+            <span class="tok-string">"email 'x' is invalid"</span>
+        );
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/08-error-handling/26-data-validation.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Aerror%3A%3AError%3B%0Ause%20std%3A%3Afmt%3B%0A%0A%23%5Bderive%28Debug%29%5D%0Astruct%20SignupForm%3C%27a%3E%20%7B%0A%20%20%20%20username%3A%20%26%27a%20str%2C%0A%20%20%20%20email%3A%20%26%27a%20str%2C%0A%20%20%20%20age%3A%20%26%27a%20str%2C%0A%20%20%20%20password%3A%20%26%27a%20str%2C%0A%7D%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Astruct%20ValidUser%20%7B%0A%20%20%20%20username%3A%20String%2C%0A%20%20%20%20email%3A%20String%2C%0A%20%20%20%20age%3A%20u8%2C%0A%7D%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Aenum%20ValidationError%20%7B%0A%20%20%20%20EmptyUsername%2C%0A%20%20%20%20UsernameTooLong%20%7B%20max%3A%20usize%20%7D%2C%0A%20%20%20%20InvalidUsernameChar%28char%29%2C%0A%20%20%20%20InvalidEmail%28String%29%2C%0A%20%20%20%20AgeNotANumber%28String%29%2C%0A%20%20%20%20AgeOutOfRange%28u32%29%2C%0A%20%20%20%20WeakPassword%28%26%27static%20str%29%2C%0A%7D%0A%0Aimpl%20fmt%3A%3ADisplay%20for%20ValidationError%20%7B%0A%20%20%20%20fn%20fmt%28%26self%2C%20f%3A%20%26mut%20fmt%3A%3AFormatter%3C%27_%3E%29%20-%3E%20fmt%3A%3AResult%20%7B%0A%20%20%20%20%20%20%20%20match%20self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20ValidationError%3A%3AEmptyUsername%20%3D%3E%20write%21%28f%2C%20%22username%20must%20not%20be%20empty%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20ValidationError%3A%3AUsernameTooLong%20%7B%20max%20%7D%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20write%21%28f%2C%20%22username%20must%20be%20at%20most%20%7Bmax%7D%20characters%22%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20ValidationError%3A%3AInvalidUsernameChar%28c%29%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20write%21%28f%2C%20%22username%20contains%20invalid%20character%20%27%7Bc%7D%27%22%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20ValidationError%3A%3AInvalidEmail%28email%29%20%3D%3E%20write%21%28f%2C%20%22email%20%27%7Bemail%7D%27%20is%20invalid%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20ValidationError%3A%3AAgeNotANumber%28raw%29%20%3D%3E%20write%21%28f%2C%20%22age%20must%20be%20a%20number%2C%20got%20%27%7Braw%7D%27%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20ValidationError%3A%3AAgeOutOfRange%28age%29%20%3D%3E%20write%21%28f%2C%20%22age%20%7Bage%7D%20is%20outside%2013..%3D120%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20ValidationError%3A%3AWeakPassword%28reason%29%20%3D%3E%20write%21%28f%2C%20%22password%20is%20too%20weak%3A%20%7Breason%7D%22%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Error%20for%20ValidationError%20%7B%7D%0A%0Aconst%20MAX_USERNAME%3A%20usize%20%3D%2016%3B%0A%0Afn%20validate_username%28raw%3A%20%26str%29%20-%3E%20Result%3CString%2C%20ValidationError%3E%20%7B%0A%20%20%20%20let%20name%20%3D%20raw.trim%28%29%3B%0A%20%20%20%20if%20name.is_empty%28%29%20%7B%0A%20%20%20%20%20%20%20%20return%20Err%28ValidationError%3A%3AEmptyUsername%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20if%20name.chars%28%29.count%28%29%20%3E%20MAX_USERNAME%20%7B%0A%20%20%20%20%20%20%20%20return%20Err%28ValidationError%3A%3AUsernameTooLong%20%7B%20max%3A%20MAX_USERNAME%20%7D%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20if%20let%20Some%28bad%29%20%3D%20name.chars%28%29.find%28%7Cc%7C%20%21%28c.is_alphanumeric%28%29%20%7C%7C%20%2Ac%20%3D%3D%20%27_%27%29%29%20%7B%0A%20%20%20%20%20%20%20%20return%20Err%28ValidationError%3A%3AInvalidUsernameChar%28bad%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20Ok%28name.to_string%28%29%29%0A%7D%0A%0Afn%20validate_email%28raw%3A%20%26str%29%20-%3E%20Result%3CString%2C%20ValidationError%3E%20%7B%0A%20%20%20%20let%20email%20%3D%20raw.trim%28%29%3B%0A%20%20%20%20let%20invalid%20%3D%20%7C%7C%20ValidationError%3A%3AInvalidEmail%28email.to_string%28%29%29%3B%0A%20%20%20%20let%20%28local%2C%20domain%29%20%3D%20email.split_once%28%27%40%27%29.ok_or_else%28invalid%29%3F%3B%0A%20%20%20%20let%20domain_ok%20%3D%20domain.contains%28%27.%27%29%20%26%26%20%21domain.starts_with%28%27.%27%29%20%26%26%20%21domain.ends_with%28%27.%27%29%3B%0A%20%20%20%20if%20local.is_empty%28%29%20%7C%7C%20domain.contains%28%27%40%27%29%20%7C%7C%20%21domain_ok%20%7B%0A%20%20%20%20%20%20%20%20return%20Err%28invalid%28%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20Ok%28email.to_string%28%29%29%0A%7D%0A%0Afn%20validate_age%28raw%3A%20%26str%29%20-%3E%20Result%3Cu8%2C%20ValidationError%3E%20%7B%0A%20%20%20%20let%20age%3A%20u32%20%3D%20raw%0A%20%20%20%20%20%20%20%20.trim%28%29%0A%20%20%20%20%20%20%20%20.parse%28%29%0A%20%20%20%20%20%20%20%20.map_err%28%7C_%7C%20ValidationError%3A%3AAgeNotANumber%28raw.to_string%28%29%29%29%3F%3B%0A%20%20%20%20match%20age%20%7B%0A%20%20%20%20%20%20%20%2013..%3D120%20%3D%3E%20Ok%28age%20as%20u8%29%2C%0A%20%20%20%20%20%20%20%20_%20%3D%3E%20Err%28ValidationError%3A%3AAgeOutOfRange%28age%29%29%2C%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20validate_password%28raw%3A%20%26str%29%20-%3E%20Result%3C%28%29%2C%20ValidationError%3E%20%7B%0A%20%20%20%20if%20raw.chars%28%29.count%28%29%20%3C%208%20%7B%0A%20%20%20%20%20%20%20%20Err%28ValidationError%3A%3AWeakPassword%28%22needs%20at%20least%208%20characters%22%29%29%0A%20%20%20%20%7D%20else%20if%20%21raw.chars%28%29.any%28%7Cc%7C%20c.is_ascii_digit%28%29%29%20%7B%0A%20%20%20%20%20%20%20%20Err%28ValidationError%3A%3AWeakPassword%28%22needs%20a%20digit%22%29%29%0A%20%20%20%20%7D%20else%20if%20%21raw.chars%28%29.any%28char%3A%3Ais_uppercase%29%20%7B%0A%20%20%20%20%20%20%20%20Err%28ValidationError%3A%3AWeakPassword%28%22needs%20an%20uppercase%20letter%22%29%29%0A%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20validate%28form%3A%20%26SignupForm%29%20-%3E%20Result%3CValidUser%2C%20ValidationError%3E%20%7B%0A%20%20%20%20let%20username%20%3D%20validate_username%28form.username%29%3F%3B%0A%20%20%20%20let%20email%20%3D%20validate_email%28form.email%29%3F%3B%0A%20%20%20%20let%20age%20%3D%20validate_age%28form.age%29%3F%3B%0A%20%20%20%20validate_password%28form.password%29%3F%3B%0A%20%20%20%20Ok%28ValidUser%20%7B%0A%20%20%20%20%20%20%20%20username%2C%0A%20%20%20%20%20%20%20%20email%2C%0A%20%20%20%20%20%20%20%20age%2C%0A%20%20%20%20%7D%29%0A%7D%0A%0Afn%20validate_all%28form%3A%20%26SignupForm%29%20-%3E%20Result%3CValidUser%2C%20Vec%3CValidationError%3E%3E%20%7B%0A%20%20%20%20let%20username%20%3D%20validate_username%28form.username%29%3B%0A%20%20%20%20let%20email%20%3D%20validate_email%28form.email%29%3B%0A%20%20%20%20let%20age%20%3D%20validate_age%28form.age%29%3B%0A%20%20%20%20let%20password%20%3D%20validate_password%28form.password%29%3B%0A%0A%20%20%20%20match%20%28username%2C%20email%2C%20age%2C%20password%29%20%7B%0A%20%20%20%20%20%20%20%20%28Ok%28username%29%2C%20Ok%28email%29%2C%20Ok%28age%29%2C%20Ok%28%28%29%29%29%20%3D%3E%20Ok%28ValidUser%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20username%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20email%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20age%2C%0A%20%20%20%20%20%20%20%20%7D%29%2C%0A%20%20%20%20%20%20%20%20%28username%2C%20email%2C%20age%2C%20password%29%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20errors%20%3D%20%5Busername.err%28%29%2C%20email.err%28%29%2C%20age.err%28%29%2C%20password.err%28%29%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.into_iter%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.flatten%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.collect%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28errors%29%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0A//%20Bonus%3A%20ValidationError%20works%20as%20a%20boxed%20trait%20object%20thanks%20to%20%60impl%20Error%60.%0Afn%20validate_boxed%28form%3A%20%26SignupForm%29%20-%3E%20Result%3CValidUser%2C%20Box%3Cdyn%20Error%3E%3E%20%7B%0A%20%20%20%20Ok%28validate%28form%29%3F%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20good%20%3D%20SignupForm%20%7B%0A%20%20%20%20%20%20%20%20username%3A%20%22ferris%22%2C%0A%20%20%20%20%20%20%20%20email%3A%20%22ferris%40rust-lang.org%22%2C%0A%20%20%20%20%20%20%20%20age%3A%20%2230%22%2C%0A%20%20%20%20%20%20%20%20password%3A%20%22Crab1234%22%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20let%20bad_email%20%3D%20SignupForm%20%7B%0A%20%20%20%20%20%20%20%20email%3A%20%22nope%22%2C%0A%20%20%20%20%20%20%20%20..good%0A%20%20%20%20%7D%3B%0A%20%20%20%20let%20all_bad%20%3D%20SignupForm%20%7B%0A%20%20%20%20%20%20%20%20username%3A%20%22ferris%21%22%2C%0A%20%20%20%20%20%20%20%20email%3A%20%22nope%22%2C%0A%20%20%20%20%20%20%20%20age%3A%20%22ten%22%2C%0A%20%20%20%20%20%20%20%20password%3A%20%22short%22%2C%0A%20%20%20%20%7D%3B%0A%0A%20%20%20%20match%20validate%28%26good%29%20%7B%0A%20%20%20%20%20%20%20%20Ok%28user%29%20%3D%3E%20println%21%28%22valid%3A%20%7Buser%3A%3F%7D%22%29%2C%0A%20%20%20%20%20%20%20%20Err%28e%29%20%3D%3E%20println%21%28%22unexpected%20error%3A%20%7Be%7D%22%29%2C%0A%20%20%20%20%7D%0A%20%20%20%20if%20let%20Err%28e%29%20%3D%20validate_boxed%28%26bad_email%29%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22first%20error%3A%20%7Be%7D%22%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20if%20let%20Err%28errors%29%20%3D%20validate_all%28%26all_bad%29%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22all%20errors%3A%22%29%3B%0A%20%20%20%20%20%20%20%20for%20e%20in%20errors%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20println%21%28%22%20%20-%20%7Be%7D%22%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20fn%20form%28%29%20-%3E%20SignupForm%3C%27static%3E%20%7B%0A%20%20%20%20%20%20%20%20SignupForm%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20username%3A%20%22ferris%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20email%3A%20%22f%40rust.org%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20age%3A%20%2230%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20password%3A%20%22Crab1234%22%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20valid_form_passes%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20user%20%3D%20validate%28%26form%28%29%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28user.age%2C%2030%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28validate_all%28%26form%28%29%29%2C%20Ok%28user%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20field_validators%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28validate_username%28%22%20%20%22%29%2C%20Err%28ValidationError%3A%3AEmptyUsername%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20validate_username%28%22a_very_long_username%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28ValidationError%3A%3AUsernameTooLong%20%7B%20max%3A%2016%20%7D%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28validate_email%28%22a%40b%22%29.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28validate_email%28%22%40b.com%22%29.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28validate_email%28%22a%40b.com%22%29.is_ok%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20validate_age%28%22500%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28ValidationError%3A%3AAgeOutOfRange%28500%29%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20validate_age%28%22x%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28ValidationError%3A%3AAgeNotANumber%28%22x%22.into%28%29%29%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20validate_password%28%22crab1234%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28ValidationError%3A%3AWeakPassword%28%22needs%20an%20uppercase%20letter%22%29%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20validate_stops_at_first_error%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20f%20%3D%20SignupForm%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20username%3A%20%22%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20age%3A%20%221%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20..form%28%29%0A%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28validate%28%26f%29%2C%20Err%28ValidationError%3A%3AEmptyUsername%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20validate_all_collects_every_error%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20f%20%3D%20SignupForm%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20username%3A%20%22%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20email%3A%20%22x%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20age%3A%20%221%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20password%3A%20%22p%22%2C%0A%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28validate_all%28%26f%29.unwrap_err%28%29.len%28%29%2C%204%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20display_messages%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20ValidationError%3A%3AInvalidEmail%28%22x%22.into%28%29%29.to_string%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22email%20%27x%27%20is%20invalid%22%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/08-error-handling/26-data-validation.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::error::<span class="tok-type">Error</span>;
+<span class="tok-keyword">use</span> std::fmt;
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">SignupForm</span>&lt;<span class="tok-lifetime">'a</span>&gt; {
+    username: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>,
+    email: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>,
+    age: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>,
+    password: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>,
+}
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">ValidUser</span> {
+    username: <span class="tok-type">String</span>,
+    email: <span class="tok-type">String</span>,
+    age: <span class="tok-type">u8</span>,
+}
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">ValidationError</span> {
+    <span class="tok-type">EmptyUsername</span>,
+    <span class="tok-type">UsernameTooLong</span> { max: <span class="tok-type">usize</span> },
+    <span class="tok-type">InvalidUsernameChar</span>(<span class="tok-type">char</span>),
+    <span class="tok-type">InvalidEmail</span>(<span class="tok-type">String</span>),
+    <span class="tok-type">AgeNotANumber</span>(<span class="tok-type">String</span>),
+    <span class="tok-type">AgeOutOfRange</span>(<span class="tok-type">u32</span>),
+    <span class="tok-type">WeakPassword</span>(&amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>),
+}
+
+<span class="tok-keyword">impl</span> fmt::<span class="tok-type">Display</span> <span class="tok-keyword">for</span> <span class="tok-type">ValidationError</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">fmt</span>(&amp;<span class="tok-keyword">self</span>, f: &amp;<span class="tok-keyword">mut</span> fmt::<span class="tok-type">Formatter</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; fmt::<span class="tok-type">Result</span> {
+        <span class="tok-keyword">match</span> <span class="tok-keyword">self</span> {
+            <span class="tok-type">ValidationError</span>::<span class="tok-type">EmptyUsername</span> =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"username must not be empty"</span>),
+            <span class="tok-type">ValidationError</span>::<span class="tok-type">UsernameTooLong</span> { max } =&gt; {
+                <span class="tok-macro">write!</span>(f, <span class="tok-string">"username must be at most {max} characters"</span>)
+            }
+            <span class="tok-type">ValidationError</span>::<span class="tok-type">InvalidUsernameChar</span>(c) =&gt; {
+                <span class="tok-macro">write!</span>(f, <span class="tok-string">"username contains invalid character '{c}'"</span>)
+            }
+            <span class="tok-type">ValidationError</span>::<span class="tok-type">InvalidEmail</span>(email) =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"email '{email}' is invalid"</span>),
+            <span class="tok-type">ValidationError</span>::<span class="tok-type">AgeNotANumber</span>(raw) =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"age must be a number, got '{raw}'"</span>),
+            <span class="tok-type">ValidationError</span>::<span class="tok-type">AgeOutOfRange</span>(age) =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"age {age} is outside 13..=120"</span>),
+            <span class="tok-type">ValidationError</span>::<span class="tok-type">WeakPassword</span>(reason) =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"password is too weak: {reason}"</span>),
+        }
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Error</span> <span class="tok-keyword">for</span> <span class="tok-type">ValidationError</span> {}
+
+<span class="tok-keyword">const</span> <span class="tok-type">MAX_USERNAME</span>: <span class="tok-type">usize</span> = <span class="tok-number">16</span>;
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">validate_username</span>(raw: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">String</span>, <span class="tok-type">ValidationError</span>&gt; {
+    <span class="tok-keyword">let</span> name = raw.<span class="tok-fn">trim</span>();
+    <span class="tok-keyword">if</span> name.<span class="tok-fn">is_empty</span>() {
+        <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">EmptyUsername</span>);
+    }
+    <span class="tok-keyword">if</span> name.<span class="tok-fn">chars</span>().<span class="tok-fn">count</span>() &gt; <span class="tok-type">MAX_USERNAME</span> {
+        <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">UsernameTooLong</span> { max: <span class="tok-type">MAX_USERNAME</span> });
+    }
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span>(bad) = name.<span class="tok-fn">chars</span>().<span class="tok-fn">find</span>(|c| !(c.<span class="tok-fn">is_alphanumeric</span>() || *c == <span class="tok-string">'_'</span>)) {
+        <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">InvalidUsernameChar</span>(bad));
+    }
+    <span class="tok-type">Ok</span>(name.<span class="tok-fn">to_string</span>())
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">validate_email</span>(raw: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">String</span>, <span class="tok-type">ValidationError</span>&gt; {
+    <span class="tok-keyword">let</span> email = raw.<span class="tok-fn">trim</span>();
+    <span class="tok-keyword">let</span> invalid = || <span class="tok-type">ValidationError</span>::<span class="tok-type">InvalidEmail</span>(email.<span class="tok-fn">to_string</span>());
+    <span class="tok-keyword">let</span> (local, domain) = email.<span class="tok-fn">split_once</span>(<span class="tok-string">'@'</span>).<span class="tok-fn">ok_or_else</span>(invalid)?;
+    <span class="tok-keyword">let</span> domain_ok = domain.<span class="tok-fn">contains</span>(<span class="tok-string">'.'</span>) &amp;&amp; !domain.<span class="tok-fn">starts_with</span>(<span class="tok-string">'.'</span>) &amp;&amp; !domain.<span class="tok-fn">ends_with</span>(<span class="tok-string">'.'</span>);
+    <span class="tok-keyword">if</span> local.<span class="tok-fn">is_empty</span>() || domain.<span class="tok-fn">contains</span>(<span class="tok-string">'@'</span>) || !domain_ok {
+        <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-fn">invalid</span>());
+    }
+    <span class="tok-type">Ok</span>(email.<span class="tok-fn">to_string</span>())
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">validate_age</span>(raw: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">u8</span>, <span class="tok-type">ValidationError</span>&gt; {
+    <span class="tok-keyword">let</span> age: <span class="tok-type">u32</span> = raw
+        .<span class="tok-fn">trim</span>()
+        .<span class="tok-fn">parse</span>()
+        .<span class="tok-fn">map_err</span>(|_| <span class="tok-type">ValidationError</span>::<span class="tok-type">AgeNotANumber</span>(raw.<span class="tok-fn">to_string</span>()))?;
+    <span class="tok-keyword">match</span> age {
+        <span class="tok-number">13</span>..=<span class="tok-number">120</span> =&gt; <span class="tok-type">Ok</span>(age <span class="tok-keyword">as</span> <span class="tok-type">u8</span>),
+        _ =&gt; <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">AgeOutOfRange</span>(age)),
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">validate_password</span>(raw: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">ValidationError</span>&gt; {
+    <span class="tok-keyword">if</span> raw.<span class="tok-fn">chars</span>().<span class="tok-fn">count</span>() &lt; <span class="tok-number">8</span> {
+        <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">WeakPassword</span>(<span class="tok-string">"needs at least 8 characters"</span>))
+    } <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> !raw.<span class="tok-fn">chars</span>().<span class="tok-fn">any</span>(|c| c.<span class="tok-fn">is_ascii_digit</span>()) {
+        <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">WeakPassword</span>(<span class="tok-string">"needs a digit"</span>))
+    } <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> !raw.<span class="tok-fn">chars</span>().<span class="tok-fn">any</span>(<span class="tok-type">char</span>::is_uppercase) {
+        <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">WeakPassword</span>(<span class="tok-string">"needs an uppercase letter"</span>))
+    } <span class="tok-keyword">else</span> {
+        <span class="tok-type">Ok</span>(())
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">validate</span>(form: &amp;<span class="tok-type">SignupForm</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">ValidUser</span>, <span class="tok-type">ValidationError</span>&gt; {
+    <span class="tok-keyword">let</span> username = <span class="tok-fn">validate_username</span>(form.username)?;
+    <span class="tok-keyword">let</span> email = <span class="tok-fn">validate_email</span>(form.email)?;
+    <span class="tok-keyword">let</span> age = <span class="tok-fn">validate_age</span>(form.age)?;
+    <span class="tok-fn">validate_password</span>(form.password)?;
+    <span class="tok-type">Ok</span>(<span class="tok-type">ValidUser</span> {
+        username,
+        email,
+        age,
+    })
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">validate_all</span>(form: &amp;<span class="tok-type">SignupForm</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">ValidUser</span>, <span class="tok-type">Vec</span>&lt;<span class="tok-type">ValidationError</span>&gt;&gt; {
+    <span class="tok-keyword">let</span> username = <span class="tok-fn">validate_username</span>(form.username);
+    <span class="tok-keyword">let</span> email = <span class="tok-fn">validate_email</span>(form.email);
+    <span class="tok-keyword">let</span> age = <span class="tok-fn">validate_age</span>(form.age);
+    <span class="tok-keyword">let</span> password = <span class="tok-fn">validate_password</span>(form.password);
+
+    <span class="tok-keyword">match</span> (username, email, age, password) {
+        (<span class="tok-type">Ok</span>(username), <span class="tok-type">Ok</span>(email), <span class="tok-type">Ok</span>(age), <span class="tok-type">Ok</span>(())) =&gt; <span class="tok-type">Ok</span>(<span class="tok-type">ValidUser</span> {
+            username,
+            email,
+            age,
+        }),
+        (username, email, age, password) =&gt; {
+            <span class="tok-keyword">let</span> errors = [username.<span class="tok-fn">err</span>(), email.<span class="tok-fn">err</span>(), age.<span class="tok-fn">err</span>(), password.<span class="tok-fn">err</span>()]
+                .<span class="tok-fn">into_iter</span>()
+                .<span class="tok-fn">flatten</span>()
+                .<span class="tok-fn">collect</span>();
+            <span class="tok-type">Err</span>(errors)
+        }
+    }
+}
+
+<span class="tok-comment">// Bonus: ValidationError works as a boxed trait object thanks to `impl Error`.</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">validate_boxed</span>(form: &amp;<span class="tok-type">SignupForm</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">ValidUser</span>, <span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">Error</span>&gt;&gt; {
+    <span class="tok-type">Ok</span>(<span class="tok-fn">validate</span>(form)?)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> good = <span class="tok-type">SignupForm</span> {
+        username: <span class="tok-string">"ferris"</span>,
+        email: <span class="tok-string">"ferris@rust-lang.org"</span>,
+        age: <span class="tok-string">"30"</span>,
+        password: <span class="tok-string">"Crab1234"</span>,
+    };
+    <span class="tok-keyword">let</span> bad_email = <span class="tok-type">SignupForm</span> {
+        email: <span class="tok-string">"nope"</span>,
+        ..good
+    };
+    <span class="tok-keyword">let</span> all_bad = <span class="tok-type">SignupForm</span> {
+        username: <span class="tok-string">"ferris!"</span>,
+        email: <span class="tok-string">"nope"</span>,
+        age: <span class="tok-string">"ten"</span>,
+        password: <span class="tok-string">"short"</span>,
+    };
+
+    <span class="tok-keyword">match</span> <span class="tok-fn">validate</span>(&amp;good) {
+        <span class="tok-type">Ok</span>(user) =&gt; <span class="tok-macro">println!</span>(<span class="tok-string">"valid: {user:?}"</span>),
+        <span class="tok-type">Err</span>(e) =&gt; <span class="tok-macro">println!</span>(<span class="tok-string">"unexpected error: {e}"</span>),
+    }
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = <span class="tok-fn">validate_boxed</span>(&amp;bad_email) {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"first error: {e}"</span>);
+    }
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(errors) = <span class="tok-fn">validate_all</span>(&amp;all_bad) {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"all errors:"</span>);
+        <span class="tok-keyword">for</span> e <span class="tok-keyword">in</span> errors {
+            <span class="tok-macro">println!</span>(<span class="tok-string">"  - {e}"</span>);
+        }
+    }
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">form</span>() -&gt; <span class="tok-type">SignupForm</span>&lt;<span class="tok-lifetime">'static</span>&gt; {
+        <span class="tok-type">SignupForm</span> {
+            username: <span class="tok-string">"ferris"</span>,
+            email: <span class="tok-string">"f@rust.org"</span>,
+            age: <span class="tok-string">"30"</span>,
+            password: <span class="tok-string">"Crab1234"</span>,
+        }
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">valid_form_passes</span>() {
+        <span class="tok-keyword">let</span> user = <span class="tok-fn">validate</span>(&amp;<span class="tok-fn">form</span>()).<span class="tok-fn">unwrap</span>();
+        <span class="tok-macro">assert_eq!</span>(user.age, <span class="tok-number">30</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">validate_all</span>(&amp;<span class="tok-fn">form</span>()), <span class="tok-type">Ok</span>(user));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">field_validators</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">validate_username</span>(<span class="tok-string">"  "</span>), <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">EmptyUsername</span>));
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">validate_username</span>(<span class="tok-string">"a_very_long_username"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">UsernameTooLong</span> { max: <span class="tok-number">16</span> })
+        );
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">validate_email</span>(<span class="tok-string">"a@b"</span>).<span class="tok-fn">is_err</span>());
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">validate_email</span>(<span class="tok-string">"@b.com"</span>).<span class="tok-fn">is_err</span>());
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">validate_email</span>(<span class="tok-string">"a@b.com"</span>).<span class="tok-fn">is_ok</span>());
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">validate_age</span>(<span class="tok-string">"500"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">AgeOutOfRange</span>(<span class="tok-number">500</span>))
+        );
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">validate_age</span>(<span class="tok-string">"x"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">AgeNotANumber</span>(<span class="tok-string">"x"</span>.<span class="tok-fn">into</span>()))
+        );
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">validate_password</span>(<span class="tok-string">"crab1234"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">WeakPassword</span>(<span class="tok-string">"needs an uppercase letter"</span>))
+        );
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">validate_stops_at_first_error</span>() {
+        <span class="tok-keyword">let</span> f = <span class="tok-type">SignupForm</span> {
+            username: <span class="tok-string">""</span>,
+            age: <span class="tok-string">"1"</span>,
+            ..<span class="tok-fn">form</span>()
+        };
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">validate</span>(&amp;f), <span class="tok-type">Err</span>(<span class="tok-type">ValidationError</span>::<span class="tok-type">EmptyUsername</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">validate_all_collects_every_error</span>() {
+        <span class="tok-keyword">let</span> f = <span class="tok-type">SignupForm</span> {
+            username: <span class="tok-string">""</span>,
+            email: <span class="tok-string">"x"</span>,
+            age: <span class="tok-string">"1"</span>,
+            password: <span class="tok-string">"p"</span>,
+        };
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">validate_all</span>(&amp;f).<span class="tok-fn">unwrap_err</span>().<span class="tok-fn">len</span>(), <span class="tok-number">4</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">display_messages</span>() {
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-type">ValidationError</span>::<span class="tok-type">InvalidEmail</span>(<span class="tok-string">"x"</span>.<span class="tok-fn">into</span>()).<span class="tok-fn">to_string</span>(),
+            <span class="tok-string">"email 'x' is invalid"</span>
+        );
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 26-data-validation.rs -o 26-data-validation &amp;&amp; ./26-data-validation
+
+# run the unit tests
+rustc --edition 2021 --test 26-data-validation.rs -o 26-data-validation-tests &amp;&amp; ./26-data-validation-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/25-parsing.html"><small>← Previous</small>25 · Parsing with `Result`</a><a class="pager-link next" href="../exercises/27-custom-errors.html"><small>Next →</small>27 · Custom Error Type for a Config Loader</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

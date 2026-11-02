@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>27 · Custom Error Type for a Config Loader · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Design an application error enum that wraps lower-level errors so `?` works across different error types.">
+<meta property="og:title" content="27 · Custom Error Type for a Config Loader · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Design an application error enum that wraps lower-level errors so `?` works across different error types.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/08-error-handling.html">Level 8 — Error Handling</a><span>/</span><span>Exercise 27</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 27 · Level 8 — Error Handling</div>
+  <h1>Custom Error Type for a Config Loader</h1>
+  <p class="lead">Design an application error enum that wraps lower-level errors so <code>?</code> works across different error types.</p>
+  <div class="meta"><span class="badge diff-advanced">Advanced</span><span class="chip">error enums</span><span class="chip">`impl Display`</span><span class="chip">`impl std::error::Error` with `source()`</span><span class="chip">`From` conversions</span><span class="chip">`?`</span><span class="chip">`Box&lt;dyn Error&gt;`</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="27"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<ol><li>Define <code>AppError</code> with variants: - <code>Io(std::io::Error)</code> - <code>Parse { key: String, source: std::num::ParseIntError }</code> - <code>MissingKey(&amp;'static str)</code> - <code>Invalid(String)</code></li><li>Implement <code>std::fmt::Display</code> (short, human message) and <code>std::error::Error</code> — override <code>source()</code> to return the wrapped error for <code>Io</code> and <code>Parse</code>.</li><li>Implement <code>From&lt;std::io::Error&gt; for AppError</code> so <code>fs::read_to_string(path)?</code> converts automatically.</li><li>Implement <code>parse_config(text: &amp;str) -&gt; Result&lt;Config, AppError&gt;</code> for <code>key=value</code> lines (<code>#</code> comments and blank lines ignored). Required keys: <code>host</code> (non-empty), <code>port</code> (<code>u16</code>, not <code>0</code>), <code>workers</code> (<code>u8</code>, <code>1..=64</code>).</li><li>Implement <code>load_config(path: &amp;Path) -&gt; Result&lt;Config, AppError&gt;</code> using <code>?</code> on the file read and on <code>parse_config</code>.</li><li>In <code>main</code>, write sample config files under <code>std::env::temp_dir()</code>, load a valid one, then show each error kind, printing the <code>source()</code> chain. Clean up the files afterwards.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<pre class="code" data-lang="text"><code>loaded: Config { host: "localhost", port: 8080, workers: 4 }
+error: I/O error
+  caused by: No such file or directory (os error 2)
+error: invalid value for 'port'
+  caused by: invalid digit found in string
+error: missing key 'workers'
+error: invalid config: workers must be in 1..=64, got 99</code></pre>
+<p>(The exact I/O message depends on your OS.)</p>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li><code>"8080".parse::&lt;u16&gt;().map_err(|e| AppError::Parse { key: "port".into(), source: e })?</code></li><li>Walk the chain with <code>let mut src = err.source(); while let Some(e) = src { ...; src = e.source(); }</code>.</li><li>Returning <code>Result&lt;(), Box&lt;dyn Error&gt;&gt;</code> from a function lets <code>?</code> accept <em>any</em> error type.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Add a <code>line: usize</code> field to <code>Invalid</code> errors so users know where the problem is.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">08-error-handling/exercises/27-custom-errors.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Aerror%3A%3AError%3B%0Ause%20std%3A%3Afmt%3B%0Ause%20std%3A%3Afs%3B%0Ause%20std%3A%3Aio%3B%0Ause%20std%3A%3Anum%3A%3AParseIntError%3B%0Ause%20std%3A%3Apath%3A%3A%7BPath%2C%20PathBuf%7D%3B%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Astruct%20Config%20%7B%0A%20%20%20%20host%3A%20String%2C%0A%20%20%20%20port%3A%20u16%2C%0A%20%20%20%20workers%3A%20u8%2C%0A%7D%0A%0A%23%5Bderive%28Debug%29%5D%0Aenum%20AppError%20%7B%0A%20%20%20%20Io%28io%3A%3AError%29%2C%0A%20%20%20%20Parse%20%7B%20key%3A%20String%2C%20source%3A%20ParseIntError%20%7D%2C%0A%20%20%20%20MissingKey%28%26%27static%20str%29%2C%0A%20%20%20%20Invalid%28String%29%2C%0A%7D%0A%0Aimpl%20fmt%3A%3ADisplay%20for%20AppError%20%7B%0A%20%20%20%20fn%20fmt%28%26self%2C%20f%3A%20%26mut%20fmt%3A%3AFormatter%3C%27_%3E%29%20-%3E%20fmt%3A%3AResult%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20f%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Short%20message%20per%20variant%2C%20e.g.%20%5C%22I/O%20error%5C%22%2C%20%5C%22missing%20key%20%27workers%27%5C%22%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Error%20for%20AppError%20%7B%0A%20%20%20%20fn%20source%28%26self%29%20-%3E%20Option%3C%26%28dyn%20Error%20%2B%20%27static%29%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20todo%21%28%22Return%20Some%28inner%29%20for%20Io%20and%20Parse%2C%20None%20otherwise%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20From%3Cio%3A%3AError%3E%20for%20AppError%20%7B%0A%20%20%20%20fn%20from%28e%3A%20io%3A%3AError%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20e%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Wrap%20the%20io%3A%3AError%20in%20AppError%3A%3AIo%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20parse_config%28text%3A%20%26str%29%20-%3E%20Result%3CConfig%2C%20AppError%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20text%3B%0A%20%20%20%20todo%21%28%22Parse%20key%3Dvalue%20lines%2C%20then%20validate%20host%2C%20port%20%28u16%20%21%3D%200%29%20and%20workers%20%281..%3D64%29%22%29%0A%7D%0A%0Afn%20load_config%28path%3A%20%26Path%29%20-%3E%20Result%3CConfig%2C%20AppError%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20path%3B%0A%20%20%20%20todo%21%28%22fs%3A%3Aread_to_string%28path%29%3F%20then%20parse_config%22%29%0A%7D%0A%0Afn%20print_error_chain%28err%3A%20%26dyn%20Error%29%20%7B%0A%20%20%20%20println%21%28%22error%3A%20%7Berr%7D%22%29%3B%0A%20%20%20%20let%20mut%20source%20%3D%20err.source%28%29%3B%0A%20%20%20%20while%20let%20Some%28cause%29%20%3D%20source%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%20%20caused%20by%3A%20%7Bcause%7D%22%29%3B%0A%20%20%20%20%20%20%20%20source%20%3D%20cause.source%28%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20temp_path%28name%3A%20%26str%29%20-%3E%20PathBuf%20%7B%0A%20%20%20%20std%3A%3Aenv%3A%3Atemp_dir%28%29.join%28format%21%28%22rust-ex27-%7Bname%7D-%7B%7D.conf%22%2C%20std%3A%3Aprocess%3A%3Aid%28%29%29%29%0A%7D%0A%0Afn%20run%28%29%20-%3E%20Result%3C%28%29%2C%20Box%3Cdyn%20Error%3E%3E%20%7B%0A%20%20%20%20let%20samples%20%3D%20%5B%0A%20%20%20%20%20%20%20%20%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%22good%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22%23%20demo%5Cnhost%20%3D%20localhost%5Cnport%20%3D%208080%5Cnworkers%20%3D%204%5Cn%22%2C%0A%20%20%20%20%20%20%20%20%29%2C%0A%20%20%20%20%20%20%20%20%28%22bad-port%22%2C%20%22host%3Dlocalhost%5Cnport%3D80a%5Cnworkers%3D4%5Cn%22%29%2C%0A%20%20%20%20%20%20%20%20%28%22no-workers%22%2C%20%22host%3Dlocalhost%5Cnport%3D8080%5Cn%22%29%2C%0A%20%20%20%20%20%20%20%20%28%22too-many%22%2C%20%22host%3Dlocalhost%5Cnport%3D8080%5Cnworkers%3D99%5Cn%22%29%2C%0A%20%20%20%20%5D%3B%0A%0A%20%20%20%20let%20mut%20paths%20%3D%20Vec%3A%3Anew%28%29%3B%0A%20%20%20%20for%20%28name%2C%20contents%29%20in%20samples%20%7B%0A%20%20%20%20%20%20%20%20let%20path%20%3D%20temp_path%28name%29%3B%0A%20%20%20%20%20%20%20%20fs%3A%3Awrite%28%26path%2C%20contents%29%3F%3B%0A%20%20%20%20%20%20%20%20paths.push%28path%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20let%20config%20%3D%20load_config%28%26paths%5B0%5D%29%3F%3B%0A%20%20%20%20println%21%28%22loaded%3A%20%7Bconfig%3A%3F%7D%22%29%3B%0A%0A%20%20%20%20if%20let%20Err%28e%29%20%3D%20load_config%28%26temp_path%28%22missing%22%29%29%20%7B%0A%20%20%20%20%20%20%20%20print_error_chain%28%26e%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20for%20path%20in%20%26paths%5B1..%5D%20%7B%0A%20%20%20%20%20%20%20%20if%20let%20Err%28e%29%20%3D%20load_config%28path%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20print_error_chain%28%26e%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20for%20path%20in%20%26paths%20%7B%0A%20%20%20%20%20%20%20%20fs%3A%3Aremove_file%28path%29%3F%3B%0A%20%20%20%20%7D%0A%20%20%20%20Ok%28%28%29%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20if%20let%20Err%28e%29%20%3D%20run%28%29%20%7B%0A%20%20%20%20%20%20%20%20print_error_chain%28e.as_ref%28%29%29%3B%0A%20%20%20%20%20%20%20%20std%3A%3Aprocess%3A%3Aexit%281%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20parses_valid_config%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20cfg%20%3D%20parse_config%28%22host%3Da%5Cn%5Cn%23%20c%5Cnport%3D1%5Cnworkers%3D64%22%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20cfg%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Config%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20host%3A%20%22a%22.into%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20port%3A%201%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20workers%3A%2064%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20parse_error_keeps_source%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20err%20%3D%20parse_config%28%22host%3Da%5Cnport%3D99999%5Cnworkers%3D1%22%29.unwrap_err%28%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28matches%21%28%26err%2C%20AppError%3A%3AParse%20%7B%20key%2C%20..%20%7D%20if%20key%20%3D%3D%20%22port%22%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28err.source%28%29.is_some%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28err.to_string%28%29%2C%20%22invalid%20value%20for%20%27port%27%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20missing_and_invalid%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28matches%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20parse_config%28%22port%3D1%5Cnworkers%3D1%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28AppError%3A%3AMissingKey%28%22host%22%29%29%0A%20%20%20%20%20%20%20%20%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28matches%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20parse_config%28%22host%3Da%5Cnport%3D0%5Cnworkers%3D1%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28AppError%3A%3AInvalid%28_%29%29%0A%20%20%20%20%20%20%20%20%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28matches%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20parse_config%28%22host%3Da%5Cnport%3D1%5Cnworkers%3D0%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28AppError%3A%3AInvalid%28_%29%29%0A%20%20%20%20%20%20%20%20%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28matches%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20parse_config%28%22nonsense%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28AppError%3A%3AInvalid%28_%29%29%0A%20%20%20%20%20%20%20%20%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20io_error_converts_with_question_mark%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20err%20%3D%20load_config%28%26temp_path%28%22test-missing%22%29%29.unwrap_err%28%29%3B%0A%20%20%20%20%20%20%20%20match%20%26err%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20AppError%3A%3AIo%28e%29%20%3D%3E%20assert_eq%21%28e.kind%28%29%2C%20io%3A%3AErrorKind%3A%3ANotFound%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20other%20%3D%3E%20panic%21%28%22expected%20Io%20error%2C%20got%20%7Bother%3A%3F%7D%22%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20assert%21%28err.source%28%29.is_some%28%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20load_valid_file%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20path%20%3D%20temp_path%28%22test-good%22%29%3B%0A%20%20%20%20%20%20%20%20fs%3A%3Awrite%28%26path%2C%20%22host%3Dh%5Cnport%3D2%5Cnworkers%3D3%22%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20let%20cfg%20%3D%20load_config%28%26path%29%3B%0A%20%20%20%20%20%20%20%20fs%3A%3Aremove_file%28%26path%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28cfg.unwrap%28%29.workers%2C%203%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/08-error-handling/exercises/27-custom-errors.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::error::<span class="tok-type">Error</span>;
+<span class="tok-keyword">use</span> std::fmt;
+<span class="tok-keyword">use</span> std::fs;
+<span class="tok-keyword">use</span> std::io;
+<span class="tok-keyword">use</span> std::num::<span class="tok-type">ParseIntError</span>;
+<span class="tok-keyword">use</span> std::path::{<span class="tok-type">Path</span>, <span class="tok-type">PathBuf</span>};
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Config</span> {
+    host: <span class="tok-type">String</span>,
+    port: <span class="tok-type">u16</span>,
+    workers: <span class="tok-type">u8</span>,
+}
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">AppError</span> {
+    <span class="tok-type">Io</span>(io::<span class="tok-type">Error</span>),
+    <span class="tok-type">Parse</span> { key: <span class="tok-type">String</span>, source: <span class="tok-type">ParseIntError</span> },
+    <span class="tok-type">MissingKey</span>(&amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>),
+    <span class="tok-type">Invalid</span>(<span class="tok-type">String</span>),
+}
+
+<span class="tok-keyword">impl</span> fmt::<span class="tok-type">Display</span> <span class="tok-keyword">for</span> <span class="tok-type">AppError</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">fmt</span>(&amp;<span class="tok-keyword">self</span>, f: &amp;<span class="tok-keyword">mut</span> fmt::<span class="tok-type">Formatter</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; fmt::<span class="tok-type">Result</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-keyword">let</span> _ = f;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Short message per variant, e.g. \"I/O error\", \"missing key 'workers'\""</span>)
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Error</span> <span class="tok-keyword">for</span> <span class="tok-type">AppError</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">source</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">Option</span>&lt;&amp;(<span class="tok-keyword">dyn</span> <span class="tok-type">Error</span> + <span class="tok-lifetime">'static</span>)&gt; {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Return Some(inner) for Io and Parse, None otherwise"</span>)
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">From</span>&lt;io::<span class="tok-type">Error</span>&gt; <span class="tok-keyword">for</span> <span class="tok-type">AppError</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">from</span>(e: io::<span class="tok-type">Error</span>) -&gt; <span class="tok-keyword">Self</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-keyword">let</span> _ = e;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Wrap the io::Error in AppError::Io"</span>)
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">parse_config</span>(text: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">Config</span>, <span class="tok-type">AppError</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = text;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Parse key=value lines, then validate host, port (u16 != 0) and workers (1..=64)"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">load_config</span>(path: &amp;<span class="tok-type">Path</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">Config</span>, <span class="tok-type">AppError</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = path;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"fs::read_to_string(path)? then parse_config"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">print_error_chain</span>(err: &amp;<span class="tok-keyword">dyn</span> <span class="tok-type">Error</span>) {
+    <span class="tok-macro">println!</span>(<span class="tok-string">"error: {err}"</span>);
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> source = err.<span class="tok-fn">source</span>();
+    <span class="tok-keyword">while</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span>(cause) = source {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"  caused by: {cause}"</span>);
+        source = cause.<span class="tok-fn">source</span>();
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">temp_path</span>(name: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">PathBuf</span> {
+    std::env::<span class="tok-fn">temp_dir</span>().<span class="tok-fn">join</span>(<span class="tok-macro">format!</span>(<span class="tok-string">"rust-ex27-{name}-{}.conf"</span>, std::process::<span class="tok-fn">id</span>()))
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">run</span>() -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">Error</span>&gt;&gt; {
+    <span class="tok-keyword">let</span> samples = [
+        (
+            <span class="tok-string">"good"</span>,
+            <span class="tok-string">"# demo\nhost = localhost\nport = 8080\nworkers = 4\n"</span>,
+        ),
+        (<span class="tok-string">"bad-port"</span>, <span class="tok-string">"host=localhost\nport=80a\nworkers=4\n"</span>),
+        (<span class="tok-string">"no-workers"</span>, <span class="tok-string">"host=localhost\nport=8080\n"</span>),
+        (<span class="tok-string">"too-many"</span>, <span class="tok-string">"host=localhost\nport=8080\nworkers=99\n"</span>),
+    ];
+
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> paths = <span class="tok-type">Vec</span>::<span class="tok-fn">new</span>();
+    <span class="tok-keyword">for</span> (name, contents) <span class="tok-keyword">in</span> samples {
+        <span class="tok-keyword">let</span> path = <span class="tok-fn">temp_path</span>(name);
+        fs::<span class="tok-fn">write</span>(&amp;path, contents)?;
+        paths.<span class="tok-fn">push</span>(path);
+    }
+
+    <span class="tok-keyword">let</span> config = <span class="tok-fn">load_config</span>(&amp;paths[<span class="tok-number">0</span>])?;
+    <span class="tok-macro">println!</span>(<span class="tok-string">"loaded: {config:?}"</span>);
+
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = <span class="tok-fn">load_config</span>(&amp;<span class="tok-fn">temp_path</span>(<span class="tok-string">"missing"</span>)) {
+        <span class="tok-fn">print_error_chain</span>(&amp;e);
+    }
+    <span class="tok-keyword">for</span> path <span class="tok-keyword">in</span> &amp;paths[<span class="tok-number">1</span>..] {
+        <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = <span class="tok-fn">load_config</span>(path) {
+            <span class="tok-fn">print_error_chain</span>(&amp;e);
+        }
+    }
+
+    <span class="tok-keyword">for</span> path <span class="tok-keyword">in</span> &amp;paths {
+        fs::<span class="tok-fn">remove_file</span>(path)?;
+    }
+    <span class="tok-type">Ok</span>(())
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = <span class="tok-fn">run</span>() {
+        <span class="tok-fn">print_error_chain</span>(e.<span class="tok-fn">as_ref</span>());
+        std::process::<span class="tok-fn">exit</span>(<span class="tok-number">1</span>);
+    }
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">parses_valid_config</span>() {
+        <span class="tok-keyword">let</span> cfg = <span class="tok-fn">parse_config</span>(<span class="tok-string">"host=a\n\n# c\nport=1\nworkers=64"</span>).<span class="tok-fn">unwrap</span>();
+        <span class="tok-macro">assert_eq!</span>(
+            cfg,
+            <span class="tok-type">Config</span> {
+                host: <span class="tok-string">"a"</span>.<span class="tok-fn">into</span>(),
+                port: <span class="tok-number">1</span>,
+                workers: <span class="tok-number">64</span>
+            }
+        );
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">parse_error_keeps_source</span>() {
+        <span class="tok-keyword">let</span> err = <span class="tok-fn">parse_config</span>(<span class="tok-string">"host=a\nport=99999\nworkers=1"</span>).<span class="tok-fn">unwrap_err</span>();
+        <span class="tok-macro">assert!</span>(<span class="tok-macro">matches!</span>(&amp;err, <span class="tok-type">AppError</span>::<span class="tok-type">Parse</span> { key, .. } <span class="tok-keyword">if</span> key == <span class="tok-string">"port"</span>));
+        <span class="tok-macro">assert!</span>(err.<span class="tok-fn">source</span>().<span class="tok-fn">is_some</span>());
+        <span class="tok-macro">assert_eq!</span>(err.<span class="tok-fn">to_string</span>(), <span class="tok-string">"invalid value for 'port'"</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">missing_and_invalid</span>() {
+        <span class="tok-macro">assert!</span>(<span class="tok-macro">matches!</span>(
+            <span class="tok-fn">parse_config</span>(<span class="tok-string">"port=1\nworkers=1"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">AppError</span>::<span class="tok-type">MissingKey</span>(<span class="tok-string">"host"</span>))
+        ));
+        <span class="tok-macro">assert!</span>(<span class="tok-macro">matches!</span>(
+            <span class="tok-fn">parse_config</span>(<span class="tok-string">"host=a\nport=0\nworkers=1"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">AppError</span>::<span class="tok-type">Invalid</span>(_))
+        ));
+        <span class="tok-macro">assert!</span>(<span class="tok-macro">matches!</span>(
+            <span class="tok-fn">parse_config</span>(<span class="tok-string">"host=a\nport=1\nworkers=0"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">AppError</span>::<span class="tok-type">Invalid</span>(_))
+        ));
+        <span class="tok-macro">assert!</span>(<span class="tok-macro">matches!</span>(
+            <span class="tok-fn">parse_config</span>(<span class="tok-string">"nonsense"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">AppError</span>::<span class="tok-type">Invalid</span>(_))
+        ));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">io_error_converts_with_question_mark</span>() {
+        <span class="tok-keyword">let</span> err = <span class="tok-fn">load_config</span>(&amp;<span class="tok-fn">temp_path</span>(<span class="tok-string">"test-missing"</span>)).<span class="tok-fn">unwrap_err</span>();
+        <span class="tok-keyword">match</span> &amp;err {
+            <span class="tok-type">AppError</span>::<span class="tok-type">Io</span>(e) =&gt; <span class="tok-macro">assert_eq!</span>(e.<span class="tok-fn">kind</span>(), io::<span class="tok-type">ErrorKind</span>::<span class="tok-type">NotFound</span>),
+            other =&gt; <span class="tok-macro">panic!</span>(<span class="tok-string">"expected Io error, got {other:?}"</span>),
+        }
+        <span class="tok-macro">assert!</span>(err.<span class="tok-fn">source</span>().<span class="tok-fn">is_some</span>());
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">load_valid_file</span>() {
+        <span class="tok-keyword">let</span> path = <span class="tok-fn">temp_path</span>(<span class="tok-string">"test-good"</span>);
+        fs::<span class="tok-fn">write</span>(&amp;path, <span class="tok-string">"host=h\nport=2\nworkers=3"</span>).<span class="tok-fn">unwrap</span>();
+        <span class="tok-keyword">let</span> cfg = <span class="tok-fn">load_config</span>(&amp;path);
+        fs::<span class="tok-fn">remove_file</span>(&amp;path).<span class="tok-fn">unwrap</span>();
+        <span class="tok-macro">assert_eq!</span>(cfg.<span class="tok-fn">unwrap</span>().workers, <span class="tok-number">3</span>);
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/08-error-handling/27-custom-errors.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Aerror%3A%3AError%3B%0Ause%20std%3A%3Afmt%3B%0Ause%20std%3A%3Afs%3B%0Ause%20std%3A%3Aio%3B%0Ause%20std%3A%3Anum%3A%3AParseIntError%3B%0Ause%20std%3A%3Apath%3A%3A%7BPath%2C%20PathBuf%7D%3B%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Astruct%20Config%20%7B%0A%20%20%20%20host%3A%20String%2C%0A%20%20%20%20port%3A%20u16%2C%0A%20%20%20%20workers%3A%20u8%2C%0A%7D%0A%0A%23%5Bderive%28Debug%29%5D%0Aenum%20AppError%20%7B%0A%20%20%20%20Io%28io%3A%3AError%29%2C%0A%20%20%20%20Parse%20%7B%20key%3A%20String%2C%20source%3A%20ParseIntError%20%7D%2C%0A%20%20%20%20MissingKey%28%26%27static%20str%29%2C%0A%20%20%20%20Invalid%28String%29%2C%0A%7D%0A%0Aimpl%20fmt%3A%3ADisplay%20for%20AppError%20%7B%0A%20%20%20%20fn%20fmt%28%26self%2C%20f%3A%20%26mut%20fmt%3A%3AFormatter%3C%27_%3E%29%20-%3E%20fmt%3A%3AResult%20%7B%0A%20%20%20%20%20%20%20%20match%20self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20AppError%3A%3AIo%28_%29%20%3D%3E%20write%21%28f%2C%20%22I/O%20error%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20AppError%3A%3AParse%20%7B%20key%2C%20..%20%7D%20%3D%3E%20write%21%28f%2C%20%22invalid%20value%20for%20%27%7Bkey%7D%27%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20AppError%3A%3AMissingKey%28key%29%20%3D%3E%20write%21%28f%2C%20%22missing%20key%20%27%7Bkey%7D%27%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20AppError%3A%3AInvalid%28msg%29%20%3D%3E%20write%21%28f%2C%20%22invalid%20config%3A%20%7Bmsg%7D%22%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Error%20for%20AppError%20%7B%0A%20%20%20%20fn%20source%28%26self%29%20-%3E%20Option%3C%26%28dyn%20Error%20%2B%20%27static%29%3E%20%7B%0A%20%20%20%20%20%20%20%20match%20self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20AppError%3A%3AIo%28e%29%20%3D%3E%20Some%28e%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20AppError%3A%3AParse%20%7B%20source%2C%20..%20%7D%20%3D%3E%20Some%28source%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20AppError%3A%3AMissingKey%28_%29%20%7C%20AppError%3A%3AInvalid%28_%29%20%3D%3E%20None%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20From%3Cio%3A%3AError%3E%20for%20AppError%20%7B%0A%20%20%20%20fn%20from%28e%3A%20io%3A%3AError%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20AppError%3A%3AIo%28e%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20parse_field%3CT%3A%20std%3A%3Astr%3A%3AFromStr%3CErr%20%3D%20ParseIntError%3E%3E%28%0A%20%20%20%20key%3A%20%26%27static%20str%2C%0A%20%20%20%20value%3A%20Option%3C%26str%3E%2C%0A%29%20-%3E%20Result%3CT%2C%20AppError%3E%20%7B%0A%20%20%20%20let%20raw%20%3D%20value.ok_or%28AppError%3A%3AMissingKey%28key%29%29%3F%3B%0A%20%20%20%20raw.parse%28%29.map_err%28%7Csource%7C%20AppError%3A%3AParse%20%7B%0A%20%20%20%20%20%20%20%20key%3A%20key.to_string%28%29%2C%0A%20%20%20%20%20%20%20%20source%2C%0A%20%20%20%20%7D%29%0A%7D%0A%0Afn%20parse_config%28text%3A%20%26str%29%20-%3E%20Result%3CConfig%2C%20AppError%3E%20%7B%0A%20%20%20%20let%20mut%20host%20%3D%20None%3B%0A%20%20%20%20let%20mut%20port%20%3D%20None%3B%0A%20%20%20%20let%20mut%20workers%20%3D%20None%3B%0A%0A%20%20%20%20for%20line%20in%20text.lines%28%29.map%28str%3A%3Atrim%29%20%7B%0A%20%20%20%20%20%20%20%20if%20line.is_empty%28%29%20%7C%7C%20line.starts_with%28%27%23%27%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20continue%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20let%20%28key%2C%20value%29%20%3D%20line%0A%20%20%20%20%20%20%20%20%20%20%20%20.split_once%28%27%3D%27%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.ok_or_else%28%7C%7C%20AppError%3A%3AInvalid%28format%21%28%22expected%20key%3Dvalue%2C%20got%20%27%7Bline%7D%27%22%29%29%29%3F%3B%0A%20%20%20%20%20%20%20%20let%20value%20%3D%20value.trim%28%29%3B%0A%20%20%20%20%20%20%20%20match%20key.trim%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22host%22%20%3D%3E%20host%20%3D%20Some%28value%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22port%22%20%3D%3E%20port%20%3D%20Some%28value%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22workers%22%20%3D%3E%20workers%20%3D%20Some%28value%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20other%20%3D%3E%20return%20Err%28AppError%3A%3AInvalid%28format%21%28%22unknown%20key%20%27%7Bother%7D%27%22%29%29%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20let%20host%20%3D%20host.ok_or%28AppError%3A%3AMissingKey%28%22host%22%29%29%3F%3B%0A%20%20%20%20if%20host.is_empty%28%29%20%7B%0A%20%20%20%20%20%20%20%20return%20Err%28AppError%3A%3AInvalid%28%22host%20must%20not%20be%20empty%22.to_string%28%29%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20let%20port%3A%20u16%20%3D%20parse_field%28%22port%22%2C%20port%29%3F%3B%0A%20%20%20%20if%20port%20%3D%3D%200%20%7B%0A%20%20%20%20%20%20%20%20return%20Err%28AppError%3A%3AInvalid%28%22port%20must%20not%20be%200%22.to_string%28%29%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20let%20workers%3A%20u8%20%3D%20parse_field%28%22workers%22%2C%20workers%29%3F%3B%0A%20%20%20%20if%20%21%281..%3D64%29.contains%28%26workers%29%20%7B%0A%20%20%20%20%20%20%20%20return%20Err%28AppError%3A%3AInvalid%28format%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%22workers%20must%20be%20in%201..%3D64%2C%20got%20%7Bworkers%7D%22%0A%20%20%20%20%20%20%20%20%29%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20Ok%28Config%20%7B%0A%20%20%20%20%20%20%20%20host%3A%20host.to_string%28%29%2C%0A%20%20%20%20%20%20%20%20port%2C%0A%20%20%20%20%20%20%20%20workers%2C%0A%20%20%20%20%7D%29%0A%7D%0A%0Afn%20load_config%28path%3A%20%26Path%29%20-%3E%20Result%3CConfig%2C%20AppError%3E%20%7B%0A%20%20%20%20let%20text%20%3D%20fs%3A%3Aread_to_string%28path%29%3F%3B%0A%20%20%20%20parse_config%28%26text%29%0A%7D%0A%0Afn%20print_error_chain%28err%3A%20%26dyn%20Error%29%20%7B%0A%20%20%20%20println%21%28%22error%3A%20%7Berr%7D%22%29%3B%0A%20%20%20%20let%20mut%20source%20%3D%20err.source%28%29%3B%0A%20%20%20%20while%20let%20Some%28cause%29%20%3D%20source%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%20%20caused%20by%3A%20%7Bcause%7D%22%29%3B%0A%20%20%20%20%20%20%20%20source%20%3D%20cause.source%28%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20temp_path%28name%3A%20%26str%29%20-%3E%20PathBuf%20%7B%0A%20%20%20%20std%3A%3Aenv%3A%3Atemp_dir%28%29.join%28format%21%28%22rust-ex27-%7Bname%7D-%7B%7D.conf%22%2C%20std%3A%3Aprocess%3A%3Aid%28%29%29%29%0A%7D%0A%0Afn%20run%28%29%20-%3E%20Result%3C%28%29%2C%20Box%3Cdyn%20Error%3E%3E%20%7B%0A%20%20%20%20let%20samples%20%3D%20%5B%0A%20%20%20%20%20%20%20%20%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%22good%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22%23%20demo%5Cnhost%20%3D%20localhost%5Cnport%20%3D%208080%5Cnworkers%20%3D%204%5Cn%22%2C%0A%20%20%20%20%20%20%20%20%29%2C%0A%20%20%20%20%20%20%20%20%28%22bad-port%22%2C%20%22host%3Dlocalhost%5Cnport%3D80a%5Cnworkers%3D4%5Cn%22%29%2C%0A%20%20%20%20%20%20%20%20%28%22no-workers%22%2C%20%22host%3Dlocalhost%5Cnport%3D8080%5Cn%22%29%2C%0A%20%20%20%20%20%20%20%20%28%22too-many%22%2C%20%22host%3Dlocalhost%5Cnport%3D8080%5Cnworkers%3D99%5Cn%22%29%2C%0A%20%20%20%20%5D%3B%0A%0A%20%20%20%20let%20mut%20paths%20%3D%20Vec%3A%3Anew%28%29%3B%0A%20%20%20%20for%20%28name%2C%20contents%29%20in%20samples%20%7B%0A%20%20%20%20%20%20%20%20let%20path%20%3D%20temp_path%28name%29%3B%0A%20%20%20%20%20%20%20%20fs%3A%3Awrite%28%26path%2C%20contents%29%3F%3B%0A%20%20%20%20%20%20%20%20paths.push%28path%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20let%20config%20%3D%20load_config%28%26paths%5B0%5D%29%3F%3B%0A%20%20%20%20println%21%28%22loaded%3A%20%7Bconfig%3A%3F%7D%22%29%3B%0A%0A%20%20%20%20if%20let%20Err%28e%29%20%3D%20load_config%28%26temp_path%28%22missing%22%29%29%20%7B%0A%20%20%20%20%20%20%20%20print_error_chain%28%26e%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20for%20path%20in%20%26paths%5B1..%5D%20%7B%0A%20%20%20%20%20%20%20%20if%20let%20Err%28e%29%20%3D%20load_config%28path%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20print_error_chain%28%26e%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20for%20path%20in%20%26paths%20%7B%0A%20%20%20%20%20%20%20%20fs%3A%3Aremove_file%28path%29%3F%3B%0A%20%20%20%20%7D%0A%20%20%20%20Ok%28%28%29%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20if%20let%20Err%28e%29%20%3D%20run%28%29%20%7B%0A%20%20%20%20%20%20%20%20print_error_chain%28e.as_ref%28%29%29%3B%0A%20%20%20%20%20%20%20%20std%3A%3Aprocess%3A%3Aexit%281%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20parses_valid_config%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20cfg%20%3D%20parse_config%28%22host%3Da%5Cn%5Cn%23%20c%5Cnport%3D1%5Cnworkers%3D64%22%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20cfg%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Config%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20host%3A%20%22a%22.into%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20port%3A%201%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20workers%3A%2064%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20parse_error_keeps_source%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20err%20%3D%20parse_config%28%22host%3Da%5Cnport%3D99999%5Cnworkers%3D1%22%29.unwrap_err%28%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28matches%21%28%26err%2C%20AppError%3A%3AParse%20%7B%20key%2C%20..%20%7D%20if%20key%20%3D%3D%20%22port%22%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28err.source%28%29.is_some%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28err.to_string%28%29%2C%20%22invalid%20value%20for%20%27port%27%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20missing_and_invalid%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28matches%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20parse_config%28%22port%3D1%5Cnworkers%3D1%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28AppError%3A%3AMissingKey%28%22host%22%29%29%0A%20%20%20%20%20%20%20%20%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28matches%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20parse_config%28%22host%3Da%5Cnport%3D0%5Cnworkers%3D1%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28AppError%3A%3AInvalid%28_%29%29%0A%20%20%20%20%20%20%20%20%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28matches%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20parse_config%28%22host%3Da%5Cnport%3D1%5Cnworkers%3D0%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28AppError%3A%3AInvalid%28_%29%29%0A%20%20%20%20%20%20%20%20%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28matches%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20parse_config%28%22nonsense%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28AppError%3A%3AInvalid%28_%29%29%0A%20%20%20%20%20%20%20%20%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20io_error_converts_with_question_mark%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20err%20%3D%20load_config%28%26temp_path%28%22test-missing%22%29%29.unwrap_err%28%29%3B%0A%20%20%20%20%20%20%20%20match%20%26err%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20AppError%3A%3AIo%28e%29%20%3D%3E%20assert_eq%21%28e.kind%28%29%2C%20io%3A%3AErrorKind%3A%3ANotFound%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20other%20%3D%3E%20panic%21%28%22expected%20Io%20error%2C%20got%20%7Bother%3A%3F%7D%22%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20assert%21%28err.source%28%29.is_some%28%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20load_valid_file%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20path%20%3D%20temp_path%28%22test-good%22%29%3B%0A%20%20%20%20%20%20%20%20fs%3A%3Awrite%28%26path%2C%20%22host%3Dh%5Cnport%3D2%5Cnworkers%3D3%22%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20let%20cfg%20%3D%20load_config%28%26path%29%3B%0A%20%20%20%20%20%20%20%20fs%3A%3Aremove_file%28%26path%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28cfg.unwrap%28%29.workers%2C%203%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/08-error-handling/27-custom-errors.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::error::<span class="tok-type">Error</span>;
+<span class="tok-keyword">use</span> std::fmt;
+<span class="tok-keyword">use</span> std::fs;
+<span class="tok-keyword">use</span> std::io;
+<span class="tok-keyword">use</span> std::num::<span class="tok-type">ParseIntError</span>;
+<span class="tok-keyword">use</span> std::path::{<span class="tok-type">Path</span>, <span class="tok-type">PathBuf</span>};
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Config</span> {
+    host: <span class="tok-type">String</span>,
+    port: <span class="tok-type">u16</span>,
+    workers: <span class="tok-type">u8</span>,
+}
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">AppError</span> {
+    <span class="tok-type">Io</span>(io::<span class="tok-type">Error</span>),
+    <span class="tok-type">Parse</span> { key: <span class="tok-type">String</span>, source: <span class="tok-type">ParseIntError</span> },
+    <span class="tok-type">MissingKey</span>(&amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>),
+    <span class="tok-type">Invalid</span>(<span class="tok-type">String</span>),
+}
+
+<span class="tok-keyword">impl</span> fmt::<span class="tok-type">Display</span> <span class="tok-keyword">for</span> <span class="tok-type">AppError</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">fmt</span>(&amp;<span class="tok-keyword">self</span>, f: &amp;<span class="tok-keyword">mut</span> fmt::<span class="tok-type">Formatter</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; fmt::<span class="tok-type">Result</span> {
+        <span class="tok-keyword">match</span> <span class="tok-keyword">self</span> {
+            <span class="tok-type">AppError</span>::<span class="tok-type">Io</span>(_) =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"I/O error"</span>),
+            <span class="tok-type">AppError</span>::<span class="tok-type">Parse</span> { key, .. } =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"invalid value for '{key}'"</span>),
+            <span class="tok-type">AppError</span>::<span class="tok-type">MissingKey</span>(key) =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"missing key '{key}'"</span>),
+            <span class="tok-type">AppError</span>::<span class="tok-type">Invalid</span>(msg) =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"invalid config: {msg}"</span>),
+        }
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Error</span> <span class="tok-keyword">for</span> <span class="tok-type">AppError</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">source</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">Option</span>&lt;&amp;(<span class="tok-keyword">dyn</span> <span class="tok-type">Error</span> + <span class="tok-lifetime">'static</span>)&gt; {
+        <span class="tok-keyword">match</span> <span class="tok-keyword">self</span> {
+            <span class="tok-type">AppError</span>::<span class="tok-type">Io</span>(e) =&gt; <span class="tok-type">Some</span>(e),
+            <span class="tok-type">AppError</span>::<span class="tok-type">Parse</span> { source, .. } =&gt; <span class="tok-type">Some</span>(source),
+            <span class="tok-type">AppError</span>::<span class="tok-type">MissingKey</span>(_) | <span class="tok-type">AppError</span>::<span class="tok-type">Invalid</span>(_) =&gt; <span class="tok-type">None</span>,
+        }
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">From</span>&lt;io::<span class="tok-type">Error</span>&gt; <span class="tok-keyword">for</span> <span class="tok-type">AppError</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">from</span>(e: io::<span class="tok-type">Error</span>) -&gt; <span class="tok-keyword">Self</span> {
+        <span class="tok-type">AppError</span>::<span class="tok-type">Io</span>(e)
+    }
+}
+
+<span class="tok-keyword">fn</span> parse_field&lt;<span class="tok-type">T</span>: std::<span class="tok-type">str</span>::<span class="tok-type">FromStr</span>&lt;<span class="tok-type">Err</span> = <span class="tok-type">ParseIntError</span>&gt;&gt;(
+    key: &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>,
+    value: <span class="tok-type">Option</span>&lt;&amp;<span class="tok-type">str</span>&gt;,
+) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">T</span>, <span class="tok-type">AppError</span>&gt; {
+    <span class="tok-keyword">let</span> raw = value.<span class="tok-fn">ok_or</span>(<span class="tok-type">AppError</span>::<span class="tok-type">MissingKey</span>(key))?;
+    raw.<span class="tok-fn">parse</span>().<span class="tok-fn">map_err</span>(|source| <span class="tok-type">AppError</span>::<span class="tok-type">Parse</span> {
+        key: key.<span class="tok-fn">to_string</span>(),
+        source,
+    })
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">parse_config</span>(text: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">Config</span>, <span class="tok-type">AppError</span>&gt; {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> host = <span class="tok-type">None</span>;
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> port = <span class="tok-type">None</span>;
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> workers = <span class="tok-type">None</span>;
+
+    <span class="tok-keyword">for</span> line <span class="tok-keyword">in</span> text.<span class="tok-fn">lines</span>().<span class="tok-fn">map</span>(<span class="tok-type">str</span>::trim) {
+        <span class="tok-keyword">if</span> line.<span class="tok-fn">is_empty</span>() || line.<span class="tok-fn">starts_with</span>(<span class="tok-string">'#'</span>) {
+            <span class="tok-keyword">continue</span>;
+        }
+        <span class="tok-keyword">let</span> (key, value) = line
+            .<span class="tok-fn">split_once</span>(<span class="tok-string">'='</span>)
+            .<span class="tok-fn">ok_or_else</span>(|| <span class="tok-type">AppError</span>::<span class="tok-type">Invalid</span>(<span class="tok-macro">format!</span>(<span class="tok-string">"expected key=value, got '{line}'"</span>)))?;
+        <span class="tok-keyword">let</span> value = value.<span class="tok-fn">trim</span>();
+        <span class="tok-keyword">match</span> key.<span class="tok-fn">trim</span>() {
+            <span class="tok-string">"host"</span> =&gt; host = <span class="tok-type">Some</span>(value),
+            <span class="tok-string">"port"</span> =&gt; port = <span class="tok-type">Some</span>(value),
+            <span class="tok-string">"workers"</span> =&gt; workers = <span class="tok-type">Some</span>(value),
+            other =&gt; <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-type">AppError</span>::<span class="tok-type">Invalid</span>(<span class="tok-macro">format!</span>(<span class="tok-string">"unknown key '{other}'"</span>))),
+        }
+    }
+
+    <span class="tok-keyword">let</span> host = host.<span class="tok-fn">ok_or</span>(<span class="tok-type">AppError</span>::<span class="tok-type">MissingKey</span>(<span class="tok-string">"host"</span>))?;
+    <span class="tok-keyword">if</span> host.<span class="tok-fn">is_empty</span>() {
+        <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-type">AppError</span>::<span class="tok-type">Invalid</span>(<span class="tok-string">"host must not be empty"</span>.<span class="tok-fn">to_string</span>()));
+    }
+    <span class="tok-keyword">let</span> port: <span class="tok-type">u16</span> = <span class="tok-fn">parse_field</span>(<span class="tok-string">"port"</span>, port)?;
+    <span class="tok-keyword">if</span> port == <span class="tok-number">0</span> {
+        <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-type">AppError</span>::<span class="tok-type">Invalid</span>(<span class="tok-string">"port must not be 0"</span>.<span class="tok-fn">to_string</span>()));
+    }
+    <span class="tok-keyword">let</span> workers: <span class="tok-type">u8</span> = <span class="tok-fn">parse_field</span>(<span class="tok-string">"workers"</span>, workers)?;
+    <span class="tok-keyword">if</span> !(<span class="tok-number">1</span>..=<span class="tok-number">64</span>).<span class="tok-fn">contains</span>(&amp;workers) {
+        <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-type">AppError</span>::<span class="tok-type">Invalid</span>(<span class="tok-macro">format!</span>(
+            <span class="tok-string">"workers must be in 1..=64, got {workers}"</span>
+        )));
+    }
+
+    <span class="tok-type">Ok</span>(<span class="tok-type">Config</span> {
+        host: host.<span class="tok-fn">to_string</span>(),
+        port,
+        workers,
+    })
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">load_config</span>(path: &amp;<span class="tok-type">Path</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">Config</span>, <span class="tok-type">AppError</span>&gt; {
+    <span class="tok-keyword">let</span> text = fs::<span class="tok-fn">read_to_string</span>(path)?;
+    <span class="tok-fn">parse_config</span>(&amp;text)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">print_error_chain</span>(err: &amp;<span class="tok-keyword">dyn</span> <span class="tok-type">Error</span>) {
+    <span class="tok-macro">println!</span>(<span class="tok-string">"error: {err}"</span>);
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> source = err.<span class="tok-fn">source</span>();
+    <span class="tok-keyword">while</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span>(cause) = source {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"  caused by: {cause}"</span>);
+        source = cause.<span class="tok-fn">source</span>();
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">temp_path</span>(name: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">PathBuf</span> {
+    std::env::<span class="tok-fn">temp_dir</span>().<span class="tok-fn">join</span>(<span class="tok-macro">format!</span>(<span class="tok-string">"rust-ex27-{name}-{}.conf"</span>, std::process::<span class="tok-fn">id</span>()))
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">run</span>() -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">Error</span>&gt;&gt; {
+    <span class="tok-keyword">let</span> samples = [
+        (
+            <span class="tok-string">"good"</span>,
+            <span class="tok-string">"# demo\nhost = localhost\nport = 8080\nworkers = 4\n"</span>,
+        ),
+        (<span class="tok-string">"bad-port"</span>, <span class="tok-string">"host=localhost\nport=80a\nworkers=4\n"</span>),
+        (<span class="tok-string">"no-workers"</span>, <span class="tok-string">"host=localhost\nport=8080\n"</span>),
+        (<span class="tok-string">"too-many"</span>, <span class="tok-string">"host=localhost\nport=8080\nworkers=99\n"</span>),
+    ];
+
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> paths = <span class="tok-type">Vec</span>::<span class="tok-fn">new</span>();
+    <span class="tok-keyword">for</span> (name, contents) <span class="tok-keyword">in</span> samples {
+        <span class="tok-keyword">let</span> path = <span class="tok-fn">temp_path</span>(name);
+        fs::<span class="tok-fn">write</span>(&amp;path, contents)?;
+        paths.<span class="tok-fn">push</span>(path);
+    }
+
+    <span class="tok-keyword">let</span> config = <span class="tok-fn">load_config</span>(&amp;paths[<span class="tok-number">0</span>])?;
+    <span class="tok-macro">println!</span>(<span class="tok-string">"loaded: {config:?}"</span>);
+
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = <span class="tok-fn">load_config</span>(&amp;<span class="tok-fn">temp_path</span>(<span class="tok-string">"missing"</span>)) {
+        <span class="tok-fn">print_error_chain</span>(&amp;e);
+    }
+    <span class="tok-keyword">for</span> path <span class="tok-keyword">in</span> &amp;paths[<span class="tok-number">1</span>..] {
+        <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = <span class="tok-fn">load_config</span>(path) {
+            <span class="tok-fn">print_error_chain</span>(&amp;e);
+        }
+    }
+
+    <span class="tok-keyword">for</span> path <span class="tok-keyword">in</span> &amp;paths {
+        fs::<span class="tok-fn">remove_file</span>(path)?;
+    }
+    <span class="tok-type">Ok</span>(())
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = <span class="tok-fn">run</span>() {
+        <span class="tok-fn">print_error_chain</span>(e.<span class="tok-fn">as_ref</span>());
+        std::process::<span class="tok-fn">exit</span>(<span class="tok-number">1</span>);
+    }
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">parses_valid_config</span>() {
+        <span class="tok-keyword">let</span> cfg = <span class="tok-fn">parse_config</span>(<span class="tok-string">"host=a\n\n# c\nport=1\nworkers=64"</span>).<span class="tok-fn">unwrap</span>();
+        <span class="tok-macro">assert_eq!</span>(
+            cfg,
+            <span class="tok-type">Config</span> {
+                host: <span class="tok-string">"a"</span>.<span class="tok-fn">into</span>(),
+                port: <span class="tok-number">1</span>,
+                workers: <span class="tok-number">64</span>
+            }
+        );
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">parse_error_keeps_source</span>() {
+        <span class="tok-keyword">let</span> err = <span class="tok-fn">parse_config</span>(<span class="tok-string">"host=a\nport=99999\nworkers=1"</span>).<span class="tok-fn">unwrap_err</span>();
+        <span class="tok-macro">assert!</span>(<span class="tok-macro">matches!</span>(&amp;err, <span class="tok-type">AppError</span>::<span class="tok-type">Parse</span> { key, .. } <span class="tok-keyword">if</span> key == <span class="tok-string">"port"</span>));
+        <span class="tok-macro">assert!</span>(err.<span class="tok-fn">source</span>().<span class="tok-fn">is_some</span>());
+        <span class="tok-macro">assert_eq!</span>(err.<span class="tok-fn">to_string</span>(), <span class="tok-string">"invalid value for 'port'"</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">missing_and_invalid</span>() {
+        <span class="tok-macro">assert!</span>(<span class="tok-macro">matches!</span>(
+            <span class="tok-fn">parse_config</span>(<span class="tok-string">"port=1\nworkers=1"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">AppError</span>::<span class="tok-type">MissingKey</span>(<span class="tok-string">"host"</span>))
+        ));
+        <span class="tok-macro">assert!</span>(<span class="tok-macro">matches!</span>(
+            <span class="tok-fn">parse_config</span>(<span class="tok-string">"host=a\nport=0\nworkers=1"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">AppError</span>::<span class="tok-type">Invalid</span>(_))
+        ));
+        <span class="tok-macro">assert!</span>(<span class="tok-macro">matches!</span>(
+            <span class="tok-fn">parse_config</span>(<span class="tok-string">"host=a\nport=1\nworkers=0"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">AppError</span>::<span class="tok-type">Invalid</span>(_))
+        ));
+        <span class="tok-macro">assert!</span>(<span class="tok-macro">matches!</span>(
+            <span class="tok-fn">parse_config</span>(<span class="tok-string">"nonsense"</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">AppError</span>::<span class="tok-type">Invalid</span>(_))
+        ));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">io_error_converts_with_question_mark</span>() {
+        <span class="tok-keyword">let</span> err = <span class="tok-fn">load_config</span>(&amp;<span class="tok-fn">temp_path</span>(<span class="tok-string">"test-missing"</span>)).<span class="tok-fn">unwrap_err</span>();
+        <span class="tok-keyword">match</span> &amp;err {
+            <span class="tok-type">AppError</span>::<span class="tok-type">Io</span>(e) =&gt; <span class="tok-macro">assert_eq!</span>(e.<span class="tok-fn">kind</span>(), io::<span class="tok-type">ErrorKind</span>::<span class="tok-type">NotFound</span>),
+            other =&gt; <span class="tok-macro">panic!</span>(<span class="tok-string">"expected Io error, got {other:?}"</span>),
+        }
+        <span class="tok-macro">assert!</span>(err.<span class="tok-fn">source</span>().<span class="tok-fn">is_some</span>());
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">load_valid_file</span>() {
+        <span class="tok-keyword">let</span> path = <span class="tok-fn">temp_path</span>(<span class="tok-string">"test-good"</span>);
+        fs::<span class="tok-fn">write</span>(&amp;path, <span class="tok-string">"host=h\nport=2\nworkers=3"</span>).<span class="tok-fn">unwrap</span>();
+        <span class="tok-keyword">let</span> cfg = <span class="tok-fn">load_config</span>(&amp;path);
+        fs::<span class="tok-fn">remove_file</span>(&amp;path).<span class="tok-fn">unwrap</span>();
+        <span class="tok-macro">assert_eq!</span>(cfg.<span class="tok-fn">unwrap</span>().workers, <span class="tok-number">3</span>);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 27-custom-errors.rs -o 27-custom-errors &amp;&amp; ./27-custom-errors
+
+# run the unit tests
+rustc --edition 2021 --test 27-custom-errors.rs -o 27-custom-errors-tests &amp;&amp; ./27-custom-errors-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/26-data-validation.html"><small>← Previous</small>26 · Signup Form Validation</a><a class="pager-link next" href="../exercises/28-generic-max.html"><small>Next →</small>28 · Generic Max</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

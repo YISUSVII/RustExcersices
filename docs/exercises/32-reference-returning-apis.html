@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>32 · Reference-Returning APIs · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Write functions and structs that return borrowed data, using explicit lifetime annotations to describe which input the output borrows from.">
+<meta property="og:title" content="32 · Reference-Returning APIs · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Write functions and structs that return borrowed data, using explicit lifetime annotations to describe which input the output borrows from.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/09-generics-traits-lifetimes.html">Level 9 — Generics, Traits and Lifetimes</a><span>/</span><span>Exercise 32</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 32 · Level 9 — Generics, Traits and Lifetimes</div>
+  <h1>Reference-Returning APIs</h1>
+  <p class="lead">Write functions and structs that return borrowed data, using explicit lifetime annotations to describe which input the output borrows from.</p>
+  <div class="meta"><span class="badge diff-advanced">Advanced</span><span class="chip">lifetime parameters</span><span class="chip">lifetime elision rules</span><span class="chip">structs holding references</span><span class="chip">`&amp;str` slicing</span><span class="chip">`Option&lt;&amp;T&gt;`</span><span class="chip">iterators over borrowed data</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="32"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<ol><li>Implement <code>longest&lt;'a&gt;(a: &amp;'a str, b: &amp;'a str) -&gt; &amp;'a str</code>. - On equal length, return <code>a</code>.</li><li>Implement <code>first_word(s: &amp;str) -&gt; &amp;str</code> (lifetime elided — explain in a comment why that is allowed). - Leading whitespace is skipped; an empty/blank string returns <code>""</code>.</li><li>Implement <code>longest_with_prefix&lt;'a&gt;(words: &amp;[&amp;'a str], prefix: &amp;str) -&gt; Option&lt;&amp;'a str&gt;</code>. - Note that the result borrows from <code>words</code>' contents, <strong>not</strong> from <code>prefix</code>.</li><li>Create a tokenizer struct that holds a reference:
+<pre class="code" data-lang="rust"><code><span class="tok-keyword">struct</span> <span class="tok-type">Parser</span>&lt;<span class="tok-lifetime">'a</span>&gt; { input: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>, pos: <span class="tok-type">usize</span> }</code></pre>
+<p>with methods: - <code>fn new(input: &amp;'a str) -&gt; Self</code> - <code>fn next_token(&amp;mut self) -&gt; Option&lt;&amp;'a str&gt;</code> — returns the next whitespace-separated token. The returned slice must outlive the <code>&amp;mut self</code> borrow (that's why it is <code>&amp;'a str</code>, not <code>&amp;str</code>). - <code>fn remaining(&amp;self) -&gt; &amp;'a str</code> — the unparsed rest (leading whitespace trimmed).</p></li><li>Implement <code>split_key_value(line: &amp;str) -&gt; Option&lt;(&amp;str, &amp;str)&gt;</code> that splits <code>"key = value"</code> into trimmed <code>("key", "value")</code>.</li><li>In <code>main</code>, collect several tokens into a <code>Vec&lt;&amp;str&gt;</code> <em>while still holding the parser</em>, proving the tokens are not tied to the parser borrow.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<ul><li><code>longest("apple", "fig")</code> =&gt; <code>"apple"</code></li><li><code>first_word("  hello world")</code> =&gt; <code>"hello"</code></li><li><code>longest_with_prefix(&amp;["car", "cartoon", "dog"], "car")</code> =&gt; <code>Some("cartoon")</code></li><li><code>Parser::new("let x = 5")</code> yields <code>"let"</code>, <code>"x"</code>, <code>"="</code>, <code>"5"</code>, then <code>None</code></li><li><code>split_key_value("name = Ferris")</code> =&gt; <code>Some(("name", "Ferris"))</code></li><li><code>split_key_value("no equals")</code> =&gt; <code>None</code></li></ul>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li>Elision rule: with exactly one reference input, the output gets that input's lifetime.</li><li><code>str::find(char::is_whitespace)</code> and <code>str::trim_start</code> are useful for the parser.</li><li>Track <code>pos</code> as a byte offset into <code>input</code>; slice with <code>&amp;self.input[start..end]</code>.</li><li><code>str::split_once('=')</code> returns <code>Option&lt;(&amp;str, &amp;str)&gt;</code>.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Implement <code>Iterator for Parser&lt;'a&gt;</code> with <code>type Item = &amp;'a str;</code> and use it in a <code>for</code> loop.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">09-generics-traits-lifetimes/exercises/32-reference-returning-apis.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=fn%20longest%3C%27a%3E%28a%3A%20%26%27a%20str%2C%20b%3A%20%26%27a%20str%29%20-%3E%20%26%27a%20str%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20%28a%2C%20b%29%3B%0A%20%20%20%20todo%21%28%22Return%20the%20longer%20string%20%28a%20on%20ties%29%22%29%0A%7D%0A%0A//%20TODO%3A%20explain%20in%20a%20comment%20why%20no%20lifetime%20annotation%20is%20needed%20here.%0Afn%20first_word%28s%3A%20%26str%29%20-%3E%20%26str%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20s%3B%0A%20%20%20%20todo%21%28%22Skip%20leading%20whitespace%20and%20return%20the%20first%20word%2C%20or%20an%20empty%20str%22%29%0A%7D%0A%0Afn%20longest_with_prefix%3C%27a%3E%28words%3A%20%26%5B%26%27a%20str%5D%2C%20prefix%3A%20%26str%29%20-%3E%20Option%3C%26%27a%20str%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20%28words%2C%20prefix%29%3B%0A%20%20%20%20todo%21%28%22Keep%20the%20longest%20word%20that%20starts%20with%20prefix%22%29%0A%7D%0A%0Afn%20split_key_value%28line%3A%20%26str%29%20-%3E%20Option%3C%28%26str%2C%20%26str%29%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20line%3B%0A%20%20%20%20todo%21%28%22Use%20split_once%28%27%3D%27%29%20and%20trim%20both%20sides%22%29%0A%7D%0A%0Astruct%20Parser%3C%27a%3E%20%7B%0A%20%20%20%20input%3A%20%26%27a%20str%2C%0A%20%20%20%20pos%3A%20usize%2C%0A%7D%0A%0Aimpl%3C%27a%3E%20Parser%3C%27a%3E%20%7B%0A%20%20%20%20fn%20new%28input%3A%20%26%27a%20str%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20Self%20%7B%20input%2C%20pos%3A%200%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20remaining%28%26self%29%20-%3E%20%26%27a%20str%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20%28self.input%2C%20self.pos%29%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Return%20the%20unparsed%20part%20of%20input%20with%20leading%20whitespace%20trimmed%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20next_token%28%26mut%20self%29%20-%3E%20Option%3C%26%27a%20str%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20todo%21%28%22Return%20the%20next%20whitespace-separated%20token%20and%20advance%20pos%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20println%21%28%22longest%20%3D%20%7B%7D%22%2C%20longest%28%22apple%22%2C%20%22fig%22%29%29%3B%0A%20%20%20%20println%21%28%22first_word%20%3D%20%7B%3A%3F%7D%22%2C%20first_word%28%22%20%20hello%20world%22%29%29%3B%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22longest_with_prefix%20%3D%20%7B%3A%3F%7D%22%2C%0A%20%20%20%20%20%20%20%20longest_with_prefix%28%26%5B%22car%22%2C%20%22cartoon%22%2C%20%22dog%22%5D%2C%20%22car%22%29%0A%20%20%20%20%29%3B%0A%0A%20%20%20%20let%20source%20%3D%20String%3A%3Afrom%28%22let%20x%20%3D%205%22%29%3B%0A%20%20%20%20let%20mut%20parser%20%3D%20Parser%3A%3Anew%28%26source%29%3B%0A%20%20%20%20let%20mut%20tokens%3A%20Vec%3C%26str%3E%20%3D%20Vec%3A%3Anew%28%29%3B%0A%20%20%20%20while%20let%20Some%28tok%29%20%3D%20parser.next_token%28%29%20%7B%0A%20%20%20%20%20%20%20%20tokens.push%28tok%29%3B%0A%20%20%20%20%20%20%20%20if%20tokens.len%28%29%20%3D%3D%202%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20println%21%28%22after%202%20tokens%2C%20remaining%20%3D%20%7B%3A%3F%7D%22%2C%20parser.remaining%28%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%22tokens%20%3D%20%7Btokens%3A%3F%7D%22%29%3B%0A%0A%20%20%20%20for%20line%20in%20%5B%22name%20%3D%20Ferris%22%2C%20%22%20%20age%3D7%20%22%2C%20%22no%20equals%22%5D%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%7Bline%3A%3F%7D%20-%3E%20%7B%3A%3F%7D%22%2C%20split_key_value%28line%29%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20longest_and_first_word%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28longest%28%22apple%22%2C%20%22fig%22%29%2C%20%22apple%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28longest%28%22ab%22%2C%20%22cd%22%29%2C%20%22ab%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28first_word%28%22%20%20hello%20world%22%29%2C%20%22hello%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28first_word%28%22%20%20%20%22%29%2C%20%22%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20prefix_search_borrows_from_words%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20words%20%3D%20vec%21%5B%22car%22%2C%20%22cartoon%22%2C%20%22dog%22%5D%3B%0A%20%20%20%20%20%20%20%20let%20found%3B%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20prefix%20%3D%20String%3A%3Afrom%28%22car%22%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20found%20%3D%20longest_with_prefix%28%26words%2C%20%26prefix%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20assert_eq%21%28found%2C%20Some%28%22cartoon%22%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28longest_with_prefix%28%26words%2C%20%22z%22%29%2C%20None%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20parser_tokens_outlive_the_parser%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20input%20%3D%20String%3A%3Afrom%28%22let%20x%20%3D%205%22%29%3B%0A%20%20%20%20%20%20%20%20let%20tokens%3A%20Vec%3C%26str%3E%20%3D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20mut%20parser%20%3D%20Parser%3A%3Anew%28%26input%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20mut%20out%20%3D%20Vec%3A%3Anew%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20while%20let%20Some%28t%29%20%3D%20parser.next_token%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20out.push%28t%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20out%0A%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28tokens%2C%20vec%21%5B%22let%22%2C%20%22x%22%2C%20%22%3D%22%2C%20%225%22%5D%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20key_value_splitting%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28split_key_value%28%22name%20%3D%20Ferris%22%29%2C%20Some%28%28%22name%22%2C%20%22Ferris%22%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28split_key_value%28%22no%20equals%22%29%2C%20None%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/09-generics-traits-lifetimes/exercises/32-reference-returning-apis.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">fn</span> longest&lt;<span class="tok-lifetime">'a</span>&gt;(a: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>, b: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>) -&gt; &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span> {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = (a, b);
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Return the longer string (a on ties)"</span>)
+}
+
+<span class="tok-comment">// TODO: explain in a comment why no lifetime annotation is needed here.</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">first_word</span>(s: &amp;<span class="tok-type">str</span>) -&gt; &amp;<span class="tok-type">str</span> {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = s;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Skip leading whitespace and return the first word, or an empty str"</span>)
+}
+
+<span class="tok-keyword">fn</span> longest_with_prefix&lt;<span class="tok-lifetime">'a</span>&gt;(words: &amp;[&amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>], prefix: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Option</span>&lt;&amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = (words, prefix);
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Keep the longest word that starts with prefix"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">split_key_value</span>(line: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Option</span>&lt;(&amp;<span class="tok-type">str</span>, &amp;<span class="tok-type">str</span>)&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = line;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Use split_once('=') and trim both sides"</span>)
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">Parser</span>&lt;<span class="tok-lifetime">'a</span>&gt; {
+    input: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>,
+    pos: <span class="tok-type">usize</span>,
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-lifetime">'a</span>&gt; <span class="tok-type">Parser</span>&lt;<span class="tok-lifetime">'a</span>&gt; {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(input: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>) -&gt; <span class="tok-keyword">Self</span> {
+        <span class="tok-keyword">Self</span> { input, pos: <span class="tok-number">0</span> }
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">remaining</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-keyword">let</span> _ = (<span class="tok-keyword">self</span>.input, <span class="tok-keyword">self</span>.pos);
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Return the unparsed part of input with leading whitespace trimmed"</span>)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">next_token</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>) -&gt; <span class="tok-type">Option</span>&lt;&amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>&gt; {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Return the next whitespace-separated token and advance pos"</span>)
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-macro">println!</span>(<span class="tok-string">"longest = {}"</span>, <span class="tok-fn">longest</span>(<span class="tok-string">"apple"</span>, <span class="tok-string">"fig"</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"first_word = {:?}"</span>, <span class="tok-fn">first_word</span>(<span class="tok-string">"  hello world"</span>));
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"longest_with_prefix = {:?}"</span>,
+        <span class="tok-fn">longest_with_prefix</span>(&amp;[<span class="tok-string">"car"</span>, <span class="tok-string">"cartoon"</span>, <span class="tok-string">"dog"</span>], <span class="tok-string">"car"</span>)
+    );
+
+    <span class="tok-keyword">let</span> source = <span class="tok-type">String</span>::<span class="tok-fn">from</span>(<span class="tok-string">"let x = 5"</span>);
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> parser = <span class="tok-type">Parser</span>::<span class="tok-fn">new</span>(&amp;source);
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> tokens: <span class="tok-type">Vec</span>&lt;&amp;<span class="tok-type">str</span>&gt; = <span class="tok-type">Vec</span>::<span class="tok-fn">new</span>();
+    <span class="tok-keyword">while</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span>(tok) = parser.<span class="tok-fn">next_token</span>() {
+        tokens.<span class="tok-fn">push</span>(tok);
+        <span class="tok-keyword">if</span> tokens.<span class="tok-fn">len</span>() == <span class="tok-number">2</span> {
+            <span class="tok-macro">println!</span>(<span class="tok-string">"after 2 tokens, remaining = {:?}"</span>, parser.<span class="tok-fn">remaining</span>());
+        }
+    }
+    <span class="tok-macro">println!</span>(<span class="tok-string">"tokens = {tokens:?}"</span>);
+
+    <span class="tok-keyword">for</span> line <span class="tok-keyword">in</span> [<span class="tok-string">"name = Ferris"</span>, <span class="tok-string">"  age=7 "</span>, <span class="tok-string">"no equals"</span>] {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"{line:?} -&gt; {:?}"</span>, <span class="tok-fn">split_key_value</span>(line));
+    }
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">longest_and_first_word</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">longest</span>(<span class="tok-string">"apple"</span>, <span class="tok-string">"fig"</span>), <span class="tok-string">"apple"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">longest</span>(<span class="tok-string">"ab"</span>, <span class="tok-string">"cd"</span>), <span class="tok-string">"ab"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">first_word</span>(<span class="tok-string">"  hello world"</span>), <span class="tok-string">"hello"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">first_word</span>(<span class="tok-string">"   "</span>), <span class="tok-string">""</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">prefix_search_borrows_from_words</span>() {
+        <span class="tok-keyword">let</span> words = <span class="tok-macro">vec!</span>[<span class="tok-string">"car"</span>, <span class="tok-string">"cartoon"</span>, <span class="tok-string">"dog"</span>];
+        <span class="tok-keyword">let</span> found;
+        {
+            <span class="tok-keyword">let</span> prefix = <span class="tok-type">String</span>::<span class="tok-fn">from</span>(<span class="tok-string">"car"</span>);
+            found = <span class="tok-fn">longest_with_prefix</span>(&amp;words, &amp;prefix);
+        }
+        <span class="tok-macro">assert_eq!</span>(found, <span class="tok-type">Some</span>(<span class="tok-string">"cartoon"</span>));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">longest_with_prefix</span>(&amp;words, <span class="tok-string">"z"</span>), <span class="tok-type">None</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">parser_tokens_outlive_the_parser</span>() {
+        <span class="tok-keyword">let</span> input = <span class="tok-type">String</span>::<span class="tok-fn">from</span>(<span class="tok-string">"let x = 5"</span>);
+        <span class="tok-keyword">let</span> tokens: <span class="tok-type">Vec</span>&lt;&amp;<span class="tok-type">str</span>&gt; = {
+            <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> parser = <span class="tok-type">Parser</span>::<span class="tok-fn">new</span>(&amp;input);
+            <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> out = <span class="tok-type">Vec</span>::<span class="tok-fn">new</span>();
+            <span class="tok-keyword">while</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span>(t) = parser.<span class="tok-fn">next_token</span>() {
+                out.<span class="tok-fn">push</span>(t);
+            }
+            out
+        };
+        <span class="tok-macro">assert_eq!</span>(tokens, <span class="tok-macro">vec!</span>[<span class="tok-string">"let"</span>, <span class="tok-string">"x"</span>, <span class="tok-string">"="</span>, <span class="tok-string">"5"</span>]);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">key_value_splitting</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">split_key_value</span>(<span class="tok-string">"name = Ferris"</span>), <span class="tok-type">Some</span>((<span class="tok-string">"name"</span>, <span class="tok-string">"Ferris"</span>)));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">split_key_value</span>(<span class="tok-string">"no equals"</span>), <span class="tok-type">None</span>);
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/09-generics-traits-lifetimes/32-reference-returning-apis.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=fn%20longest%3C%27a%3E%28a%3A%20%26%27a%20str%2C%20b%3A%20%26%27a%20str%29%20-%3E%20%26%27a%20str%20%7B%0A%20%20%20%20if%20b.len%28%29%20%3E%20a.len%28%29%20%7B%0A%20%20%20%20%20%20%20%20b%0A%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20a%0A%20%20%20%20%7D%0A%7D%0A%0A//%20One%20reference%20input%20%3D%3E%20the%20elision%20rules%20give%20the%20output%20the%20same%20lifetime.%0Afn%20first_word%28s%3A%20%26str%29%20-%3E%20%26str%20%7B%0A%20%20%20%20s.split_whitespace%28%29.next%28%29.unwrap_or%28%22%22%29%0A%7D%0A%0A//%20%60prefix%60%20gets%20its%20own%20%28elided%29%20lifetime%20because%20the%20result%20never%20borrows%20from%20it.%0Afn%20longest_with_prefix%3C%27a%3E%28words%3A%20%26%5B%26%27a%20str%5D%2C%20prefix%3A%20%26str%29%20-%3E%20Option%3C%26%27a%20str%3E%20%7B%0A%20%20%20%20words%0A%20%20%20%20%20%20%20%20.iter%28%29%0A%20%20%20%20%20%20%20%20.copied%28%29%0A%20%20%20%20%20%20%20%20.filter%28%7Cw%7C%20w.starts_with%28prefix%29%29%0A%20%20%20%20%20%20%20%20.fold%28None%2C%20%7Cbest%2C%20w%7C%20match%20best%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Some%28b%29%20if%20b.len%28%29%20%3E%3D%20w.len%28%29%20%3D%3E%20Some%28b%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20_%20%3D%3E%20Some%28w%29%2C%0A%20%20%20%20%20%20%20%20%7D%29%0A%7D%0A%0Afn%20split_key_value%28line%3A%20%26str%29%20-%3E%20Option%3C%28%26str%2C%20%26str%29%3E%20%7B%0A%20%20%20%20let%20%28key%2C%20value%29%20%3D%20line.split_once%28%27%3D%27%29%3F%3B%0A%20%20%20%20let%20%28key%2C%20value%29%20%3D%20%28key.trim%28%29%2C%20value.trim%28%29%29%3B%0A%20%20%20%20if%20key.is_empty%28%29%20%7B%0A%20%20%20%20%20%20%20%20None%0A%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20Some%28%28key%2C%20value%29%29%0A%20%20%20%20%7D%0A%7D%0A%0Astruct%20Parser%3C%27a%3E%20%7B%0A%20%20%20%20input%3A%20%26%27a%20str%2C%0A%20%20%20%20pos%3A%20usize%2C%0A%7D%0A%0Aimpl%3C%27a%3E%20Parser%3C%27a%3E%20%7B%0A%20%20%20%20fn%20new%28input%3A%20%26%27a%20str%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20Self%20%7B%20input%2C%20pos%3A%200%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20remaining%28%26self%29%20-%3E%20%26%27a%20str%20%7B%0A%20%20%20%20%20%20%20%20self.input%5Bself.pos..%5D.trim_start%28%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20Returning%20%60%26%27a%20str%60%20%28not%20%60%26str%60%29%20ties%20the%20token%20to%20the%20input%2C%20not%20to%20%60%26mut%20self%60.%0A%20%20%20%20fn%20next_token%28%26mut%20self%29%20-%3E%20Option%3C%26%27a%20str%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20rest%20%3D%20self.remaining%28%29%3B%0A%20%20%20%20%20%20%20%20if%20rest.is_empty%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20self.pos%20%3D%20self.input.len%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20None%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20let%20start%20%3D%20self.input.len%28%29%20-%20rest.len%28%29%3B%0A%20%20%20%20%20%20%20%20let%20len%20%3D%20rest.find%28char%3A%3Ais_whitespace%29.unwrap_or%28rest.len%28%29%29%3B%0A%20%20%20%20%20%20%20%20self.pos%20%3D%20start%20%2B%20len%3B%0A%20%20%20%20%20%20%20%20Some%28%26self.input%5Bstart..start%20%2B%20len%5D%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%3C%27a%3E%20Iterator%20for%20Parser%3C%27a%3E%20%7B%0A%20%20%20%20type%20Item%20%3D%20%26%27a%20str%3B%0A%0A%20%20%20%20fn%20next%28%26mut%20self%29%20-%3E%20Option%3CSelf%3A%3AItem%3E%20%7B%0A%20%20%20%20%20%20%20%20self.next_token%28%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20println%21%28%22longest%20%3D%20%7B%7D%22%2C%20longest%28%22apple%22%2C%20%22fig%22%29%29%3B%0A%20%20%20%20println%21%28%22first_word%20%3D%20%7B%3A%3F%7D%22%2C%20first_word%28%22%20%20hello%20world%22%29%29%3B%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22longest_with_prefix%20%3D%20%7B%3A%3F%7D%22%2C%0A%20%20%20%20%20%20%20%20longest_with_prefix%28%26%5B%22car%22%2C%20%22cartoon%22%2C%20%22dog%22%5D%2C%20%22car%22%29%0A%20%20%20%20%29%3B%0A%0A%20%20%20%20let%20source%20%3D%20String%3A%3Afrom%28%22let%20x%20%3D%205%22%29%3B%0A%20%20%20%20let%20mut%20parser%20%3D%20Parser%3A%3Anew%28%26source%29%3B%0A%20%20%20%20let%20mut%20tokens%3A%20Vec%3C%26str%3E%20%3D%20Vec%3A%3Anew%28%29%3B%0A%20%20%20%20while%20let%20Some%28tok%29%20%3D%20parser.next_token%28%29%20%7B%0A%20%20%20%20%20%20%20%20tokens.push%28tok%29%3B%0A%20%20%20%20%20%20%20%20if%20tokens.len%28%29%20%3D%3D%202%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20println%21%28%22after%202%20tokens%2C%20remaining%20%3D%20%7B%3A%3F%7D%22%2C%20parser.remaining%28%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%22tokens%20%3D%20%7Btokens%3A%3F%7D%22%29%3B%0A%0A%20%20%20%20for%20%28i%2C%20tok%29%20in%20Parser%3A%3Anew%28%22%20%20fn%20main%20%28%20%29%20%20%22%29.enumerate%28%29%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22iter%20token%20%7Bi%7D%3A%20%7Btok%7D%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20for%20line%20in%20%5B%22name%20%3D%20Ferris%22%2C%20%22%20%20age%3D7%20%22%2C%20%22no%20equals%22%5D%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%7Bline%3A%3F%7D%20-%3E%20%7B%3A%3F%7D%22%2C%20split_key_value%28line%29%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20longest_and_first_word%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28longest%28%22apple%22%2C%20%22fig%22%29%2C%20%22apple%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28longest%28%22ab%22%2C%20%22cd%22%29%2C%20%22ab%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28first_word%28%22%20%20hello%20world%22%29%2C%20%22hello%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28first_word%28%22%20%20%20%22%29%2C%20%22%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20prefix_search_borrows_from_words%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20words%20%3D%20vec%21%5B%22car%22%2C%20%22cartoon%22%2C%20%22dog%22%5D%3B%0A%20%20%20%20%20%20%20%20let%20found%3B%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20prefix%20%3D%20String%3A%3Afrom%28%22car%22%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20found%20%3D%20longest_with_prefix%28%26words%2C%20%26prefix%29%3B%0A%20%20%20%20%20%20%20%20%7D%20//%20prefix%20dropped%20here%3B%20%60found%60%20is%20still%20valid.%0A%20%20%20%20%20%20%20%20assert_eq%21%28found%2C%20Some%28%22cartoon%22%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28longest_with_prefix%28%26words%2C%20%22z%22%29%2C%20None%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20parser_yields_tokens_that_outlive_the_parser%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20input%20%3D%20String%3A%3Afrom%28%22let%20x%20%3D%205%22%29%3B%0A%20%20%20%20%20%20%20%20let%20tokens%3A%20Vec%3C%26str%3E%20%3D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20parser%20%3D%20Parser%3A%3Anew%28%26input%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20parser.collect%28%29%0A%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28tokens%2C%20vec%21%5B%22let%22%2C%20%22x%22%2C%20%22%3D%22%2C%20%225%22%5D%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20key_value_splitting%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28split_key_value%28%22name%20%3D%20Ferris%22%29%2C%20Some%28%28%22name%22%2C%20%22Ferris%22%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28split_key_value%28%22no%20equals%22%29%2C%20None%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28split_key_value%28%22%20%3D%20value%22%29%2C%20None%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/09-generics-traits-lifetimes/32-reference-returning-apis.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">fn</span> longest&lt;<span class="tok-lifetime">'a</span>&gt;(a: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>, b: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>) -&gt; &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span> {
+    <span class="tok-keyword">if</span> b.<span class="tok-fn">len</span>() &gt; a.<span class="tok-fn">len</span>() {
+        b
+    } <span class="tok-keyword">else</span> {
+        a
+    }
+}
+
+<span class="tok-comment">// One reference input =&gt; the elision rules give the output the same lifetime.</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">first_word</span>(s: &amp;<span class="tok-type">str</span>) -&gt; &amp;<span class="tok-type">str</span> {
+    s.<span class="tok-fn">split_whitespace</span>().<span class="tok-fn">next</span>().<span class="tok-fn">unwrap_or</span>(<span class="tok-string">""</span>)
+}
+
+<span class="tok-comment">// `prefix` gets its own (elided) lifetime because the result never borrows from it.</span>
+<span class="tok-keyword">fn</span> longest_with_prefix&lt;<span class="tok-lifetime">'a</span>&gt;(words: &amp;[&amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>], prefix: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Option</span>&lt;&amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>&gt; {
+    words
+        .<span class="tok-fn">iter</span>()
+        .<span class="tok-fn">copied</span>()
+        .<span class="tok-fn">filter</span>(|w| w.<span class="tok-fn">starts_with</span>(prefix))
+        .<span class="tok-fn">fold</span>(<span class="tok-type">None</span>, |best, w| <span class="tok-keyword">match</span> best {
+            <span class="tok-type">Some</span>(b) <span class="tok-keyword">if</span> b.<span class="tok-fn">len</span>() &gt;= w.<span class="tok-fn">len</span>() =&gt; <span class="tok-type">Some</span>(b),
+            _ =&gt; <span class="tok-type">Some</span>(w),
+        })
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">split_key_value</span>(line: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Option</span>&lt;(&amp;<span class="tok-type">str</span>, &amp;<span class="tok-type">str</span>)&gt; {
+    <span class="tok-keyword">let</span> (key, value) = line.<span class="tok-fn">split_once</span>(<span class="tok-string">'='</span>)?;
+    <span class="tok-keyword">let</span> (key, value) = (key.<span class="tok-fn">trim</span>(), value.<span class="tok-fn">trim</span>());
+    <span class="tok-keyword">if</span> key.<span class="tok-fn">is_empty</span>() {
+        <span class="tok-type">None</span>
+    } <span class="tok-keyword">else</span> {
+        <span class="tok-type">Some</span>((key, value))
+    }
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">Parser</span>&lt;<span class="tok-lifetime">'a</span>&gt; {
+    input: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>,
+    pos: <span class="tok-type">usize</span>,
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-lifetime">'a</span>&gt; <span class="tok-type">Parser</span>&lt;<span class="tok-lifetime">'a</span>&gt; {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(input: &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>) -&gt; <span class="tok-keyword">Self</span> {
+        <span class="tok-keyword">Self</span> { input, pos: <span class="tok-number">0</span> }
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">remaining</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span> {
+        <span class="tok-keyword">self</span>.input[<span class="tok-keyword">self</span>.pos..].<span class="tok-fn">trim_start</span>()
+    }
+
+    <span class="tok-comment">// Returning `&amp;'a str` (not `&amp;str`) ties the token to the input, not to `&amp;mut self`.</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">next_token</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>) -&gt; <span class="tok-type">Option</span>&lt;&amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>&gt; {
+        <span class="tok-keyword">let</span> rest = <span class="tok-keyword">self</span>.<span class="tok-fn">remaining</span>();
+        <span class="tok-keyword">if</span> rest.<span class="tok-fn">is_empty</span>() {
+            <span class="tok-keyword">self</span>.pos = <span class="tok-keyword">self</span>.input.<span class="tok-fn">len</span>();
+            <span class="tok-keyword">return</span> <span class="tok-type">None</span>;
+        }
+        <span class="tok-keyword">let</span> start = <span class="tok-keyword">self</span>.input.<span class="tok-fn">len</span>() - rest.<span class="tok-fn">len</span>();
+        <span class="tok-keyword">let</span> len = rest.<span class="tok-fn">find</span>(<span class="tok-type">char</span>::is_whitespace).<span class="tok-fn">unwrap_or</span>(rest.<span class="tok-fn">len</span>());
+        <span class="tok-keyword">self</span>.pos = start + len;
+        <span class="tok-type">Some</span>(&amp;<span class="tok-keyword">self</span>.input[start..start + len])
+    }
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-lifetime">'a</span>&gt; <span class="tok-type">Iterator</span> <span class="tok-keyword">for</span> <span class="tok-type">Parser</span>&lt;<span class="tok-lifetime">'a</span>&gt; {
+    <span class="tok-keyword">type</span> <span class="tok-type">Item</span> = &amp;<span class="tok-lifetime">'a</span> <span class="tok-type">str</span>;
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">next</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>) -&gt; <span class="tok-type">Option</span>&lt;<span class="tok-keyword">Self</span>::<span class="tok-type">Item</span>&gt; {
+        <span class="tok-keyword">self</span>.<span class="tok-fn">next_token</span>()
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-macro">println!</span>(<span class="tok-string">"longest = {}"</span>, <span class="tok-fn">longest</span>(<span class="tok-string">"apple"</span>, <span class="tok-string">"fig"</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"first_word = {:?}"</span>, <span class="tok-fn">first_word</span>(<span class="tok-string">"  hello world"</span>));
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"longest_with_prefix = {:?}"</span>,
+        <span class="tok-fn">longest_with_prefix</span>(&amp;[<span class="tok-string">"car"</span>, <span class="tok-string">"cartoon"</span>, <span class="tok-string">"dog"</span>], <span class="tok-string">"car"</span>)
+    );
+
+    <span class="tok-keyword">let</span> source = <span class="tok-type">String</span>::<span class="tok-fn">from</span>(<span class="tok-string">"let x = 5"</span>);
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> parser = <span class="tok-type">Parser</span>::<span class="tok-fn">new</span>(&amp;source);
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> tokens: <span class="tok-type">Vec</span>&lt;&amp;<span class="tok-type">str</span>&gt; = <span class="tok-type">Vec</span>::<span class="tok-fn">new</span>();
+    <span class="tok-keyword">while</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span>(tok) = parser.<span class="tok-fn">next_token</span>() {
+        tokens.<span class="tok-fn">push</span>(tok);
+        <span class="tok-keyword">if</span> tokens.<span class="tok-fn">len</span>() == <span class="tok-number">2</span> {
+            <span class="tok-macro">println!</span>(<span class="tok-string">"after 2 tokens, remaining = {:?}"</span>, parser.<span class="tok-fn">remaining</span>());
+        }
+    }
+    <span class="tok-macro">println!</span>(<span class="tok-string">"tokens = {tokens:?}"</span>);
+
+    <span class="tok-keyword">for</span> (i, tok) <span class="tok-keyword">in</span> <span class="tok-type">Parser</span>::<span class="tok-fn">new</span>(<span class="tok-string">"  fn main ( )  "</span>).<span class="tok-fn">enumerate</span>() {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"iter token {i}: {tok}"</span>);
+    }
+
+    <span class="tok-keyword">for</span> line <span class="tok-keyword">in</span> [<span class="tok-string">"name = Ferris"</span>, <span class="tok-string">"  age=7 "</span>, <span class="tok-string">"no equals"</span>] {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"{line:?} -&gt; {:?}"</span>, <span class="tok-fn">split_key_value</span>(line));
+    }
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">longest_and_first_word</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">longest</span>(<span class="tok-string">"apple"</span>, <span class="tok-string">"fig"</span>), <span class="tok-string">"apple"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">longest</span>(<span class="tok-string">"ab"</span>, <span class="tok-string">"cd"</span>), <span class="tok-string">"ab"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">first_word</span>(<span class="tok-string">"  hello world"</span>), <span class="tok-string">"hello"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">first_word</span>(<span class="tok-string">"   "</span>), <span class="tok-string">""</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">prefix_search_borrows_from_words</span>() {
+        <span class="tok-keyword">let</span> words = <span class="tok-macro">vec!</span>[<span class="tok-string">"car"</span>, <span class="tok-string">"cartoon"</span>, <span class="tok-string">"dog"</span>];
+        <span class="tok-keyword">let</span> found;
+        {
+            <span class="tok-keyword">let</span> prefix = <span class="tok-type">String</span>::<span class="tok-fn">from</span>(<span class="tok-string">"car"</span>);
+            found = <span class="tok-fn">longest_with_prefix</span>(&amp;words, &amp;prefix);
+        } <span class="tok-comment">// prefix dropped here; `found` is still valid.</span>
+        <span class="tok-macro">assert_eq!</span>(found, <span class="tok-type">Some</span>(<span class="tok-string">"cartoon"</span>));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">longest_with_prefix</span>(&amp;words, <span class="tok-string">"z"</span>), <span class="tok-type">None</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">parser_yields_tokens_that_outlive_the_parser</span>() {
+        <span class="tok-keyword">let</span> input = <span class="tok-type">String</span>::<span class="tok-fn">from</span>(<span class="tok-string">"let x = 5"</span>);
+        <span class="tok-keyword">let</span> tokens: <span class="tok-type">Vec</span>&lt;&amp;<span class="tok-type">str</span>&gt; = {
+            <span class="tok-keyword">let</span> parser = <span class="tok-type">Parser</span>::<span class="tok-fn">new</span>(&amp;input);
+            parser.<span class="tok-fn">collect</span>()
+        };
+        <span class="tok-macro">assert_eq!</span>(tokens, <span class="tok-macro">vec!</span>[<span class="tok-string">"let"</span>, <span class="tok-string">"x"</span>, <span class="tok-string">"="</span>, <span class="tok-string">"5"</span>]);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">key_value_splitting</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">split_key_value</span>(<span class="tok-string">"name = Ferris"</span>), <span class="tok-type">Some</span>((<span class="tok-string">"name"</span>, <span class="tok-string">"Ferris"</span>)));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">split_key_value</span>(<span class="tok-string">"no equals"</span>), <span class="tok-type">None</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">split_key_value</span>(<span class="tok-string">" = value"</span>), <span class="tok-type">None</span>);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 32-reference-returning-apis.rs -o 32-reference-returning-apis &amp;&amp; ./32-reference-returning-apis
+
+# run the unit tests
+rustc --edition 2021 --test 32-reference-returning-apis.rs -o 32-reference-returning-apis-tests &amp;&amp; ./32-reference-returning-apis-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/31-repository-abstraction.html"><small>← Previous</small>31 · Repository Abstraction</a><a class="pager-link next" href="../exercises/33-data-transforms.html"><small>Next →</small>33 · Data Transforms</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

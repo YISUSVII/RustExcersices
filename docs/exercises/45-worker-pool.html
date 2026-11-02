@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>45 · Worker Pool · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Build a fixed-size thread pool that executes boxed closures from a shared job queue and shuts down gracefully when dropped.">
+<meta property="og:title" content="45 · Worker Pool · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Build a fixed-size thread pool that executes boxed closures from a shared job queue and shuts down gracefully when dropped.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/14-concurrency.html">Level 14 — Concurrency</a><span>/</span><span>Exercise 45</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 45 · Level 14 — Concurrency</div>
+  <h1>Worker Pool</h1>
+  <p class="lead">Build a fixed-size thread pool that executes boxed closures from a shared job queue and shuts down gracefully when dropped.</p>
+  <div class="meta"><span class="badge diff-advanced">Advanced</span><span class="chip">`Box&lt;dyn FnOnce() + Send + &#x27;static&gt;`</span><span class="chip">`mpsc` channels</span><span class="chip">`Arc&lt;Mutex&lt;Receiver&lt;_&gt;&gt;&gt;`</span><span class="chip">`Drop`</span><span class="chip">`Option::take`</span><span class="chip">`JoinHandle::join`</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="45"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<ol><li>Define <code>type Job = Box&lt;dyn FnOnce() + Send + 'static&gt;;</code>.</li><li>Define <code>struct Worker { id: usize, handle: Option&lt;thread::JoinHandle&lt;()&gt;&gt; }</code> with <code>fn new(id: usize, receiver: Arc&lt;Mutex&lt;mpsc::Receiver&lt;Job&gt;&gt;&gt;) -&gt; Worker</code>. The worker loops: lock the receiver, <code>recv()</code> a job, release the lock, run the job; exit the loop when <code>recv()</code> returns <code>Err</code>.</li><li>Define <code>struct ThreadPool { workers: Vec&lt;Worker&gt;, sender: Option&lt;mpsc::Sender&lt;Job&gt;&gt; }</code> and implement: - <code>fn new(size: usize) -&gt; ThreadPool</code> — panics with <code>"thread pool size must be &gt; 0"</code> if <code>size == 0</code> - <code>fn execute&lt;F&gt;(&amp;self, f: F) where F: FnOnce() + Send + 'static</code> - <code>fn size(&amp;self) -&gt; usize</code></li><li>Implement <code>Drop for ThreadPool</code>: drop the sender (closing the channel), then <code>join</code> every worker.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<ul><li>Submitting 100 jobs to a 4-worker pool and then dropping the pool runs all 100 jobs.</li><li>Dropping the pool prints <code>worker N shut down</code> for each worker.</li><li><code>ThreadPool::new(0)</code> panics.</li></ul>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li>Write <code>let job = receiver.lock().unwrap().recv();</code> on its own line so the <code>MutexGuard</code> is dropped <strong>before</strong> running the job; <code>while let Ok(job) = receiver.lock().unwrap().recv()</code> keeps the lock for the whole loop body.</li><li><code>Option::take()</code> lets you move the <code>Sender</code>/<code>JoinHandle</code> out of <code>&amp;mut self</code> inside <code>drop</code>.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Make <code>execute</code> return a <code>mpsc::Receiver&lt;T&gt;</code> so callers can get a job's result: <code>fn submit&lt;T, F&gt;(&amp;self, f: F) -&gt; mpsc::Receiver&lt;T&gt; where F: FnOnce() -&gt; T + Send + 'static, T: Send + 'static</code>.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">14-concurrency/exercises/45-worker-pool.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=%23%21%5Ballow%28dead_code%29%5D%0Ause%20std%3A%3Async%3A%3A%7Bmpsc%2C%20Arc%2C%20Mutex%7D%3B%0Ause%20std%3A%3Athread%3B%0A%0Atype%20Job%20%3D%20Box%3Cdyn%20FnOnce%28%29%20%2B%20Send%20%2B%20%27static%3E%3B%0A%0Astruct%20Worker%20%7B%0A%20%20%20%20id%3A%20usize%2C%0A%20%20%20%20handle%3A%20Option%3Cthread%3A%3AJoinHandle%3C%28%29%3E%3E%2C%0A%7D%0A%0Aimpl%20Worker%20%7B%0A%20%20%20%20fn%20new%28id%3A%20usize%2C%20receiver%3A%20Arc%3CMutex%3Cmpsc%3A%3AReceiver%3CJob%3E%3E%3E%29%20-%3E%20Worker%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%20%E2%80%94%20spawn%20a%20thread%20that%20loops%3A%20lock%2C%20recv%2C%20release%20lock%2C%20run%20job%3B%0A%20%20%20%20%20%20%20%20//%20break%20when%20recv%28%29%20returns%20Err%20%28channel%20closed%29.%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20%28id%2C%20receiver%29%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Spawn%20the%20worker%20thread%20and%20store%20its%20JoinHandle%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Astruct%20ThreadPool%20%7B%0A%20%20%20%20workers%3A%20Vec%3CWorker%3E%2C%0A%20%20%20%20sender%3A%20Option%3Cmpsc%3A%3ASender%3CJob%3E%3E%2C%0A%7D%0A%0Aimpl%20ThreadPool%20%7B%0A%20%20%20%20fn%20new%28size%3A%20usize%29%20-%3E%20ThreadPool%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%20%E2%80%94%20assert%21%28size%20%3E%200%2C%20%22thread%20pool%20size%20must%20be%20%3E%200%22%29%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20size%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Create%20the%20channel%2C%20wrap%20the%20receiver%20in%20Arc%3CMutex%3C_%3E%3E%2C%20spawn%20workers%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20execute%3CF%3E%28%26self%2C%20f%3A%20F%29%0A%20%20%20%20where%0A%20%20%20%20%20%20%20%20F%3A%20FnOnce%28%29%20%2B%20Send%20%2B%20%27static%2C%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20f%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Box%20the%20closure%20and%20send%20it%20through%20self.sender%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20size%28%26self%29%20-%3E%20usize%20%7B%0A%20%20%20%20%20%20%20%20self.workers.len%28%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Drop%20for%20ThreadPool%20%7B%0A%20%20%20%20fn%20drop%28%26mut%20self%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%20%E2%80%94%20drop%28self.sender.take%28%29%29%2C%20then%20join%20every%20worker%20handle.%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20results%20%3D%20Arc%3A%3Anew%28Mutex%3A%3Anew%28Vec%3A%3Anew%28%29%29%29%3B%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20let%20pool%20%3D%20ThreadPool%3A%3Anew%283%29%3B%0A%20%20%20%20%20%20%20%20println%21%28%22pool%20with%20%7B%7D%20workers%22%2C%20pool.size%28%29%29%3B%0A%20%20%20%20%20%20%20%20for%20n%20in%201..%3D6u64%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20results%20%3D%20Arc%3A%3Aclone%28%26results%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20pool.execute%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20square%20%3D%20n%20%2A%20n%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20results.lock%28%29.unwrap%28%29.push%28%28n%2C%20square%29%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%20%20let%20mut%20results%20%3D%20results.lock%28%29.unwrap%28%29.clone%28%29%3B%0A%20%20%20%20results.sort%28%29%3B%0A%20%20%20%20println%21%28%22results%20%3D%20%7Bresults%3A%3F%7D%22%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%20%20%20%20use%20std%3A%3Async%3A%3Aatomic%3A%3A%7BAtomicUsize%2C%20Ordering%7D%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20runs_all_jobs_before_shutdown%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20counter%20%3D%20Arc%3A%3Anew%28AtomicUsize%3A%3Anew%280%29%29%3B%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20pool%20%3D%20ThreadPool%3A%3Anew%284%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20for%20_%20in%200..100%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20c%20%3D%20Arc%3A%3Aclone%28%26counter%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20pool.execute%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20c.fetch_add%281%2C%20Ordering%3A%3ASeqCst%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20assert_eq%21%28counter.load%28Ordering%3A%3ASeqCst%29%2C%20100%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20results_can_be_returned_through_a_channel%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20pool%20%3D%20ThreadPool%3A%3Anew%282%29%3B%0A%20%20%20%20%20%20%20%20let%20%28tx%2C%20rx%29%20%3D%20mpsc%3A%3Achannel%28%29%3B%0A%20%20%20%20%20%20%20%20for%20i%20in%200..10%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20tx%20%3D%20tx.clone%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20pool.execute%28move%20%7C%7C%20tx.send%28i%20%2A%202%29.unwrap%28%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20drop%28tx%29%3B%0A%20%20%20%20%20%20%20%20let%20mut%20got%3A%20Vec%3Ci32%3E%20%3D%20rx.iter%28%29.collect%28%29%3B%0A%20%20%20%20%20%20%20%20got.sort%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28got%2C%20%280..10%29.map%28%7Ci%7C%20i%20%2A%202%29.collect%3A%3A%3CVec%3C_%3E%3E%28%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20%23%5Bshould_panic%28expected%20%3D%20%22size%20must%20be%20%3E%200%22%29%5D%0A%20%20%20%20fn%20zero_sized_pool_panics%28%29%20%7B%0A%20%20%20%20%20%20%20%20ThreadPool%3A%3Anew%280%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/14-concurrency/exercises/45-worker-pool.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-attr">#![allow(dead_code)]</span>
+<span class="tok-keyword">use</span> std::sync::{mpsc, <span class="tok-type">Arc</span>, <span class="tok-type">Mutex</span>};
+<span class="tok-keyword">use</span> std::thread;
+
+<span class="tok-keyword">type</span> <span class="tok-type">Job</span> = <span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">FnOnce</span>() + <span class="tok-type">Send</span> + <span class="tok-lifetime">'static</span>&gt;;
+
+<span class="tok-keyword">struct</span> <span class="tok-type">Worker</span> {
+    id: <span class="tok-type">usize</span>,
+    handle: <span class="tok-type">Option</span>&lt;thread::<span class="tok-type">JoinHandle</span>&lt;()&gt;&gt;,
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Worker</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(id: <span class="tok-type">usize</span>, receiver: <span class="tok-type">Arc</span>&lt;<span class="tok-type">Mutex</span>&lt;mpsc::<span class="tok-type">Receiver</span>&lt;<span class="tok-type">Job</span>&gt;&gt;&gt;) -&gt; <span class="tok-type">Worker</span> {
+        <span class="tok-comment">// TODO: implement — spawn a thread that loops: lock, recv, release lock, run job;</span>
+        <span class="tok-comment">// break when recv() returns Err (channel closed).</span>
+        <span class="tok-keyword">let</span> _ = (id, receiver);
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Spawn the worker thread and store its JoinHandle"</span>)
+    }
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">ThreadPool</span> {
+    workers: <span class="tok-type">Vec</span>&lt;<span class="tok-type">Worker</span>&gt;,
+    sender: <span class="tok-type">Option</span>&lt;mpsc::<span class="tok-type">Sender</span>&lt;<span class="tok-type">Job</span>&gt;&gt;,
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">ThreadPool</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(size: <span class="tok-type">usize</span>) -&gt; <span class="tok-type">ThreadPool</span> {
+        <span class="tok-comment">// TODO: implement — assert!(size &gt; 0, "thread pool size must be &gt; 0")</span>
+        <span class="tok-keyword">let</span> _ = size;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Create the channel, wrap the receiver in Arc&lt;Mutex&lt;_&gt;&gt;, spawn workers"</span>)
+    }
+
+    <span class="tok-keyword">fn</span> execute&lt;<span class="tok-type">F</span>&gt;(&amp;<span class="tok-keyword">self</span>, f: <span class="tok-type">F</span>)
+    <span class="tok-keyword">where</span>
+        <span class="tok-type">F</span>: <span class="tok-type">FnOnce</span>() + <span class="tok-type">Send</span> + <span class="tok-lifetime">'static</span>,
+    {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-keyword">let</span> _ = f;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Box the closure and send it through self.sender"</span>)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">size</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">usize</span> {
+        <span class="tok-keyword">self</span>.workers.<span class="tok-fn">len</span>()
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Drop</span> <span class="tok-keyword">for</span> <span class="tok-type">ThreadPool</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">drop</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>) {
+        <span class="tok-comment">// TODO: implement — drop(self.sender.take()), then join every worker handle.</span>
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> results = <span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">Mutex</span>::<span class="tok-fn">new</span>(<span class="tok-type">Vec</span>::<span class="tok-fn">new</span>()));
+    {
+        <span class="tok-keyword">let</span> pool = <span class="tok-type">ThreadPool</span>::<span class="tok-fn">new</span>(<span class="tok-number">3</span>);
+        <span class="tok-macro">println!</span>(<span class="tok-string">"pool with {} workers"</span>, pool.<span class="tok-fn">size</span>());
+        <span class="tok-keyword">for</span> n <span class="tok-keyword">in</span> <span class="tok-number">1</span>..=<span class="tok-number">6u64</span> {
+            <span class="tok-keyword">let</span> results = <span class="tok-type">Arc</span>::<span class="tok-fn">clone</span>(&amp;results);
+            pool.<span class="tok-fn">execute</span>(<span class="tok-keyword">move</span> || {
+                <span class="tok-keyword">let</span> square = n * n;
+                results.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>().<span class="tok-fn">push</span>((n, square));
+            });
+        }
+    }
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> results = results.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>().<span class="tok-fn">clone</span>();
+    results.<span class="tok-fn">sort</span>();
+    <span class="tok-macro">println!</span>(<span class="tok-string">"results = {results:?}"</span>);
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+    <span class="tok-keyword">use</span> std::sync::atomic::{<span class="tok-type">AtomicUsize</span>, <span class="tok-type">Ordering</span>};
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">runs_all_jobs_before_shutdown</span>() {
+        <span class="tok-keyword">let</span> counter = <span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">AtomicUsize</span>::<span class="tok-fn">new</span>(<span class="tok-number">0</span>));
+        {
+            <span class="tok-keyword">let</span> pool = <span class="tok-type">ThreadPool</span>::<span class="tok-fn">new</span>(<span class="tok-number">4</span>);
+            <span class="tok-keyword">for</span> _ <span class="tok-keyword">in</span> <span class="tok-number">0</span>..<span class="tok-number">100</span> {
+                <span class="tok-keyword">let</span> c = <span class="tok-type">Arc</span>::<span class="tok-fn">clone</span>(&amp;counter);
+                pool.<span class="tok-fn">execute</span>(<span class="tok-keyword">move</span> || {
+                    c.<span class="tok-fn">fetch_add</span>(<span class="tok-number">1</span>, <span class="tok-type">Ordering</span>::<span class="tok-type">SeqCst</span>);
+                });
+            }
+        }
+        <span class="tok-macro">assert_eq!</span>(counter.<span class="tok-fn">load</span>(<span class="tok-type">Ordering</span>::<span class="tok-type">SeqCst</span>), <span class="tok-number">100</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">results_can_be_returned_through_a_channel</span>() {
+        <span class="tok-keyword">let</span> pool = <span class="tok-type">ThreadPool</span>::<span class="tok-fn">new</span>(<span class="tok-number">2</span>);
+        <span class="tok-keyword">let</span> (tx, rx) = mpsc::<span class="tok-fn">channel</span>();
+        <span class="tok-keyword">for</span> i <span class="tok-keyword">in</span> <span class="tok-number">0</span>..<span class="tok-number">10</span> {
+            <span class="tok-keyword">let</span> tx = tx.<span class="tok-fn">clone</span>();
+            pool.<span class="tok-fn">execute</span>(<span class="tok-keyword">move</span> || tx.<span class="tok-fn">send</span>(i * <span class="tok-number">2</span>).<span class="tok-fn">unwrap</span>());
+        }
+        <span class="tok-fn">drop</span>(tx);
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> got: <span class="tok-type">Vec</span>&lt;<span class="tok-type">i32</span>&gt; = rx.<span class="tok-fn">iter</span>().<span class="tok-fn">collect</span>();
+        got.<span class="tok-fn">sort</span>();
+        <span class="tok-macro">assert_eq!</span>(got, (<span class="tok-number">0</span>..<span class="tok-number">10</span>).<span class="tok-fn">map</span>(|i| i * <span class="tok-number">2</span>).collect::&lt;<span class="tok-type">Vec</span>&lt;_&gt;&gt;());
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-attr">#[should_panic(expected = "size must be &gt; 0")]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">zero_sized_pool_panics</span>() {
+        <span class="tok-type">ThreadPool</span>::<span class="tok-fn">new</span>(<span class="tok-number">0</span>);
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/14-concurrency/45-worker-pool.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Async%3A%3A%7Bmpsc%2C%20Arc%2C%20Mutex%7D%3B%0Ause%20std%3A%3Athread%3B%0A%0Atype%20Job%20%3D%20Box%3Cdyn%20FnOnce%28%29%20%2B%20Send%20%2B%20%27static%3E%3B%0A%0Astruct%20Worker%20%7B%0A%20%20%20%20id%3A%20usize%2C%0A%20%20%20%20handle%3A%20Option%3Cthread%3A%3AJoinHandle%3C%28%29%3E%3E%2C%0A%7D%0A%0Aimpl%20Worker%20%7B%0A%20%20%20%20fn%20new%28id%3A%20usize%2C%20receiver%3A%20Arc%3CMutex%3Cmpsc%3A%3AReceiver%3CJob%3E%3E%3E%29%20-%3E%20Worker%20%7B%0A%20%20%20%20%20%20%20%20let%20handle%20%3D%20thread%3A%3Aspawn%28move%20%7C%7C%20loop%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20//%20The%20lock%20guard%20is%20a%20temporary%2C%20so%20it%20is%20released%20before%20the%20job%20runs.%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20message%20%3D%20receiver.lock%28%29.unwrap%28%29.recv%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20match%20message%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Ok%28job%29%20%3D%3E%20job%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Err%28_%29%20%3D%3E%20break%2C%20//%20channel%20closed%3A%20shut%20down%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%29%3B%0A%20%20%20%20%20%20%20%20Worker%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20id%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20handle%3A%20Some%28handle%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Astruct%20ThreadPool%20%7B%0A%20%20%20%20workers%3A%20Vec%3CWorker%3E%2C%0A%20%20%20%20sender%3A%20Option%3Cmpsc%3A%3ASender%3CJob%3E%3E%2C%0A%7D%0A%0Aimpl%20ThreadPool%20%7B%0A%20%20%20%20///%20Creates%20a%20pool%20with%20%60size%60%20worker%20threads.%0A%20%20%20%20///%0A%20%20%20%20///%20%23%20Panics%0A%20%20%20%20///%20Panics%20if%20%60size%60%20is%20zero.%0A%20%20%20%20fn%20new%28size%3A%20usize%29%20-%3E%20ThreadPool%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28size%20%3E%200%2C%20%22thread%20pool%20size%20must%20be%20%3E%200%22%29%3B%0A%20%20%20%20%20%20%20%20let%20%28sender%2C%20receiver%29%20%3D%20mpsc%3A%3Achannel%3A%3A%3CJob%3E%28%29%3B%0A%20%20%20%20%20%20%20%20let%20receiver%20%3D%20Arc%3A%3Anew%28Mutex%3A%3Anew%28receiver%29%29%3B%0A%20%20%20%20%20%20%20%20let%20workers%20%3D%20%280..size%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.map%28%7Cid%7C%20Worker%3A%3Anew%28id%2C%20Arc%3A%3Aclone%28%26receiver%29%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.collect%28%29%3B%0A%20%20%20%20%20%20%20%20ThreadPool%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20workers%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20sender%3A%20Some%28sender%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20execute%3CF%3E%28%26self%2C%20f%3A%20F%29%0A%20%20%20%20where%0A%20%20%20%20%20%20%20%20F%3A%20FnOnce%28%29%20%2B%20Send%20%2B%20%27static%2C%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20self.sender%0A%20%20%20%20%20%20%20%20%20%20%20%20.as_ref%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.expect%28%22pool%20is%20shutting%20down%22%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.send%28Box%3A%3Anew%28f%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.expect%28%22all%20workers%20have%20stopped%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20size%28%26self%29%20-%3E%20usize%20%7B%0A%20%20%20%20%20%20%20%20self.workers.len%28%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Drop%20for%20ThreadPool%20%7B%0A%20%20%20%20fn%20drop%28%26mut%20self%29%20%7B%0A%20%20%20%20%20%20%20%20//%20Closing%20the%20channel%20makes%20every%20worker%27s%20recv%28%29%20return%20Err.%0A%20%20%20%20%20%20%20%20drop%28self.sender.take%28%29%29%3B%0A%20%20%20%20%20%20%20%20for%20worker%20in%20%26mut%20self.workers%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20let%20Some%28handle%29%20%3D%20worker.handle.take%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20handle.join%28%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20println%21%28%22worker%20%7B%7D%20shut%20down%22%2C%20worker.id%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20results%20%3D%20Arc%3A%3Anew%28Mutex%3A%3Anew%28Vec%3A%3Anew%28%29%29%29%3B%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20let%20pool%20%3D%20ThreadPool%3A%3Anew%283%29%3B%0A%20%20%20%20%20%20%20%20println%21%28%22pool%20with%20%7B%7D%20workers%22%2C%20pool.size%28%29%29%3B%0A%20%20%20%20%20%20%20%20for%20n%20in%201..%3D6u64%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20results%20%3D%20Arc%3A%3Aclone%28%26results%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20pool.execute%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20square%20%3D%20n%20%2A%20n%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20results.lock%28%29.unwrap%28%29.push%28%28n%2C%20square%29%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20//%20%60pool%60%20dropped%20here%3A%20queued%20jobs%20finish%2C%20then%20workers%20join.%0A%20%20%20%20%7D%0A%20%20%20%20let%20mut%20results%20%3D%20results.lock%28%29.unwrap%28%29.clone%28%29%3B%0A%20%20%20%20results.sort%28%29%3B%0A%20%20%20%20println%21%28%22results%20%3D%20%7Bresults%3A%3F%7D%22%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%20%20%20%20use%20std%3A%3Async%3A%3Aatomic%3A%3A%7BAtomicUsize%2C%20Ordering%7D%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20runs_all_jobs_before_shutdown%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20counter%20%3D%20Arc%3A%3Anew%28AtomicUsize%3A%3Anew%280%29%29%3B%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20pool%20%3D%20ThreadPool%3A%3Anew%284%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20for%20_%20in%200..100%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20c%20%3D%20Arc%3A%3Aclone%28%26counter%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20pool.execute%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20c.fetch_add%281%2C%20Ordering%3A%3ASeqCst%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20assert_eq%21%28counter.load%28Ordering%3A%3ASeqCst%29%2C%20100%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20results_can_be_returned_through_a_channel%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20pool%20%3D%20ThreadPool%3A%3Anew%282%29%3B%0A%20%20%20%20%20%20%20%20let%20%28tx%2C%20rx%29%20%3D%20mpsc%3A%3Achannel%28%29%3B%0A%20%20%20%20%20%20%20%20for%20i%20in%200..10%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20tx%20%3D%20tx.clone%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20pool.execute%28move%20%7C%7C%20tx.send%28i%20%2A%202%29.unwrap%28%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20drop%28tx%29%3B%0A%20%20%20%20%20%20%20%20let%20mut%20got%3A%20Vec%3Ci32%3E%20%3D%20rx.iter%28%29.collect%28%29%3B%0A%20%20%20%20%20%20%20%20got.sort%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28got%2C%20%280..10%29.map%28%7Ci%7C%20i%20%2A%202%29.collect%3A%3A%3CVec%3C_%3E%3E%28%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20%23%5Bshould_panic%28expected%20%3D%20%22size%20must%20be%20%3E%200%22%29%5D%0A%20%20%20%20fn%20zero_sized_pool_panics%28%29%20%7B%0A%20%20%20%20%20%20%20%20ThreadPool%3A%3Anew%280%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/14-concurrency/45-worker-pool.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::sync::{mpsc, <span class="tok-type">Arc</span>, <span class="tok-type">Mutex</span>};
+<span class="tok-keyword">use</span> std::thread;
+
+<span class="tok-keyword">type</span> <span class="tok-type">Job</span> = <span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">FnOnce</span>() + <span class="tok-type">Send</span> + <span class="tok-lifetime">'static</span>&gt;;
+
+<span class="tok-keyword">struct</span> <span class="tok-type">Worker</span> {
+    id: <span class="tok-type">usize</span>,
+    handle: <span class="tok-type">Option</span>&lt;thread::<span class="tok-type">JoinHandle</span>&lt;()&gt;&gt;,
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Worker</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(id: <span class="tok-type">usize</span>, receiver: <span class="tok-type">Arc</span>&lt;<span class="tok-type">Mutex</span>&lt;mpsc::<span class="tok-type">Receiver</span>&lt;<span class="tok-type">Job</span>&gt;&gt;&gt;) -&gt; <span class="tok-type">Worker</span> {
+        <span class="tok-keyword">let</span> handle = thread::<span class="tok-fn">spawn</span>(<span class="tok-keyword">move</span> || <span class="tok-keyword">loop</span> {
+            <span class="tok-comment">// The lock guard is a temporary, so it is released before the job runs.</span>
+            <span class="tok-keyword">let</span> message = receiver.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>().<span class="tok-fn">recv</span>();
+            <span class="tok-keyword">match</span> message {
+                <span class="tok-type">Ok</span>(job) =&gt; <span class="tok-fn">job</span>(),
+                <span class="tok-type">Err</span>(_) =&gt; <span class="tok-keyword">break</span>, <span class="tok-comment">// channel closed: shut down</span>
+            }
+        });
+        <span class="tok-type">Worker</span> {
+            id,
+            handle: <span class="tok-type">Some</span>(handle),
+        }
+    }
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">ThreadPool</span> {
+    workers: <span class="tok-type">Vec</span>&lt;<span class="tok-type">Worker</span>&gt;,
+    sender: <span class="tok-type">Option</span>&lt;mpsc::<span class="tok-type">Sender</span>&lt;<span class="tok-type">Job</span>&gt;&gt;,
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">ThreadPool</span> {
+    <span class="tok-comment">/// Creates a pool with `size` worker threads.</span>
+    <span class="tok-comment">///</span>
+    <span class="tok-comment">/// # Panics</span>
+    <span class="tok-comment">/// Panics if `size` is zero.</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(size: <span class="tok-type">usize</span>) -&gt; <span class="tok-type">ThreadPool</span> {
+        <span class="tok-macro">assert!</span>(size &gt; <span class="tok-number">0</span>, <span class="tok-string">"thread pool size must be &gt; 0"</span>);
+        <span class="tok-keyword">let</span> (sender, receiver) = mpsc::channel::&lt;<span class="tok-type">Job</span>&gt;();
+        <span class="tok-keyword">let</span> receiver = <span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">Mutex</span>::<span class="tok-fn">new</span>(receiver));
+        <span class="tok-keyword">let</span> workers = (<span class="tok-number">0</span>..size)
+            .<span class="tok-fn">map</span>(|id| <span class="tok-type">Worker</span>::<span class="tok-fn">new</span>(id, <span class="tok-type">Arc</span>::<span class="tok-fn">clone</span>(&amp;receiver)))
+            .<span class="tok-fn">collect</span>();
+        <span class="tok-type">ThreadPool</span> {
+            workers,
+            sender: <span class="tok-type">Some</span>(sender),
+        }
+    }
+
+    <span class="tok-keyword">fn</span> execute&lt;<span class="tok-type">F</span>&gt;(&amp;<span class="tok-keyword">self</span>, f: <span class="tok-type">F</span>)
+    <span class="tok-keyword">where</span>
+        <span class="tok-type">F</span>: <span class="tok-type">FnOnce</span>() + <span class="tok-type">Send</span> + <span class="tok-lifetime">'static</span>,
+    {
+        <span class="tok-keyword">self</span>.sender
+            .<span class="tok-fn">as_ref</span>()
+            .<span class="tok-fn">expect</span>(<span class="tok-string">"pool is shutting down"</span>)
+            .<span class="tok-fn">send</span>(<span class="tok-type">Box</span>::<span class="tok-fn">new</span>(f))
+            .<span class="tok-fn">expect</span>(<span class="tok-string">"all workers have stopped"</span>);
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">size</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">usize</span> {
+        <span class="tok-keyword">self</span>.workers.<span class="tok-fn">len</span>()
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Drop</span> <span class="tok-keyword">for</span> <span class="tok-type">ThreadPool</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">drop</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>) {
+        <span class="tok-comment">// Closing the channel makes every worker's recv() return Err.</span>
+        <span class="tok-fn">drop</span>(<span class="tok-keyword">self</span>.sender.<span class="tok-fn">take</span>());
+        <span class="tok-keyword">for</span> worker <span class="tok-keyword">in</span> &amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>.workers {
+            <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span>(handle) = worker.handle.<span class="tok-fn">take</span>() {
+                handle.<span class="tok-fn">join</span>().<span class="tok-fn">unwrap</span>();
+                <span class="tok-macro">println!</span>(<span class="tok-string">"worker {} shut down"</span>, worker.id);
+            }
+        }
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> results = <span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">Mutex</span>::<span class="tok-fn">new</span>(<span class="tok-type">Vec</span>::<span class="tok-fn">new</span>()));
+    {
+        <span class="tok-keyword">let</span> pool = <span class="tok-type">ThreadPool</span>::<span class="tok-fn">new</span>(<span class="tok-number">3</span>);
+        <span class="tok-macro">println!</span>(<span class="tok-string">"pool with {} workers"</span>, pool.<span class="tok-fn">size</span>());
+        <span class="tok-keyword">for</span> n <span class="tok-keyword">in</span> <span class="tok-number">1</span>..=<span class="tok-number">6u64</span> {
+            <span class="tok-keyword">let</span> results = <span class="tok-type">Arc</span>::<span class="tok-fn">clone</span>(&amp;results);
+            pool.<span class="tok-fn">execute</span>(<span class="tok-keyword">move</span> || {
+                <span class="tok-keyword">let</span> square = n * n;
+                results.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>().<span class="tok-fn">push</span>((n, square));
+            });
+        }
+        <span class="tok-comment">// `pool` dropped here: queued jobs finish, then workers join.</span>
+    }
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> results = results.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>().<span class="tok-fn">clone</span>();
+    results.<span class="tok-fn">sort</span>();
+    <span class="tok-macro">println!</span>(<span class="tok-string">"results = {results:?}"</span>);
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+    <span class="tok-keyword">use</span> std::sync::atomic::{<span class="tok-type">AtomicUsize</span>, <span class="tok-type">Ordering</span>};
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">runs_all_jobs_before_shutdown</span>() {
+        <span class="tok-keyword">let</span> counter = <span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">AtomicUsize</span>::<span class="tok-fn">new</span>(<span class="tok-number">0</span>));
+        {
+            <span class="tok-keyword">let</span> pool = <span class="tok-type">ThreadPool</span>::<span class="tok-fn">new</span>(<span class="tok-number">4</span>);
+            <span class="tok-keyword">for</span> _ <span class="tok-keyword">in</span> <span class="tok-number">0</span>..<span class="tok-number">100</span> {
+                <span class="tok-keyword">let</span> c = <span class="tok-type">Arc</span>::<span class="tok-fn">clone</span>(&amp;counter);
+                pool.<span class="tok-fn">execute</span>(<span class="tok-keyword">move</span> || {
+                    c.<span class="tok-fn">fetch_add</span>(<span class="tok-number">1</span>, <span class="tok-type">Ordering</span>::<span class="tok-type">SeqCst</span>);
+                });
+            }
+        }
+        <span class="tok-macro">assert_eq!</span>(counter.<span class="tok-fn">load</span>(<span class="tok-type">Ordering</span>::<span class="tok-type">SeqCst</span>), <span class="tok-number">100</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">results_can_be_returned_through_a_channel</span>() {
+        <span class="tok-keyword">let</span> pool = <span class="tok-type">ThreadPool</span>::<span class="tok-fn">new</span>(<span class="tok-number">2</span>);
+        <span class="tok-keyword">let</span> (tx, rx) = mpsc::<span class="tok-fn">channel</span>();
+        <span class="tok-keyword">for</span> i <span class="tok-keyword">in</span> <span class="tok-number">0</span>..<span class="tok-number">10</span> {
+            <span class="tok-keyword">let</span> tx = tx.<span class="tok-fn">clone</span>();
+            pool.<span class="tok-fn">execute</span>(<span class="tok-keyword">move</span> || tx.<span class="tok-fn">send</span>(i * <span class="tok-number">2</span>).<span class="tok-fn">unwrap</span>());
+        }
+        <span class="tok-fn">drop</span>(tx);
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> got: <span class="tok-type">Vec</span>&lt;<span class="tok-type">i32</span>&gt; = rx.<span class="tok-fn">iter</span>().<span class="tok-fn">collect</span>();
+        got.<span class="tok-fn">sort</span>();
+        <span class="tok-macro">assert_eq!</span>(got, (<span class="tok-number">0</span>..<span class="tok-number">10</span>).<span class="tok-fn">map</span>(|i| i * <span class="tok-number">2</span>).collect::&lt;<span class="tok-type">Vec</span>&lt;_&gt;&gt;());
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-attr">#[should_panic(expected = "size must be &gt; 0")]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">zero_sized_pool_panics</span>() {
+        <span class="tok-type">ThreadPool</span>::<span class="tok-fn">new</span>(<span class="tok-number">0</span>);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 45-worker-pool.rs -o 45-worker-pool &amp;&amp; ./45-worker-pool
+
+# run the unit tests
+rustc --edition 2021 --test 45-worker-pool.rs -o 45-worker-pool-tests &amp;&amp; ./45-worker-pool-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/44-producer-consumer.html"><small>← Previous</small>44 · Producer / Consumer</a><a class="pager-link next" href="../exercises/46-shared-state-simulation.html"><small>Next →</small>46 · Shared State Simulation</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

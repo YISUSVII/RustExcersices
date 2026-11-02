@@ -16,7 +16,13 @@ enum TrafficLight { Red, Yellow, Green }
 Forgetting `impl` blocks, overusing mutable state, not matching all enum variants.
 
 ## Exercises
-User model, rectangle model, bank account, state machine, traffic light enum.
+- [11 — User Model](exercises/11-user-model.md)
+- [12 — Rectangle Model](exercises/12-rectangle-model.md)
+- [13 — Bank Account](exercises/13-bank-account.md)
+- [14 — Order State Machine](exercises/14-state-machine.md)
+- [15 — Traffic Light](exercises/15-traffic-light.md)
+
+See `exercises/` for starters and `../solutions/05-structs-enums/` for reference solutions.
 
 ## Hints
 Use methods to keep behavior near data.

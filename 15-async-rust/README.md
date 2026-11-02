@@ -15,7 +15,11 @@ async fn hello() { println!("hello async"); }
 Blocking inside async code and confusing async concurrency with threads.
 
 ## Exercises
-Async timer, concurrent requests, basic async API client.
+- [47 — Async Timer](exercises/47-async-timer.md)
+- [48 — Concurrent Requests](exercises/48-concurrent-requests.md)
+- [49 — Async API Client](exercises/49-async-api-client.md)
+
+See `exercises/` for starters and `../solutions/15-async-rust/` for reference solutions.
 
 ## Hints
 Use Tokio runtime and avoid blocking calls in async contexts.

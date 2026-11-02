@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>41 · Rc + RefCell Shared State · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Model a joint bank account shared by several owners, and build a custom smart pointer with `Deref` and `Drop`.">
+<meta property="og:title" content="41 · Rc + RefCell Shared State · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Model a joint bank account shared by several owners, and build a custom smart pointer with `Deref` and `Drop`.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/13-smart-pointers.html">Level 13 — Smart Pointers</a><span>/</span><span>Exercise 41</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 41 · Level 13 — Smart Pointers</div>
+  <h1>Rc + RefCell Shared State</h1>
+  <p class="lead">Model a joint bank account shared by several owners, and build a custom smart pointer with <code>Deref</code> and <code>Drop</code>.</p>
+  <div class="meta"><span class="badge diff-intermediate">Intermediate</span><span class="chip">`Rc&lt;T&gt;`</span><span class="chip">`RefCell&lt;T&gt;`</span><span class="chip">interior mutability</span><span class="chip">`Rc::strong_count`</span><span class="chip">`Rc::ptr_eq`</span><span class="chip">`Deref`/`DerefMut`</span><span class="chip">`Drop`</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="41"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<ol><li>Define <code>struct Account { owner: String, balance: i64 }</code> and <code>type SharedAccount = Rc&lt;RefCell&lt;Account&gt;&gt;;</code>.</li><li>Implement <code>fn new_account(owner: &amp;str, balance: i64) -&gt; SharedAccount</code>.</li><li>Define <code>struct Member { name: String, account: SharedAccount }</code> and implement: - <code>fn deposit(&amp;self, amount: i64)</code> - <code>fn withdraw(&amp;self, amount: i64) -&gt; Result&lt;(), String&gt;</code> (error if the balance is insufficient)</li><li>Implement <code>fn transfer(from: &amp;SharedAccount, to: &amp;SharedAccount, amount: i64) -&gt; Result&lt;(), String&gt;</code>. Reject transfers to the same account (use <code>Rc::ptr_eq</code>) and overdrafts.</li><li>Build a custom smart pointer <code>Tracked&lt;T: Debug&gt; { label, value, drop_log: Rc&lt;RefCell&lt;Vec&lt;String&gt;&gt;&gt; }</code> with: - <code>fn new(label: &amp;'static str, value: T, drop_log: Rc&lt;RefCell&lt;Vec&lt;String&gt;&gt;&gt;) -&gt; Self</code> - <code>impl Deref</code> / <code>impl DerefMut</code> targeting <code>T</code> - <code>impl Drop</code> that pushes <code>"dropping {label} = {value:?}"</code> to the log.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<ul><li>Two <code>Member</code>s sharing an account see each other's deposits; <code>Rc::strong_count</code> is 3 (original + 2 members).</li><li><code>transfer(&amp;a, &amp;a, 1)</code> → <code>Err(..)</code>.</li><li>A <code>Tracked&lt;Vec&lt;i32&gt;&gt;</code> can call <code>push</code>/<code>len</code> directly thanks to <code>Deref</code>, and logs <code>dropping numbers = [1, 2, 3]</code> when it goes out of scope.</li></ul>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li><code>RefCell::borrow_mut</code> panics if the value is already borrowed — keep borrows short and never hold two <code>borrow_mut()</code> on the same <code>RefCell</code> (that is why <code>ptr_eq</code> matters in <code>transfer</code>).</li><li><code>Drop::drop</code> runs automatically at the end of scope; you never call it directly (use <code>std::mem::drop(x)</code> to drop early).</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Use <code>RefCell::try_borrow_mut</code> in <code>transfer</code> to return an error instead of panicking if the account is already borrowed.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">13-smart-pointers/exercises/41-rc-refcell-shared-state.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=%23%21%5Ballow%28dead_code%29%5D%0Ause%20std%3A%3Acell%3A%3ARefCell%3B%0Ause%20std%3A%3Aops%3A%3A%7BDeref%2C%20DerefMut%7D%3B%0Ause%20std%3A%3Arc%3A%3ARc%3B%0A%0A%23%5Bderive%28Debug%29%5D%0Astruct%20Account%20%7B%0A%20%20%20%20owner%3A%20String%2C%0A%20%20%20%20balance%3A%20i64%2C%0A%7D%0A%0Atype%20SharedAccount%20%3D%20Rc%3CRefCell%3CAccount%3E%3E%3B%0A%0Afn%20new_account%28owner%3A%20%26str%2C%20balance%3A%20i64%29%20-%3E%20SharedAccount%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20%28owner%2C%20balance%29%3B%0A%20%20%20%20todo%21%28%22Wrap%20an%20Account%20in%20Rc%3A%3Anew%28RefCell%3A%3Anew%28...%29%29%22%29%0A%7D%0A%0Astruct%20Member%20%7B%0A%20%20%20%20name%3A%20String%2C%0A%20%20%20%20account%3A%20SharedAccount%2C%0A%7D%0A%0Aimpl%20Member%20%7B%0A%20%20%20%20fn%20deposit%28%26self%2C%20amount%3A%20i64%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20amount%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Use%20self.account.borrow_mut%28%29%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20withdraw%28%26self%2C%20amount%3A%20i64%29%20-%3E%20Result%3C%28%29%2C%20String%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20amount%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Return%20Err%20if%20balance%20%3C%20amount%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20transfer%28from%3A%20%26SharedAccount%2C%20to%3A%20%26SharedAccount%2C%20amount%3A%20i64%29%20-%3E%20Result%3C%28%29%2C%20String%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20%28from%2C%20to%2C%20amount%29%3B%0A%20%20%20%20todo%21%28%22Reject%20Rc%3A%3Aptr_eq%28from%2C%20to%29%20and%20overdrafts%2C%20then%20move%20the%20money%22%29%0A%7D%0A%0Astruct%20Tracked%3CT%3A%20std%3A%3Afmt%3A%3ADebug%3E%20%7B%0A%20%20%20%20label%3A%20%26%27static%20str%2C%0A%20%20%20%20value%3A%20T%2C%0A%20%20%20%20drop_log%3A%20Rc%3CRefCell%3CVec%3CString%3E%3E%3E%2C%0A%7D%0A%0Aimpl%3CT%3A%20std%3A%3Afmt%3A%3ADebug%3E%20Tracked%3CT%3E%20%7B%0A%20%20%20%20fn%20new%28label%3A%20%26%27static%20str%2C%20value%3A%20T%2C%20drop_log%3A%20Rc%3CRefCell%3CVec%3CString%3E%3E%3E%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20Tracked%20%7B%20label%2C%20value%2C%20drop_log%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%3CT%3A%20std%3A%3Afmt%3A%3ADebug%3E%20Deref%20for%20Tracked%3CT%3E%20%7B%0A%20%20%20%20type%20Target%20%3D%20T%3B%0A%20%20%20%20fn%20deref%28%26self%29%20-%3E%20%26T%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20todo%21%28%22Return%20a%20reference%20to%20the%20inner%20value%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%3CT%3A%20std%3A%3Afmt%3A%3ADebug%3E%20DerefMut%20for%20Tracked%3CT%3E%20%7B%0A%20%20%20%20fn%20deref_mut%28%26mut%20self%29%20-%3E%20%26mut%20T%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20todo%21%28%22Return%20a%20mutable%20reference%20to%20the%20inner%20value%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%3CT%3A%20std%3A%3Afmt%3A%3ADebug%3E%20Drop%20for%20Tracked%3CT%3E%20%7B%0A%20%20%20%20fn%20drop%28%26mut%20self%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%20%E2%80%94%20push%20format%21%28%22dropping%20%7B%7D%20%3D%20%7B%3A%3F%7D%22%2C%20label%2C%20value%29%20to%20drop_log%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20joint%20%3D%20new_account%28%22Ana%20%26%20Ben%22%2C%20100%29%3B%0A%20%20%20%20let%20ana%20%3D%20Member%20%7B%20name%3A%20%22Ana%22.into%28%29%2C%20account%3A%20Rc%3A%3Aclone%28%26joint%29%20%7D%3B%0A%20%20%20%20let%20ben%20%3D%20Member%20%7B%20name%3A%20%22Ben%22.into%28%29%2C%20account%3A%20Rc%3A%3Aclone%28%26joint%29%20%7D%3B%0A%20%20%20%20println%21%28%22strong_count%28joint%29%20%3D%20%7B%7D%22%2C%20Rc%3A%3Astrong_count%28%26joint%29%29%3B%0A%0A%20%20%20%20ana.deposit%2850%29%3B%0A%20%20%20%20ben.withdraw%2830%29.unwrap%28%29%3B%0A%20%20%20%20println%21%28%22joint%20after%20ops%3A%20%7B%3A%3F%7D%22%2C%20joint.borrow%28%29%29%3B%0A%20%20%20%20if%20let%20Err%28e%29%20%3D%20ben.withdraw%281_000%29%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22error%3A%20%7Be%7D%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20let%20savings%20%3D%20new_account%28%22Savings%22%2C%200%29%3B%0A%20%20%20%20transfer%28%26joint%2C%20%26savings%2C%2070%29.unwrap%28%29%3B%0A%20%20%20%20println%21%28%22joint%20%3D%20%7B%7D%2C%20savings%20%3D%20%7B%7D%22%2C%20joint.borrow%28%29.balance%2C%20savings.borrow%28%29.balance%29%3B%0A%0A%20%20%20%20let%20log%20%3D%20Rc%3A%3Anew%28RefCell%3A%3Anew%28Vec%3A%3Anew%28%29%29%29%3B%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20v%20%3D%20Tracked%3A%3Anew%28%22numbers%22%2C%20vec%21%5B1%2C%202%5D%2C%20Rc%3A%3Aclone%28%26log%29%29%3B%0A%20%20%20%20%20%20%20%20v.push%283%29%3B%0A%20%20%20%20%20%20%20%20println%21%28%22len%20via%20Deref%20%3D%20%7B%7D%22%2C%20v.len%28%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%22drop%20log%3A%20%7B%3A%3F%7D%22%2C%20log.borrow%28%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20members_share_the_same_account%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20acc%20%3D%20new_account%28%22x%22%2C%2010%29%3B%0A%20%20%20%20%20%20%20%20let%20a%20%3D%20Member%20%7B%20name%3A%20%22a%22.into%28%29%2C%20account%3A%20Rc%3A%3Aclone%28%26acc%29%20%7D%3B%0A%20%20%20%20%20%20%20%20let%20b%20%3D%20Member%20%7B%20name%3A%20%22b%22.into%28%29%2C%20account%3A%20Rc%3A%3Aclone%28%26acc%29%20%7D%3B%0A%20%20%20%20%20%20%20%20a.deposit%285%29%3B%0A%20%20%20%20%20%20%20%20b.withdraw%2812%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28acc.borrow%28%29.balance%2C%203%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28Rc%3A%3Astrong_count%28%26acc%29%2C%203%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28a.withdraw%28100%29.is_err%28%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20transfer_moves_money_and_rejects_overdraft%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20a%20%3D%20new_account%28%22a%22%2C%2050%29%3B%0A%20%20%20%20%20%20%20%20let%20b%20%3D%20new_account%28%22b%22%2C%200%29%3B%0A%20%20%20%20%20%20%20%20transfer%28%26a%2C%20%26b%2C%2020%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%28a.borrow%28%29.balance%2C%20b.borrow%28%29.balance%29%2C%20%2830%2C%2020%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28transfer%28%26a%2C%20%26b%2C%20100%29.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28transfer%28%26a%2C%20%26a%2C%201%29.is_err%28%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20tracked_derefs_and_logs_on_drop%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20log%20%3D%20Rc%3A%3Anew%28RefCell%3A%3Anew%28Vec%3A%3Anew%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20mut%20t%20%3D%20Tracked%3A%3Anew%28%22s%22%2C%20String%3A%3Afrom%28%22hi%22%29%2C%20Rc%3A%3Aclone%28%26log%29%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20t.push%28%27%21%27%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20assert_eq%21%28t.len%28%29%2C%203%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20assert%21%28log.borrow%28%29.is_empty%28%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20assert_eq%21%28log.borrow%28%29.as_slice%28%29%2C%20%5B%22dropping%20s%20%3D%20%5C%22hi%21%5C%22%22%5D%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/13-smart-pointers/exercises/41-rc-refcell-shared-state.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-attr">#![allow(dead_code)]</span>
+<span class="tok-keyword">use</span> std::cell::<span class="tok-type">RefCell</span>;
+<span class="tok-keyword">use</span> std::ops::{<span class="tok-type">Deref</span>, <span class="tok-type">DerefMut</span>};
+<span class="tok-keyword">use</span> std::rc::<span class="tok-type">Rc</span>;
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Account</span> {
+    owner: <span class="tok-type">String</span>,
+    balance: <span class="tok-type">i64</span>,
+}
+
+<span class="tok-keyword">type</span> <span class="tok-type">SharedAccount</span> = <span class="tok-type">Rc</span>&lt;<span class="tok-type">RefCell</span>&lt;<span class="tok-type">Account</span>&gt;&gt;;
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">new_account</span>(owner: &amp;<span class="tok-type">str</span>, balance: <span class="tok-type">i64</span>) -&gt; <span class="tok-type">SharedAccount</span> {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = (owner, balance);
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Wrap an Account in Rc::new(RefCell::new(...))"</span>)
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">Member</span> {
+    name: <span class="tok-type">String</span>,
+    account: <span class="tok-type">SharedAccount</span>,
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Member</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">deposit</span>(&amp;<span class="tok-keyword">self</span>, amount: <span class="tok-type">i64</span>) {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-keyword">let</span> _ = amount;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Use self.account.borrow_mut()"</span>)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">withdraw</span>(&amp;<span class="tok-keyword">self</span>, amount: <span class="tok-type">i64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">String</span>&gt; {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-keyword">let</span> _ = amount;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Return Err if balance &lt; amount"</span>)
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">transfer</span>(from: &amp;<span class="tok-type">SharedAccount</span>, to: &amp;<span class="tok-type">SharedAccount</span>, amount: <span class="tok-type">i64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">String</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = (from, to, amount);
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Reject Rc::ptr_eq(from, to) and overdrafts, then move the money"</span>)
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">Tracked</span>&lt;<span class="tok-type">T</span>: std::fmt::<span class="tok-type">Debug</span>&gt; {
+    label: &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>,
+    value: <span class="tok-type">T</span>,
+    drop_log: <span class="tok-type">Rc</span>&lt;<span class="tok-type">RefCell</span>&lt;<span class="tok-type">Vec</span>&lt;<span class="tok-type">String</span>&gt;&gt;&gt;,
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">T</span>: std::fmt::<span class="tok-type">Debug</span>&gt; <span class="tok-type">Tracked</span>&lt;<span class="tok-type">T</span>&gt; {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(label: &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>, value: <span class="tok-type">T</span>, drop_log: <span class="tok-type">Rc</span>&lt;<span class="tok-type">RefCell</span>&lt;<span class="tok-type">Vec</span>&lt;<span class="tok-type">String</span>&gt;&gt;&gt;) -&gt; <span class="tok-keyword">Self</span> {
+        <span class="tok-type">Tracked</span> { label, value, drop_log }
+    }
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">T</span>: std::fmt::<span class="tok-type">Debug</span>&gt; <span class="tok-type">Deref</span> <span class="tok-keyword">for</span> <span class="tok-type">Tracked</span>&lt;<span class="tok-type">T</span>&gt; {
+    <span class="tok-keyword">type</span> <span class="tok-type">Target</span> = <span class="tok-type">T</span>;
+    <span class="tok-keyword">fn</span> <span class="tok-fn">deref</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-type">T</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Return a reference to the inner value"</span>)
+    }
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">T</span>: std::fmt::<span class="tok-type">Debug</span>&gt; <span class="tok-type">DerefMut</span> <span class="tok-keyword">for</span> <span class="tok-type">Tracked</span>&lt;<span class="tok-type">T</span>&gt; {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">deref_mut</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-keyword">mut</span> <span class="tok-type">T</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Return a mutable reference to the inner value"</span>)
+    }
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">T</span>: std::fmt::<span class="tok-type">Debug</span>&gt; <span class="tok-type">Drop</span> <span class="tok-keyword">for</span> <span class="tok-type">Tracked</span>&lt;<span class="tok-type">T</span>&gt; {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">drop</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>) {
+        <span class="tok-comment">// TODO: implement — push format!("dropping {} = {:?}", label, value) to drop_log</span>
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> joint = <span class="tok-fn">new_account</span>(<span class="tok-string">"Ana &amp; Ben"</span>, <span class="tok-number">100</span>);
+    <span class="tok-keyword">let</span> ana = <span class="tok-type">Member</span> { name: <span class="tok-string">"Ana"</span>.<span class="tok-fn">into</span>(), account: <span class="tok-type">Rc</span>::<span class="tok-fn">clone</span>(&amp;joint) };
+    <span class="tok-keyword">let</span> ben = <span class="tok-type">Member</span> { name: <span class="tok-string">"Ben"</span>.<span class="tok-fn">into</span>(), account: <span class="tok-type">Rc</span>::<span class="tok-fn">clone</span>(&amp;joint) };
+    <span class="tok-macro">println!</span>(<span class="tok-string">"strong_count(joint) = {}"</span>, <span class="tok-type">Rc</span>::<span class="tok-fn">strong_count</span>(&amp;joint));
+
+    ana.<span class="tok-fn">deposit</span>(<span class="tok-number">50</span>);
+    ben.<span class="tok-fn">withdraw</span>(<span class="tok-number">30</span>).<span class="tok-fn">unwrap</span>();
+    <span class="tok-macro">println!</span>(<span class="tok-string">"joint after ops: {:?}"</span>, joint.<span class="tok-fn">borrow</span>());
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = ben.<span class="tok-fn">withdraw</span>(<span class="tok-number">1_000</span>) {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"error: {e}"</span>);
+    }
+
+    <span class="tok-keyword">let</span> savings = <span class="tok-fn">new_account</span>(<span class="tok-string">"Savings"</span>, <span class="tok-number">0</span>);
+    <span class="tok-fn">transfer</span>(&amp;joint, &amp;savings, <span class="tok-number">70</span>).<span class="tok-fn">unwrap</span>();
+    <span class="tok-macro">println!</span>(<span class="tok-string">"joint = {}, savings = {}"</span>, joint.<span class="tok-fn">borrow</span>().balance, savings.<span class="tok-fn">borrow</span>().balance);
+
+    <span class="tok-keyword">let</span> log = <span class="tok-type">Rc</span>::<span class="tok-fn">new</span>(<span class="tok-type">RefCell</span>::<span class="tok-fn">new</span>(<span class="tok-type">Vec</span>::<span class="tok-fn">new</span>()));
+    {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> v = <span class="tok-type">Tracked</span>::<span class="tok-fn">new</span>(<span class="tok-string">"numbers"</span>, <span class="tok-macro">vec!</span>[<span class="tok-number">1</span>, <span class="tok-number">2</span>], <span class="tok-type">Rc</span>::<span class="tok-fn">clone</span>(&amp;log));
+        v.<span class="tok-fn">push</span>(<span class="tok-number">3</span>);
+        <span class="tok-macro">println!</span>(<span class="tok-string">"len via Deref = {}"</span>, v.<span class="tok-fn">len</span>());
+    }
+    <span class="tok-macro">println!</span>(<span class="tok-string">"drop log: {:?}"</span>, log.<span class="tok-fn">borrow</span>());
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">members_share_the_same_account</span>() {
+        <span class="tok-keyword">let</span> acc = <span class="tok-fn">new_account</span>(<span class="tok-string">"x"</span>, <span class="tok-number">10</span>);
+        <span class="tok-keyword">let</span> a = <span class="tok-type">Member</span> { name: <span class="tok-string">"a"</span>.<span class="tok-fn">into</span>(), account: <span class="tok-type">Rc</span>::<span class="tok-fn">clone</span>(&amp;acc) };
+        <span class="tok-keyword">let</span> b = <span class="tok-type">Member</span> { name: <span class="tok-string">"b"</span>.<span class="tok-fn">into</span>(), account: <span class="tok-type">Rc</span>::<span class="tok-fn">clone</span>(&amp;acc) };
+        a.<span class="tok-fn">deposit</span>(<span class="tok-number">5</span>);
+        b.<span class="tok-fn">withdraw</span>(<span class="tok-number">12</span>).<span class="tok-fn">unwrap</span>();
+        <span class="tok-macro">assert_eq!</span>(acc.<span class="tok-fn">borrow</span>().balance, <span class="tok-number">3</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-type">Rc</span>::<span class="tok-fn">strong_count</span>(&amp;acc), <span class="tok-number">3</span>);
+        <span class="tok-macro">assert!</span>(a.<span class="tok-fn">withdraw</span>(<span class="tok-number">100</span>).<span class="tok-fn">is_err</span>());
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">transfer_moves_money_and_rejects_overdraft</span>() {
+        <span class="tok-keyword">let</span> a = <span class="tok-fn">new_account</span>(<span class="tok-string">"a"</span>, <span class="tok-number">50</span>);
+        <span class="tok-keyword">let</span> b = <span class="tok-fn">new_account</span>(<span class="tok-string">"b"</span>, <span class="tok-number">0</span>);
+        <span class="tok-fn">transfer</span>(&amp;a, &amp;b, <span class="tok-number">20</span>).<span class="tok-fn">unwrap</span>();
+        <span class="tok-macro">assert_eq!</span>((a.<span class="tok-fn">borrow</span>().balance, b.<span class="tok-fn">borrow</span>().balance), (<span class="tok-number">30</span>, <span class="tok-number">20</span>));
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">transfer</span>(&amp;a, &amp;b, <span class="tok-number">100</span>).<span class="tok-fn">is_err</span>());
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">transfer</span>(&amp;a, &amp;a, <span class="tok-number">1</span>).<span class="tok-fn">is_err</span>());
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">tracked_derefs_and_logs_on_drop</span>() {
+        <span class="tok-keyword">let</span> log = <span class="tok-type">Rc</span>::<span class="tok-fn">new</span>(<span class="tok-type">RefCell</span>::<span class="tok-fn">new</span>(<span class="tok-type">Vec</span>::<span class="tok-fn">new</span>()));
+        {
+            <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> t = <span class="tok-type">Tracked</span>::<span class="tok-fn">new</span>(<span class="tok-string">"s"</span>, <span class="tok-type">String</span>::<span class="tok-fn">from</span>(<span class="tok-string">"hi"</span>), <span class="tok-type">Rc</span>::<span class="tok-fn">clone</span>(&amp;log));
+            t.<span class="tok-fn">push</span>(<span class="tok-string">'!'</span>);
+            <span class="tok-macro">assert_eq!</span>(t.<span class="tok-fn">len</span>(), <span class="tok-number">3</span>);
+            <span class="tok-macro">assert!</span>(log.<span class="tok-fn">borrow</span>().<span class="tok-fn">is_empty</span>());
+        }
+        <span class="tok-macro">assert_eq!</span>(log.<span class="tok-fn">borrow</span>().<span class="tok-fn">as_slice</span>(), [<span class="tok-string">"dropping s = \"hi!\""</span>]);
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/13-smart-pointers/41-rc-refcell-shared-state.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Acell%3A%3ARefCell%3B%0Ause%20std%3A%3Aops%3A%3A%7BDeref%2C%20DerefMut%7D%3B%0Ause%20std%3A%3Arc%3A%3ARc%3B%0A%0A%23%5Bderive%28Debug%29%5D%0Astruct%20Account%20%7B%0A%20%20%20%20owner%3A%20String%2C%0A%20%20%20%20balance%3A%20i64%2C%0A%7D%0A%0Atype%20SharedAccount%20%3D%20Rc%3CRefCell%3CAccount%3E%3E%3B%0A%0Afn%20new_account%28owner%3A%20%26str%2C%20balance%3A%20i64%29%20-%3E%20SharedAccount%20%7B%0A%20%20%20%20Rc%3A%3Anew%28RefCell%3A%3Anew%28Account%20%7B%0A%20%20%20%20%20%20%20%20owner%3A%20owner.to_string%28%29%2C%0A%20%20%20%20%20%20%20%20balance%2C%0A%20%20%20%20%7D%29%29%0A%7D%0A%0A///%20A%20household%20member%20holding%20a%20handle%20to%20a%20shared%20%28joint%29%20account.%0Astruct%20Member%20%7B%0A%20%20%20%20name%3A%20String%2C%0A%20%20%20%20account%3A%20SharedAccount%2C%0A%7D%0A%0Aimpl%20Member%20%7B%0A%20%20%20%20fn%20deposit%28%26self%2C%20amount%3A%20i64%29%20%7B%0A%20%20%20%20%20%20%20%20self.account.borrow_mut%28%29.balance%20%2B%3D%20amount%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20withdraw%28%26self%2C%20amount%3A%20i64%29%20-%3E%20Result%3C%28%29%2C%20String%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20acc%20%3D%20self.account.borrow_mut%28%29%3B%0A%20%20%20%20%20%20%20%20if%20acc.balance%20%3C%20amount%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20Err%28format%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22%7B%7D%20cannot%20withdraw%20%7Bamount%7D%3A%20balance%20is%20%7B%7D%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.name%2C%20acc.balance%0A%20%20%20%20%20%20%20%20%20%20%20%20%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20acc.balance%20-%3D%20amount%3B%0A%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20transfer%28from%3A%20%26SharedAccount%2C%20to%3A%20%26SharedAccount%2C%20amount%3A%20i64%29%20-%3E%20Result%3C%28%29%2C%20String%3E%20%7B%0A%20%20%20%20if%20Rc%3A%3Aptr_eq%28from%2C%20to%29%20%7B%0A%20%20%20%20%20%20%20%20return%20Err%28%22cannot%20transfer%20to%20the%20same%20account%22.to_string%28%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20let%20mut%20src%20%3D%20from.borrow_mut%28%29%3B%0A%20%20%20%20if%20src.balance%20%3C%20amount%20%7B%0A%20%20%20%20%20%20%20%20return%20Err%28format%21%28%22insufficient%20funds%20in%20%7B%7D%27s%20account%22%2C%20src.owner%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20src.balance%20-%3D%20amount%3B%0A%20%20%20%20to.borrow_mut%28%29.balance%20%2B%3D%20amount%3B%0A%20%20%20%20Ok%28%28%29%29%0A%7D%0A%0A///%20A%20custom%20smart%20pointer%20that%20logs%20when%20it%20is%20dropped.%0Astruct%20Tracked%3CT%3A%20std%3A%3Afmt%3A%3ADebug%3E%20%7B%0A%20%20%20%20label%3A%20%26%27static%20str%2C%0A%20%20%20%20value%3A%20T%2C%0A%20%20%20%20drop_log%3A%20Rc%3CRefCell%3CVec%3CString%3E%3E%3E%2C%0A%7D%0A%0Aimpl%3CT%3A%20std%3A%3Afmt%3A%3ADebug%3E%20Tracked%3CT%3E%20%7B%0A%20%20%20%20fn%20new%28label%3A%20%26%27static%20str%2C%20value%3A%20T%2C%20drop_log%3A%20Rc%3CRefCell%3CVec%3CString%3E%3E%3E%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20Tracked%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20label%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20value%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20drop_log%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%3CT%3A%20std%3A%3Afmt%3A%3ADebug%3E%20Deref%20for%20Tracked%3CT%3E%20%7B%0A%20%20%20%20type%20Target%20%3D%20T%3B%0A%20%20%20%20fn%20deref%28%26self%29%20-%3E%20%26T%20%7B%0A%20%20%20%20%20%20%20%20%26self.value%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%3CT%3A%20std%3A%3Afmt%3A%3ADebug%3E%20DerefMut%20for%20Tracked%3CT%3E%20%7B%0A%20%20%20%20fn%20deref_mut%28%26mut%20self%29%20-%3E%20%26mut%20T%20%7B%0A%20%20%20%20%20%20%20%20%26mut%20self.value%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%3CT%3A%20std%3A%3Afmt%3A%3ADebug%3E%20Drop%20for%20Tracked%3CT%3E%20%7B%0A%20%20%20%20fn%20drop%28%26mut%20self%29%20%7B%0A%20%20%20%20%20%20%20%20let%20msg%20%3D%20format%21%28%22dropping%20%7B%7D%20%3D%20%7B%3A%3F%7D%22%2C%20self.label%2C%20self.value%29%3B%0A%20%20%20%20%20%20%20%20println%21%28%22%7Bmsg%7D%22%29%3B%0A%20%20%20%20%20%20%20%20self.drop_log.borrow_mut%28%29.push%28msg%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20joint%20%3D%20new_account%28%22Ana%20%26%20Ben%22%2C%20100%29%3B%0A%20%20%20%20let%20ana%20%3D%20Member%20%7B%0A%20%20%20%20%20%20%20%20name%3A%20%22Ana%22.into%28%29%2C%0A%20%20%20%20%20%20%20%20account%3A%20Rc%3A%3Aclone%28%26joint%29%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20let%20ben%20%3D%20Member%20%7B%0A%20%20%20%20%20%20%20%20name%3A%20%22Ben%22.into%28%29%2C%0A%20%20%20%20%20%20%20%20account%3A%20Rc%3A%3Aclone%28%26joint%29%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20println%21%28%22strong_count%28joint%29%20%3D%20%7B%7D%22%2C%20Rc%3A%3Astrong_count%28%26joint%29%29%3B%0A%0A%20%20%20%20ana.deposit%2850%29%3B%0A%20%20%20%20ben.withdraw%2830%29.unwrap%28%29%3B%0A%20%20%20%20println%21%28%22joint%20after%20ops%3A%20%7B%3A%3F%7D%22%2C%20joint.borrow%28%29%29%3B%0A%20%20%20%20if%20let%20Err%28e%29%20%3D%20ben.withdraw%281_000%29%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22error%3A%20%7Be%7D%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20let%20savings%20%3D%20new_account%28%22Savings%22%2C%200%29%3B%0A%20%20%20%20transfer%28%26joint%2C%20%26savings%2C%2070%29.unwrap%28%29%3B%0A%20%20%20%20println%21%28%22joint%20%3D%20%7B%7D%2C%20savings%20%3D%20%7B%7D%22%2C%20joint.borrow%28%29.balance%2C%20savings.borrow%28%29.balance%29%3B%0A%0A%20%20%20%20let%20log%20%3D%20Rc%3A%3Anew%28RefCell%3A%3Anew%28Vec%3A%3Anew%28%29%29%29%3B%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20v%20%3D%20Tracked%3A%3Anew%28%22numbers%22%2C%20vec%21%5B1%2C%202%5D%2C%20Rc%3A%3Aclone%28%26log%29%29%3B%0A%20%20%20%20%20%20%20%20v.push%283%29%3B%20//%20DerefMut%20lets%20us%20call%20Vec%20methods%20directly%0A%20%20%20%20%20%20%20%20println%21%28%22len%20via%20Deref%20%3D%20%7B%7D%22%2C%20v.len%28%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%22drop%20log%3A%20%7B%3A%3F%7D%22%2C%20log.borrow%28%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20members_share_the_same_account%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20acc%20%3D%20new_account%28%22x%22%2C%2010%29%3B%0A%20%20%20%20%20%20%20%20let%20a%20%3D%20Member%20%7B%20name%3A%20%22a%22.into%28%29%2C%20account%3A%20Rc%3A%3Aclone%28%26acc%29%20%7D%3B%0A%20%20%20%20%20%20%20%20let%20b%20%3D%20Member%20%7B%20name%3A%20%22b%22.into%28%29%2C%20account%3A%20Rc%3A%3Aclone%28%26acc%29%20%7D%3B%0A%20%20%20%20%20%20%20%20a.deposit%285%29%3B%0A%20%20%20%20%20%20%20%20b.withdraw%2812%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28acc.borrow%28%29.balance%2C%203%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28Rc%3A%3Astrong_count%28%26acc%29%2C%203%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28a.withdraw%28100%29.is_err%28%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20transfer_moves_money_and_rejects_overdraft%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20a%20%3D%20new_account%28%22a%22%2C%2050%29%3B%0A%20%20%20%20%20%20%20%20let%20b%20%3D%20new_account%28%22b%22%2C%200%29%3B%0A%20%20%20%20%20%20%20%20transfer%28%26a%2C%20%26b%2C%2020%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%28a.borrow%28%29.balance%2C%20b.borrow%28%29.balance%29%2C%20%2830%2C%2020%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28transfer%28%26a%2C%20%26b%2C%20100%29.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28transfer%28%26a%2C%20%26a%2C%201%29.is_err%28%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20tracked_derefs_and_logs_on_drop%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20log%20%3D%20Rc%3A%3Anew%28RefCell%3A%3Anew%28Vec%3A%3Anew%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20mut%20t%20%3D%20Tracked%3A%3Anew%28%22s%22%2C%20String%3A%3Afrom%28%22hi%22%29%2C%20Rc%3A%3Aclone%28%26log%29%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20t.push%28%27%21%27%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20assert_eq%21%28t.len%28%29%2C%203%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20assert%21%28log.borrow%28%29.is_empty%28%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20assert_eq%21%28log.borrow%28%29.as_slice%28%29%2C%20%5B%22dropping%20s%20%3D%20%5C%22hi%21%5C%22%22%5D%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/13-smart-pointers/41-rc-refcell-shared-state.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::cell::<span class="tok-type">RefCell</span>;
+<span class="tok-keyword">use</span> std::ops::{<span class="tok-type">Deref</span>, <span class="tok-type">DerefMut</span>};
+<span class="tok-keyword">use</span> std::rc::<span class="tok-type">Rc</span>;
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Account</span> {
+    owner: <span class="tok-type">String</span>,
+    balance: <span class="tok-type">i64</span>,
+}
+
+<span class="tok-keyword">type</span> <span class="tok-type">SharedAccount</span> = <span class="tok-type">Rc</span>&lt;<span class="tok-type">RefCell</span>&lt;<span class="tok-type">Account</span>&gt;&gt;;
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">new_account</span>(owner: &amp;<span class="tok-type">str</span>, balance: <span class="tok-type">i64</span>) -&gt; <span class="tok-type">SharedAccount</span> {
+    <span class="tok-type">Rc</span>::<span class="tok-fn">new</span>(<span class="tok-type">RefCell</span>::<span class="tok-fn">new</span>(<span class="tok-type">Account</span> {
+        owner: owner.<span class="tok-fn">to_string</span>(),
+        balance,
+    }))
+}
+
+<span class="tok-comment">/// A household member holding a handle to a shared (joint) account.</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Member</span> {
+    name: <span class="tok-type">String</span>,
+    account: <span class="tok-type">SharedAccount</span>,
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Member</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">deposit</span>(&amp;<span class="tok-keyword">self</span>, amount: <span class="tok-type">i64</span>) {
+        <span class="tok-keyword">self</span>.account.<span class="tok-fn">borrow_mut</span>().balance += amount;
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">withdraw</span>(&amp;<span class="tok-keyword">self</span>, amount: <span class="tok-type">i64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">String</span>&gt; {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> acc = <span class="tok-keyword">self</span>.account.<span class="tok-fn">borrow_mut</span>();
+        <span class="tok-keyword">if</span> acc.balance &lt; amount {
+            <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-macro">format!</span>(
+                <span class="tok-string">"{} cannot withdraw {amount}: balance is {}"</span>,
+                <span class="tok-keyword">self</span>.name, acc.balance
+            ));
+        }
+        acc.balance -= amount;
+        <span class="tok-type">Ok</span>(())
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">transfer</span>(from: &amp;<span class="tok-type">SharedAccount</span>, to: &amp;<span class="tok-type">SharedAccount</span>, amount: <span class="tok-type">i64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">String</span>&gt; {
+    <span class="tok-keyword">if</span> <span class="tok-type">Rc</span>::<span class="tok-fn">ptr_eq</span>(from, to) {
+        <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-string">"cannot transfer to the same account"</span>.<span class="tok-fn">to_string</span>());
+    }
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> src = from.<span class="tok-fn">borrow_mut</span>();
+    <span class="tok-keyword">if</span> src.balance &lt; amount {
+        <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-macro">format!</span>(<span class="tok-string">"insufficient funds in {}'s account"</span>, src.owner));
+    }
+    src.balance -= amount;
+    to.<span class="tok-fn">borrow_mut</span>().balance += amount;
+    <span class="tok-type">Ok</span>(())
+}
+
+<span class="tok-comment">/// A custom smart pointer that logs when it is dropped.</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Tracked</span>&lt;<span class="tok-type">T</span>: std::fmt::<span class="tok-type">Debug</span>&gt; {
+    label: &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>,
+    value: <span class="tok-type">T</span>,
+    drop_log: <span class="tok-type">Rc</span>&lt;<span class="tok-type">RefCell</span>&lt;<span class="tok-type">Vec</span>&lt;<span class="tok-type">String</span>&gt;&gt;&gt;,
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">T</span>: std::fmt::<span class="tok-type">Debug</span>&gt; <span class="tok-type">Tracked</span>&lt;<span class="tok-type">T</span>&gt; {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(label: &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>, value: <span class="tok-type">T</span>, drop_log: <span class="tok-type">Rc</span>&lt;<span class="tok-type">RefCell</span>&lt;<span class="tok-type">Vec</span>&lt;<span class="tok-type">String</span>&gt;&gt;&gt;) -&gt; <span class="tok-keyword">Self</span> {
+        <span class="tok-type">Tracked</span> {
+            label,
+            value,
+            drop_log,
+        }
+    }
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">T</span>: std::fmt::<span class="tok-type">Debug</span>&gt; <span class="tok-type">Deref</span> <span class="tok-keyword">for</span> <span class="tok-type">Tracked</span>&lt;<span class="tok-type">T</span>&gt; {
+    <span class="tok-keyword">type</span> <span class="tok-type">Target</span> = <span class="tok-type">T</span>;
+    <span class="tok-keyword">fn</span> <span class="tok-fn">deref</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-type">T</span> {
+        &amp;<span class="tok-keyword">self</span>.value
+    }
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">T</span>: std::fmt::<span class="tok-type">Debug</span>&gt; <span class="tok-type">DerefMut</span> <span class="tok-keyword">for</span> <span class="tok-type">Tracked</span>&lt;<span class="tok-type">T</span>&gt; {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">deref_mut</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-keyword">mut</span> <span class="tok-type">T</span> {
+        &amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>.value
+    }
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">T</span>: std::fmt::<span class="tok-type">Debug</span>&gt; <span class="tok-type">Drop</span> <span class="tok-keyword">for</span> <span class="tok-type">Tracked</span>&lt;<span class="tok-type">T</span>&gt; {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">drop</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>) {
+        <span class="tok-keyword">let</span> msg = <span class="tok-macro">format!</span>(<span class="tok-string">"dropping {} = {:?}"</span>, <span class="tok-keyword">self</span>.label, <span class="tok-keyword">self</span>.value);
+        <span class="tok-macro">println!</span>(<span class="tok-string">"{msg}"</span>);
+        <span class="tok-keyword">self</span>.drop_log.<span class="tok-fn">borrow_mut</span>().<span class="tok-fn">push</span>(msg);
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> joint = <span class="tok-fn">new_account</span>(<span class="tok-string">"Ana &amp; Ben"</span>, <span class="tok-number">100</span>);
+    <span class="tok-keyword">let</span> ana = <span class="tok-type">Member</span> {
+        name: <span class="tok-string">"Ana"</span>.<span class="tok-fn">into</span>(),
+        account: <span class="tok-type">Rc</span>::<span class="tok-fn">clone</span>(&amp;joint),
+    };
+    <span class="tok-keyword">let</span> ben = <span class="tok-type">Member</span> {
+        name: <span class="tok-string">"Ben"</span>.<span class="tok-fn">into</span>(),
+        account: <span class="tok-type">Rc</span>::<span class="tok-fn">clone</span>(&amp;joint),
+    };
+    <span class="tok-macro">println!</span>(<span class="tok-string">"strong_count(joint) = {}"</span>, <span class="tok-type">Rc</span>::<span class="tok-fn">strong_count</span>(&amp;joint));
+
+    ana.<span class="tok-fn">deposit</span>(<span class="tok-number">50</span>);
+    ben.<span class="tok-fn">withdraw</span>(<span class="tok-number">30</span>).<span class="tok-fn">unwrap</span>();
+    <span class="tok-macro">println!</span>(<span class="tok-string">"joint after ops: {:?}"</span>, joint.<span class="tok-fn">borrow</span>());
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = ben.<span class="tok-fn">withdraw</span>(<span class="tok-number">1_000</span>) {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"error: {e}"</span>);
+    }
+
+    <span class="tok-keyword">let</span> savings = <span class="tok-fn">new_account</span>(<span class="tok-string">"Savings"</span>, <span class="tok-number">0</span>);
+    <span class="tok-fn">transfer</span>(&amp;joint, &amp;savings, <span class="tok-number">70</span>).<span class="tok-fn">unwrap</span>();
+    <span class="tok-macro">println!</span>(<span class="tok-string">"joint = {}, savings = {}"</span>, joint.<span class="tok-fn">borrow</span>().balance, savings.<span class="tok-fn">borrow</span>().balance);
+
+    <span class="tok-keyword">let</span> log = <span class="tok-type">Rc</span>::<span class="tok-fn">new</span>(<span class="tok-type">RefCell</span>::<span class="tok-fn">new</span>(<span class="tok-type">Vec</span>::<span class="tok-fn">new</span>()));
+    {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> v = <span class="tok-type">Tracked</span>::<span class="tok-fn">new</span>(<span class="tok-string">"numbers"</span>, <span class="tok-macro">vec!</span>[<span class="tok-number">1</span>, <span class="tok-number">2</span>], <span class="tok-type">Rc</span>::<span class="tok-fn">clone</span>(&amp;log));
+        v.<span class="tok-fn">push</span>(<span class="tok-number">3</span>); <span class="tok-comment">// DerefMut lets us call Vec methods directly</span>
+        <span class="tok-macro">println!</span>(<span class="tok-string">"len via Deref = {}"</span>, v.<span class="tok-fn">len</span>());
+    }
+    <span class="tok-macro">println!</span>(<span class="tok-string">"drop log: {:?}"</span>, log.<span class="tok-fn">borrow</span>());
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">members_share_the_same_account</span>() {
+        <span class="tok-keyword">let</span> acc = <span class="tok-fn">new_account</span>(<span class="tok-string">"x"</span>, <span class="tok-number">10</span>);
+        <span class="tok-keyword">let</span> a = <span class="tok-type">Member</span> { name: <span class="tok-string">"a"</span>.<span class="tok-fn">into</span>(), account: <span class="tok-type">Rc</span>::<span class="tok-fn">clone</span>(&amp;acc) };
+        <span class="tok-keyword">let</span> b = <span class="tok-type">Member</span> { name: <span class="tok-string">"b"</span>.<span class="tok-fn">into</span>(), account: <span class="tok-type">Rc</span>::<span class="tok-fn">clone</span>(&amp;acc) };
+        a.<span class="tok-fn">deposit</span>(<span class="tok-number">5</span>);
+        b.<span class="tok-fn">withdraw</span>(<span class="tok-number">12</span>).<span class="tok-fn">unwrap</span>();
+        <span class="tok-macro">assert_eq!</span>(acc.<span class="tok-fn">borrow</span>().balance, <span class="tok-number">3</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-type">Rc</span>::<span class="tok-fn">strong_count</span>(&amp;acc), <span class="tok-number">3</span>);
+        <span class="tok-macro">assert!</span>(a.<span class="tok-fn">withdraw</span>(<span class="tok-number">100</span>).<span class="tok-fn">is_err</span>());
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">transfer_moves_money_and_rejects_overdraft</span>() {
+        <span class="tok-keyword">let</span> a = <span class="tok-fn">new_account</span>(<span class="tok-string">"a"</span>, <span class="tok-number">50</span>);
+        <span class="tok-keyword">let</span> b = <span class="tok-fn">new_account</span>(<span class="tok-string">"b"</span>, <span class="tok-number">0</span>);
+        <span class="tok-fn">transfer</span>(&amp;a, &amp;b, <span class="tok-number">20</span>).<span class="tok-fn">unwrap</span>();
+        <span class="tok-macro">assert_eq!</span>((a.<span class="tok-fn">borrow</span>().balance, b.<span class="tok-fn">borrow</span>().balance), (<span class="tok-number">30</span>, <span class="tok-number">20</span>));
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">transfer</span>(&amp;a, &amp;b, <span class="tok-number">100</span>).<span class="tok-fn">is_err</span>());
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">transfer</span>(&amp;a, &amp;a, <span class="tok-number">1</span>).<span class="tok-fn">is_err</span>());
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">tracked_derefs_and_logs_on_drop</span>() {
+        <span class="tok-keyword">let</span> log = <span class="tok-type">Rc</span>::<span class="tok-fn">new</span>(<span class="tok-type">RefCell</span>::<span class="tok-fn">new</span>(<span class="tok-type">Vec</span>::<span class="tok-fn">new</span>()));
+        {
+            <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> t = <span class="tok-type">Tracked</span>::<span class="tok-fn">new</span>(<span class="tok-string">"s"</span>, <span class="tok-type">String</span>::<span class="tok-fn">from</span>(<span class="tok-string">"hi"</span>), <span class="tok-type">Rc</span>::<span class="tok-fn">clone</span>(&amp;log));
+            t.<span class="tok-fn">push</span>(<span class="tok-string">'!'</span>);
+            <span class="tok-macro">assert_eq!</span>(t.<span class="tok-fn">len</span>(), <span class="tok-number">3</span>);
+            <span class="tok-macro">assert!</span>(log.<span class="tok-fn">borrow</span>().<span class="tok-fn">is_empty</span>());
+        }
+        <span class="tok-macro">assert_eq!</span>(log.<span class="tok-fn">borrow</span>().<span class="tok-fn">as_slice</span>(), [<span class="tok-string">"dropping s = \"hi!\""</span>]);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 41-rc-refcell-shared-state.rs -o 41-rc-refcell-shared-state &amp;&amp; ./41-rc-refcell-shared-state
+
+# run the unit tests
+rustc --edition 2021 --test 41-rc-refcell-shared-state.rs -o 41-rc-refcell-shared-state-tests &amp;&amp; ./41-rc-refcell-shared-state-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/40-box-recursive-list.html"><small>← Previous</small>40 · Box Recursive List</a><a class="pager-link next" href="../exercises/42-weak-tree.html"><small>Next →</small>42 · Weak Tree</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -4,6 +4,8 @@ A practical, progressive Rust course repository designed to take you from **abso
 
 This repo is focused on **learning Rust by building** (not interview drills or DevOps-heavy content).
 
+🌐 **Browse the course online:** <https://yisusvii.github.io/rust-study/> — navigate every chapter, read each exercise, and explore starter code and reference solutions (with one-click Rust Playground links).
+
 ## Prerequisites
 
 - A computer with macOS, Linux, or Windows
@@ -79,11 +81,15 @@ RustExercises/
 ├── 03-functions/README.md
 ├── 04-ownership-borrowing/README.md
 ├── ... (continue through 18-projects, each with README.md)
-├── solutions/
-└── resources/
+├── solutions/           # reference solutions, mirrored by level
+├── resources/
+├── scripts/
+│   ├── check_exercises.py   # compile/run/test every starter and solution
+│   └── build_site.py        # generate the GitHub Pages site into docs/
+└── docs/                # generated static website (GitHub Pages)
 ```
 
-> Note: each populated learning level includes an `exercises/` directory, and `solutions/` mirrors solved files by level.
+> Note: levels 01–17 each include an `exercises/` directory with 54 exercises in total (numbered globally `01`–`54`), and `solutions/` mirrors solved files by level. Level 18 contains capstone project briefs.
 
 ## Recommended learning order
 
@@ -103,12 +109,28 @@ RustExercises/
   ```
   or with Cargo when a project skeleton is provided.
 - Embrace compiler errors and fix them incrementally.
+- Most solutions include unit tests; run them with:
+  ```bash
+  rustc --edition 2021 --test your_file.rs -o tests && ./tests
+  ```
 
 ## How solutions work
 
 - Exercise prompts are in module folders.
 - Reference solutions are in `solutions/` with matching paths/names.
 - Try solving first, then compare with the solution.
+
+## Website (GitHub Pages)
+
+The `docs/` folder is a static site generated from the Markdown READMEs, exercise prompts, starters, and solutions. Do not edit generated HTML by hand — edit the sources, then regenerate:
+
+```bash
+python3 scripts/check_exercises.py   # every solution builds with -D warnings, runs, and passes its tests
+python3 scripts/build_site.py        # regenerate docs/
+python3 -m http.server -d docs 8000  # preview at http://localhost:8000
+```
+
+The `Validate exercises and deploy site` workflow (`.github/workflows/pages.yml`) runs the checks on every pull request and deploys `docs/` to GitHub Pages on pushes to `main`. In **Settings → Pages**, set the source to **GitHub Actions**. Pages serves a project site at `/<repository-name>/`, so the repository must be named `rust-study` for the site to live at `https://yisusvii.github.io/rust-study/`.
 
 ## Progress checklist
 

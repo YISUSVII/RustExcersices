@@ -15,7 +15,13 @@ fn max<T: Ord>(a: T, b: T) -> T { if a > b { a } else { b } }
 Overconstraining bounds and returning references without valid lifetime relationships.
 
 ## Exercises
-Generic max, printable trait, shape trait, repository abstraction, reference-returning APIs.
+- [28 — Generic Max](exercises/28-generic-max.md)
+- [29 — Printable Trait](exercises/29-printable-trait.md)
+- [30 — Shape Trait](exercises/30-shape-trait.md)
+- [31 — Repository Abstraction](exercises/31-repository-abstraction.md)
+- [32 — Reference-Returning APIs](exercises/32-reference-returning-apis.md)
+
+See `exercises/` for starters and `../solutions/09-generics-traits-lifetimes/` for reference solutions.
 
 ## Hints
 Write constraints only when needed.

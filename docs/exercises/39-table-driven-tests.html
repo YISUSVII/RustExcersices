@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>39 · Table-Driven Tests · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Test a small expression calculator and a password checker with data tables, cover every error variant, and use the tests to find and fix real bugs.">
+<meta property="og:title" content="39 · Table-Driven Tests · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Test a small expression calculator and a password checker with data tables, cover every error variant, and use the tests to find and fix real bugs.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/12-testing.html">Level 12 — Testing</a><span>/</span><span>Exercise 39</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 39 · Level 12 — Testing</div>
+  <h1>Table-Driven Tests</h1>
+  <p class="lead">Test a small expression calculator and a password checker with data tables, cover every error variant, and use the tests to find and fix real bugs.</p>
+  <div class="meta"><span class="badge diff-advanced">Advanced</span><span class="chip">table-driven tests (arrays/slices of tuples)</span><span class="chip">helper assertions with `#[track_caller]`</span><span class="chip">descriptive failure messages</span><span class="chip">testing `Result` errors and `Display` output</span><span class="chip">regression-driven bug fixing</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="39"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<p>The starter provides:</p>
+<ul><li><code>enum Op { Add, Sub, Mul, Div }</code> and <code>enum CalcError { Empty, BadNumber(String), UnknownOperator(String), WrongTokenCount(usize), DivisionByZero, Overflow }</code> with a <code>Display</code> impl.</li><li><code>evaluate(expr: &amp;str) -&gt; Result&lt;i64, CalcError&gt;</code> for expressions like <code>"12 * -3"</code> (operators <code>+ - * x /</code>).</li><li><code>password_issues(pw: &amp;str) -&gt; Vec&lt;&amp;'static str&gt;</code> returning failed rules among <code>"too short"</code>, <code>"no digit"</code>, <code>"no uppercase"</code>, <code>"no lowercase"</code>.</li></ul>
+<p>The code has <strong>two hidden bugs</strong>. Do not fix them yet!</p>
+<ol><li>Implement the helper:
+<pre class="code" data-lang="rust"><code><span class="tok-attr">#[track_caller]</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">check_eval</span>(name: &amp;<span class="tok-type">str</span>, input: &amp;<span class="tok-type">str</span>, expected: <span class="tok-type">Result</span>&lt;<span class="tok-type">i64</span>, <span class="tok-type">CalcError</span>&gt;)</code></pre>
+<p>It must fail with a message such as <code>case 'div by zero': evaluate("1 / 0") returned ..., expected ...</code>.</p></li><li><code>evaluates_valid_expressions</code> — a table of <code>(name, input, expected)</code> rows: addition, subtraction to a negative, <code>*</code> and <code>x</code>, negative operands, truncating division, extra whitespace.</li><li><code>reports_each_error_kind</code> — a table with at least one row for <strong>every</strong> <code>CalcError</code> variant, including <code>"9223372036854775807 + 1"</code> (overflow) and <code>"1 / 0"</code>.</li><li><code>error_messages_are_human_readable</code> — a table of <code>(CalcError, &amp;str)</code> checking <code>to_string()</code>.</li><li><code>password_rules_table</code> — a <code>&amp;[(&amp;str, &amp;[&amp;str])]</code> table from "everything wrong" to "strong".</li><li>Run the tests. They will <strong>panic</strong> inside <code>evaluate</code> instead of returning errors. Use the failure output to locate the two bugs, fix them with <code>checked_*</code> arithmetic, and re-run until everything is green.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<ul><li>Before fixing: the error-case test panics with <code>attempt to add with overflow</code> / <code>attempt to divide by zero</code>.</li><li>After fixing: <code>test result: ok. 4 passed; 0 failed</code>.</li><li><code>evaluate("4 % 2")</code> =&gt; <code>Err(UnknownOperator("%"))</code></li><li><code>evaluate("1 + 2 + 3")</code> =&gt; <code>Err(WrongTokenCount(5))</code></li><li><code>evaluate("-9223372036854775808 / -1")</code> =&gt; <code>Err(Overflow)</code></li><li><code>password_issues("Str0ngPassword")</code> =&gt; <code>[]</code></li></ul>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li>Arrays of tuples iterate by value: <code>for (name, input, expected) in cases { ... }</code>.</li><li>For slices of references, destructure with <code>for &amp;(pw, expected) in cases</code>.</li><li><code>#[track_caller]</code> makes the panic location point at the table loop's call site rather than the helper.</li><li>Give every row a <strong>name</strong> — when a table has 10 rows, "case 7 failed" is not helpful.</li><li><code>i64::checked_add</code>, <code>checked_div</code>, ... return <code>Option&lt;i64&gt;</code>; <code>.ok_or(CalcError::Overflow)</code> converts it.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<ul><li>Write a tiny <code>macro_rules! cases</code> that generates one <code>#[test]</code> function per row so each case shows up separately in the test output.</li><li>Add a property-style test: for a range of <code>a</code> and non-zero <code>b</code>, check <code>evaluate(&amp;format!("{a} / {b}"))</code> equals <code>Ok(a / b)</code>.</li></ul></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">12-testing/exercises/39-table-driven-tests.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=//%20This%20file%20contains%20working%20code%20with%20TWO%20hidden%20bugs%20%28marked%20BUG%20%231/%232%20so%20you%0A//%20can%20find%20them%20later%29.%20Write%20the%20table-driven%20tests%20first%2C%20watch%20them%20fail%2C%0A//%20then%20fix%20the%20bugs.%0A//%0A//%20%20%20rustc%20--edition%202021%20--test%2039-table-driven-tests.rs%20-o%20table_tests%20%26%26%20./table_tests%0A%0Ause%20std%3A%3Afmt%3B%0A%0A%23%5Bderive%28Debug%2C%20Clone%2C%20Copy%2C%20PartialEq%29%5D%0Aenum%20Op%20%7B%0A%20%20%20%20Add%2C%0A%20%20%20%20Sub%2C%0A%20%20%20%20Mul%2C%0A%20%20%20%20Div%2C%0A%7D%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Aenum%20CalcError%20%7B%0A%20%20%20%20Empty%2C%0A%20%20%20%20BadNumber%28String%29%2C%0A%20%20%20%20UnknownOperator%28String%29%2C%0A%20%20%20%20WrongTokenCount%28usize%29%2C%0A%20%20%20%20DivisionByZero%2C%0A%20%20%20%20Overflow%2C%0A%7D%0A%0Aimpl%20fmt%3A%3ADisplay%20for%20CalcError%20%7B%0A%20%20%20%20fn%20fmt%28%26self%2C%20f%3A%20%26mut%20fmt%3A%3AFormatter%3C%27_%3E%29%20-%3E%20fmt%3A%3AResult%20%7B%0A%20%20%20%20%20%20%20%20match%20self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3AEmpty%20%3D%3E%20write%21%28f%2C%20%22empty%20expression%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3ABadNumber%28s%29%20%3D%3E%20write%21%28f%2C%20%22bad%20number%3A%20%27%7Bs%7D%27%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3AUnknownOperator%28s%29%20%3D%3E%20write%21%28f%2C%20%22unknown%20operator%3A%20%27%7Bs%7D%27%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3AWrongTokenCount%28n%29%20%3D%3E%20write%21%28f%2C%20%22expected%203%20tokens%2C%20got%20%7Bn%7D%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3ADivisionByZero%20%3D%3E%20write%21%28f%2C%20%22division%20by%20zero%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3AOverflow%20%3D%3E%20write%21%28f%2C%20%22arithmetic%20overflow%22%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20std%3A%3Aerror%3A%3AError%20for%20CalcError%20%7B%7D%0A%0Afn%20parse_op%28token%3A%20%26str%29%20-%3E%20Result%3COp%2C%20CalcError%3E%20%7B%0A%20%20%20%20match%20token%20%7B%0A%20%20%20%20%20%20%20%20%22%2B%22%20%3D%3E%20Ok%28Op%3A%3AAdd%29%2C%0A%20%20%20%20%20%20%20%20%22-%22%20%3D%3E%20Ok%28Op%3A%3ASub%29%2C%0A%20%20%20%20%20%20%20%20%22%2A%22%20%7C%20%22x%22%20%3D%3E%20Ok%28Op%3A%3AMul%29%2C%0A%20%20%20%20%20%20%20%20%22/%22%20%3D%3E%20Ok%28Op%3A%3ADiv%29%2C%0A%20%20%20%20%20%20%20%20other%20%3D%3E%20Err%28CalcError%3A%3AUnknownOperator%28other.to_string%28%29%29%29%2C%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20parse_number%28token%3A%20%26str%29%20-%3E%20Result%3Ci64%2C%20CalcError%3E%20%7B%0A%20%20%20%20token%0A%20%20%20%20%20%20%20%20.parse%28%29%0A%20%20%20%20%20%20%20%20.map_err%28%7C_%7C%20CalcError%3A%3ABadNumber%28token.to_string%28%29%29%29%0A%7D%0A%0Afn%20apply%28op%3A%20Op%2C%20a%3A%20i64%2C%20b%3A%20i64%29%20-%3E%20Result%3Ci64%2C%20CalcError%3E%20%7B%0A%20%20%20%20match%20op%20%7B%0A%20%20%20%20%20%20%20%20//%20BUG%20%231%3A%20plain%20%60%2B%60%20panics%20on%20overflow%20in%20debug%20builds.%0A%20%20%20%20%20%20%20%20Op%3A%3AAdd%20%3D%3E%20Ok%28a%20%2B%20b%29%2C%0A%20%20%20%20%20%20%20%20Op%3A%3ASub%20%3D%3E%20a.checked_sub%28b%29.ok_or%28CalcError%3A%3AOverflow%29%2C%0A%20%20%20%20%20%20%20%20Op%3A%3AMul%20%3D%3E%20a.checked_mul%28b%29.ok_or%28CalcError%3A%3AOverflow%29%2C%0A%20%20%20%20%20%20%20%20//%20BUG%20%232%3A%20plain%20%60/%60%20panics%20on%20division%20by%20zero.%0A%20%20%20%20%20%20%20%20Op%3A%3ADiv%20%3D%3E%20Ok%28a%20/%20b%29%2C%0A%20%20%20%20%7D%0A%7D%0A%0A///%20Evaluates%20expressions%20of%20the%20form%20%22%3Cint%3E%20%3Cop%3E%20%3Cint%3E%22%2C%20e.g.%20%2212%20%2A%20-3%22.%0Afn%20evaluate%28expr%3A%20%26str%29%20-%3E%20Result%3Ci64%2C%20CalcError%3E%20%7B%0A%20%20%20%20let%20tokens%3A%20Vec%3C%26str%3E%20%3D%20expr.split_whitespace%28%29.collect%28%29%3B%0A%20%20%20%20match%20tokens.as_slice%28%29%20%7B%0A%20%20%20%20%20%20%20%20%5B%5D%20%3D%3E%20Err%28CalcError%3A%3AEmpty%29%2C%0A%20%20%20%20%20%20%20%20%5Ba%2C%20op%2C%20b%5D%20%3D%3E%20apply%28parse_op%28op%29%3F%2C%20parse_number%28a%29%3F%2C%20parse_number%28b%29%3F%29%2C%0A%20%20%20%20%20%20%20%20other%20%3D%3E%20Err%28CalcError%3A%3AWrongTokenCount%28other.len%28%29%29%29%2C%0A%20%20%20%20%7D%0A%7D%0A%0A///%20Classifies%20a%20password%3B%20returns%20every%20rule%20that%20failed%20%28empty%20%3D%20strong%29.%0Afn%20password_issues%28pw%3A%20%26str%29%20-%3E%20Vec%3C%26%27static%20str%3E%20%7B%0A%20%20%20%20let%20rules%3A%20%5B%28%26%27static%20str%2C%20fn%28%26str%29%20-%3E%20bool%29%3B%204%5D%20%3D%20%5B%0A%20%20%20%20%20%20%20%20%28%22too%20short%22%2C%20%7Cp%7C%20p.chars%28%29.count%28%29%20%3E%3D%208%29%2C%0A%20%20%20%20%20%20%20%20%28%22no%20digit%22%2C%20%7Cp%7C%20p.chars%28%29.any%28%7Cc%7C%20c.is_ascii_digit%28%29%29%29%2C%0A%20%20%20%20%20%20%20%20%28%22no%20uppercase%22%2C%20%7Cp%7C%20p.chars%28%29.any%28char%3A%3Ais_uppercase%29%29%2C%0A%20%20%20%20%20%20%20%20%28%22no%20lowercase%22%2C%20%7Cp%7C%20p.chars%28%29.any%28char%3A%3Ais_lowercase%29%29%2C%0A%20%20%20%20%5D%3B%0A%20%20%20%20rules%0A%20%20%20%20%20%20%20%20.iter%28%29%0A%20%20%20%20%20%20%20%20.filter%28%7C%28_%2C%20ok%29%7C%20%21ok%28pw%29%29%0A%20%20%20%20%20%20%20%20.map%28%7C%28name%2C%20_%29%7C%20%2Aname%29%0A%20%20%20%20%20%20%20%20.collect%28%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20for%20expr%20in%20%5B%0A%20%20%20%20%20%20%20%20%222%20%2B%203%22%2C%20%2212%20%2A%20-3%22%2C%20%227%20/%202%22%2C%20%221%20/%200%22%2C%20%224%20%25%202%22%2C%20%221%20%2B%22%2C%20%22%22%2C%20%22a%20%2B%201%22%2C%0A%20%20%20%20%5D%20%7B%0A%20%20%20%20%20%20%20%20match%20evaluate%28expr%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Ok%28v%29%20%3D%3E%20println%21%28%22%7Bexpr%3A%3E10%7D%20%3D%20%7Bv%7D%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28e%29%20%3D%3E%20println%21%28%22%7Bexpr%3A%3E10%7D%20-%3E%20error%3A%20%7Be%7D%22%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%20%20for%20pw%20in%20%5B%22short%22%2C%20%22longenough%22%2C%20%22Str0ngPassword%22%5D%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%7Bpw%3A%3E15%7D%3A%20%7B%3A%3F%7D%22%2C%20password_issues%28pw%29%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20///%20TODO%3A%20shared%20assertion%20helper.%0A%20%20%20%20///%20Call%20%60evaluate%28input%29%60%20and%20%60assert_eq%21%60%20against%20%60expected%60%2C%20with%20a%20message%0A%20%20%20%20///%20that%20includes%20the%20case%20name%2C%20the%20input%2C%20the%20actual%20and%20the%20expected%20value.%0A%20%20%20%20///%20Add%20%60%23%5Btrack_caller%5D%60%20so%20failures%20point%20at%20the%20calling%20line.%0A%20%20%20%20fn%20check_eval%28name%3A%20%26str%2C%20input%3A%20%26str%2C%20expected%3A%20Result%3Ci64%2C%20CalcError%3E%29%20%7B%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20%28name%2C%20input%2C%20expected%29%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22assert_eq%21%28evaluate%28input%29%2C%20expected%2C%20%5C%22case%20%27...%27%3A%20...%5C%22%29%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20evaluates_valid_expressions%28%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20build%20a%20table%20of%20%28name%2C%20input%2C%20expected_value%29%20tuples%20covering%0A%20%20%20%20%20%20%20%20//%20%2B%2C%20-%2C%20%2A%20and%20x%2C%20/%2C%20negative%20operands%20and%20extra%20whitespace%2C%20then%20loop%3A%0A%20%20%20%20%20%20%20%20//%20%20%20for%20%28name%2C%20input%2C%20expected%29%20in%20cases%20%7B%20check_eval%28name%2C%20input%2C%20Ok%28expected%29%29%3B%20%7D%0A%20%20%20%20%20%20%20%20let%20cases%3A%20%5B%28%26str%2C%20%26str%2C%20i64%29%3B%200%5D%20%3D%20%5B%5D%3B%0A%20%20%20%20%20%20%20%20for%20%28name%2C%20input%2C%20expected%29%20in%20cases%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20check_eval%28name%2C%20input%2C%20Ok%28expected%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20todo%21%28%22fill%20in%20the%20table%20above%2C%20then%20delete%20this%20line%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20reports_each_error_kind%28%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20one%20row%20per%20CalcError%20variant%20%28and%20more%20than%20one%20row%20where%20useful%29%3A%0A%20%20%20%20%20%20%20%20//%20empty/blank%20input%2C%20bad%20left/right%20number%2C%20unknown%20operator%2C%0A%20%20%20%20%20%20%20%20//%20too%20few/too%20many%20tokens%2C%20division%20by%20zero%2C%20add%20overflow%2C%20div%20overflow.%0A%20%20%20%20%20%20%20%20let%20cases%3A%20%5B%28%26str%2C%20%26str%2C%20CalcError%29%3B%200%5D%20%3D%20%5B%5D%3B%0A%20%20%20%20%20%20%20%20for%20%28name%2C%20input%2C%20expected%29%20in%20cases%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20check_eval%28name%2C%20input%2C%20Err%28expected%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20todo%21%28%22fill%20in%20the%20table%20above%2C%20then%20delete%20this%20line%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20error_messages_are_human_readable%28%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20table%20of%20%28CalcError%2C%20expected%20Display%20string%29%0A%20%20%20%20%20%20%20%20todo%21%28%22assert_eq%21%28err.to_string%28%29%2C%20expected%2C%20%5C%22Display%20for%20...%5C%22%29%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20password_rules_table%28%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20table%20of%20%28password%2C%20expected%20issues%29%20e.g.%20%28%22%22%2C%20%26%5B%22too%20short%22%2C%20...%5D%29%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20password_issues%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22loop%20over%20the%20table%20and%20compare%20password_issues%28pw%29%20with%20expected%22%29%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/12-testing/exercises/39-table-driven-tests.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-comment">// This file contains working code with TWO hidden bugs (marked BUG #1/#2 so you</span>
+<span class="tok-comment">// can find them later). Write the table-driven tests first, watch them fail,</span>
+<span class="tok-comment">// then fix the bugs.</span>
+<span class="tok-comment">//</span>
+<span class="tok-comment">//   rustc --edition 2021 --test 39-table-driven-tests.rs -o table_tests &amp;&amp; ./table_tests</span>
+
+<span class="tok-keyword">use</span> std::fmt;
+
+<span class="tok-attr">#[derive(Debug, Clone, Copy, PartialEq)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">Op</span> {
+    <span class="tok-type">Add</span>,
+    <span class="tok-type">Sub</span>,
+    <span class="tok-type">Mul</span>,
+    <span class="tok-type">Div</span>,
+}
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">CalcError</span> {
+    <span class="tok-type">Empty</span>,
+    <span class="tok-type">BadNumber</span>(<span class="tok-type">String</span>),
+    <span class="tok-type">UnknownOperator</span>(<span class="tok-type">String</span>),
+    <span class="tok-type">WrongTokenCount</span>(<span class="tok-type">usize</span>),
+    <span class="tok-type">DivisionByZero</span>,
+    <span class="tok-type">Overflow</span>,
+}
+
+<span class="tok-keyword">impl</span> fmt::<span class="tok-type">Display</span> <span class="tok-keyword">for</span> <span class="tok-type">CalcError</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">fmt</span>(&amp;<span class="tok-keyword">self</span>, f: &amp;<span class="tok-keyword">mut</span> fmt::<span class="tok-type">Formatter</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; fmt::<span class="tok-type">Result</span> {
+        <span class="tok-keyword">match</span> <span class="tok-keyword">self</span> {
+            <span class="tok-type">CalcError</span>::<span class="tok-type">Empty</span> =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"empty expression"</span>),
+            <span class="tok-type">CalcError</span>::<span class="tok-type">BadNumber</span>(s) =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"bad number: '{s}'"</span>),
+            <span class="tok-type">CalcError</span>::<span class="tok-type">UnknownOperator</span>(s) =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"unknown operator: '{s}'"</span>),
+            <span class="tok-type">CalcError</span>::<span class="tok-type">WrongTokenCount</span>(n) =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"expected 3 tokens, got {n}"</span>),
+            <span class="tok-type">CalcError</span>::<span class="tok-type">DivisionByZero</span> =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"division by zero"</span>),
+            <span class="tok-type">CalcError</span>::<span class="tok-type">Overflow</span> =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"arithmetic overflow"</span>),
+        }
+    }
+}
+
+<span class="tok-keyword">impl</span> std::error::<span class="tok-type">Error</span> <span class="tok-keyword">for</span> <span class="tok-type">CalcError</span> {}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">parse_op</span>(token: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">Op</span>, <span class="tok-type">CalcError</span>&gt; {
+    <span class="tok-keyword">match</span> token {
+        <span class="tok-string">"+"</span> =&gt; <span class="tok-type">Ok</span>(<span class="tok-type">Op</span>::<span class="tok-type">Add</span>),
+        <span class="tok-string">"-"</span> =&gt; <span class="tok-type">Ok</span>(<span class="tok-type">Op</span>::<span class="tok-type">Sub</span>),
+        <span class="tok-string">"*"</span> | <span class="tok-string">"x"</span> =&gt; <span class="tok-type">Ok</span>(<span class="tok-type">Op</span>::<span class="tok-type">Mul</span>),
+        <span class="tok-string">"/"</span> =&gt; <span class="tok-type">Ok</span>(<span class="tok-type">Op</span>::<span class="tok-type">Div</span>),
+        other =&gt; <span class="tok-type">Err</span>(<span class="tok-type">CalcError</span>::<span class="tok-type">UnknownOperator</span>(other.<span class="tok-fn">to_string</span>())),
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">parse_number</span>(token: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">i64</span>, <span class="tok-type">CalcError</span>&gt; {
+    token
+        .<span class="tok-fn">parse</span>()
+        .<span class="tok-fn">map_err</span>(|_| <span class="tok-type">CalcError</span>::<span class="tok-type">BadNumber</span>(token.<span class="tok-fn">to_string</span>()))
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">apply</span>(op: <span class="tok-type">Op</span>, a: <span class="tok-type">i64</span>, b: <span class="tok-type">i64</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">i64</span>, <span class="tok-type">CalcError</span>&gt; {
+    <span class="tok-keyword">match</span> op {
+        <span class="tok-comment">// BUG #1: plain `+` panics on overflow in debug builds.</span>
+        <span class="tok-type">Op</span>::<span class="tok-type">Add</span> =&gt; <span class="tok-type">Ok</span>(a + b),
+        <span class="tok-type">Op</span>::<span class="tok-type">Sub</span> =&gt; a.<span class="tok-fn">checked_sub</span>(b).<span class="tok-fn">ok_or</span>(<span class="tok-type">CalcError</span>::<span class="tok-type">Overflow</span>),
+        <span class="tok-type">Op</span>::<span class="tok-type">Mul</span> =&gt; a.<span class="tok-fn">checked_mul</span>(b).<span class="tok-fn">ok_or</span>(<span class="tok-type">CalcError</span>::<span class="tok-type">Overflow</span>),
+        <span class="tok-comment">// BUG #2: plain `/` panics on division by zero.</span>
+        <span class="tok-type">Op</span>::<span class="tok-type">Div</span> =&gt; <span class="tok-type">Ok</span>(a / b),
+    }
+}
+
+<span class="tok-comment">/// Evaluates expressions of the form "&lt;int&gt; &lt;op&gt; &lt;int&gt;", e.g. "12 * -3".</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">evaluate</span>(expr: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">i64</span>, <span class="tok-type">CalcError</span>&gt; {
+    <span class="tok-keyword">let</span> tokens: <span class="tok-type">Vec</span>&lt;&amp;<span class="tok-type">str</span>&gt; = expr.<span class="tok-fn">split_whitespace</span>().<span class="tok-fn">collect</span>();
+    <span class="tok-keyword">match</span> tokens.<span class="tok-fn">as_slice</span>() {
+        [] =&gt; <span class="tok-type">Err</span>(<span class="tok-type">CalcError</span>::<span class="tok-type">Empty</span>),
+        [a, op, b] =&gt; <span class="tok-fn">apply</span>(<span class="tok-fn">parse_op</span>(op)?, <span class="tok-fn">parse_number</span>(a)?, <span class="tok-fn">parse_number</span>(b)?),
+        other =&gt; <span class="tok-type">Err</span>(<span class="tok-type">CalcError</span>::<span class="tok-type">WrongTokenCount</span>(other.<span class="tok-fn">len</span>())),
+    }
+}
+
+<span class="tok-comment">/// Classifies a password; returns every rule that failed (empty = strong).</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">password_issues</span>(pw: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Vec</span>&lt;&amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>&gt; {
+    <span class="tok-keyword">let</span> rules: [(&amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>, <span class="tok-keyword">fn</span>(&amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">bool</span>); <span class="tok-number">4</span>] = [
+        (<span class="tok-string">"too short"</span>, |p| p.<span class="tok-fn">chars</span>().<span class="tok-fn">count</span>() &gt;= <span class="tok-number">8</span>),
+        (<span class="tok-string">"no digit"</span>, |p| p.<span class="tok-fn">chars</span>().<span class="tok-fn">any</span>(|c| c.<span class="tok-fn">is_ascii_digit</span>())),
+        (<span class="tok-string">"no uppercase"</span>, |p| p.<span class="tok-fn">chars</span>().<span class="tok-fn">any</span>(<span class="tok-type">char</span>::is_uppercase)),
+        (<span class="tok-string">"no lowercase"</span>, |p| p.<span class="tok-fn">chars</span>().<span class="tok-fn">any</span>(<span class="tok-type">char</span>::is_lowercase)),
+    ];
+    rules
+        .<span class="tok-fn">iter</span>()
+        .<span class="tok-fn">filter</span>(|(_, ok)| !<span class="tok-fn">ok</span>(pw))
+        .<span class="tok-fn">map</span>(|(name, _)| *name)
+        .<span class="tok-fn">collect</span>()
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">for</span> expr <span class="tok-keyword">in</span> [
+        <span class="tok-string">"2 + 3"</span>, <span class="tok-string">"12 * -3"</span>, <span class="tok-string">"7 / 2"</span>, <span class="tok-string">"1 / 0"</span>, <span class="tok-string">"4 % 2"</span>, <span class="tok-string">"1 +"</span>, <span class="tok-string">""</span>, <span class="tok-string">"a + 1"</span>,
+    ] {
+        <span class="tok-keyword">match</span> <span class="tok-fn">evaluate</span>(expr) {
+            <span class="tok-type">Ok</span>(v) =&gt; <span class="tok-macro">println!</span>(<span class="tok-string">"{expr:&gt;10} = {v}"</span>),
+            <span class="tok-type">Err</span>(e) =&gt; <span class="tok-macro">println!</span>(<span class="tok-string">"{expr:&gt;10} -&gt; error: {e}"</span>),
+        }
+    }
+    <span class="tok-keyword">for</span> pw <span class="tok-keyword">in</span> [<span class="tok-string">"short"</span>, <span class="tok-string">"longenough"</span>, <span class="tok-string">"Str0ngPassword"</span>] {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"{pw:&gt;15}: {:?}"</span>, <span class="tok-fn">password_issues</span>(pw));
+    }
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-comment">/// TODO: shared assertion helper.</span>
+    <span class="tok-comment">/// Call `evaluate(input)` and `assert_eq!` against `expected`, with a message</span>
+    <span class="tok-comment">/// that includes the case name, the input, the actual and the expected value.</span>
+    <span class="tok-comment">/// Add `#[track_caller]` so failures point at the calling line.</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">check_eval</span>(name: &amp;<span class="tok-type">str</span>, input: &amp;<span class="tok-type">str</span>, expected: <span class="tok-type">Result</span>&lt;<span class="tok-type">i64</span>, <span class="tok-type">CalcError</span>&gt;) {
+        <span class="tok-keyword">let</span> _ = (name, input, expected);
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"assert_eq!(evaluate(input), expected, \"case '...': ...\")"</span>)
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">evaluates_valid_expressions</span>() {
+        <span class="tok-comment">// TODO: build a table of (name, input, expected_value) tuples covering</span>
+        <span class="tok-comment">// +, -, * and x, /, negative operands and extra whitespace, then loop:</span>
+        <span class="tok-comment">//   for (name, input, expected) in cases { check_eval(name, input, Ok(expected)); }</span>
+        <span class="tok-keyword">let</span> cases: [(&amp;<span class="tok-type">str</span>, &amp;<span class="tok-type">str</span>, <span class="tok-type">i64</span>); <span class="tok-number">0</span>] = [];
+        <span class="tok-keyword">for</span> (name, input, expected) <span class="tok-keyword">in</span> cases {
+            <span class="tok-fn">check_eval</span>(name, input, <span class="tok-type">Ok</span>(expected));
+        }
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"fill in the table above, then delete this line"</span>)
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">reports_each_error_kind</span>() {
+        <span class="tok-comment">// TODO: one row per CalcError variant (and more than one row where useful):</span>
+        <span class="tok-comment">// empty/blank input, bad left/right number, unknown operator,</span>
+        <span class="tok-comment">// too few/too many tokens, division by zero, add overflow, div overflow.</span>
+        <span class="tok-keyword">let</span> cases: [(&amp;<span class="tok-type">str</span>, &amp;<span class="tok-type">str</span>, <span class="tok-type">CalcError</span>); <span class="tok-number">0</span>] = [];
+        <span class="tok-keyword">for</span> (name, input, expected) <span class="tok-keyword">in</span> cases {
+            <span class="tok-fn">check_eval</span>(name, input, <span class="tok-type">Err</span>(expected));
+        }
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"fill in the table above, then delete this line"</span>)
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">error_messages_are_human_readable</span>() {
+        <span class="tok-comment">// TODO: table of (CalcError, expected Display string)</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"assert_eq!(err.to_string(), expected, \"Display for ...\")"</span>)
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">password_rules_table</span>() {
+        <span class="tok-comment">// TODO: table of (password, expected issues) e.g. ("", &amp;["too short", ...])</span>
+        <span class="tok-keyword">let</span> _ = password_issues;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"loop over the table and compare password_issues(pw) with expected"</span>)
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/12-testing/39-table-driven-tests.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Afmt%3B%0A%0A%23%5Bderive%28Debug%2C%20Clone%2C%20Copy%2C%20PartialEq%29%5D%0Aenum%20Op%20%7B%0A%20%20%20%20Add%2C%0A%20%20%20%20Sub%2C%0A%20%20%20%20Mul%2C%0A%20%20%20%20Div%2C%0A%7D%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Aenum%20CalcError%20%7B%0A%20%20%20%20Empty%2C%0A%20%20%20%20BadNumber%28String%29%2C%0A%20%20%20%20UnknownOperator%28String%29%2C%0A%20%20%20%20WrongTokenCount%28usize%29%2C%0A%20%20%20%20DivisionByZero%2C%0A%20%20%20%20Overflow%2C%0A%7D%0A%0Aimpl%20fmt%3A%3ADisplay%20for%20CalcError%20%7B%0A%20%20%20%20fn%20fmt%28%26self%2C%20f%3A%20%26mut%20fmt%3A%3AFormatter%3C%27_%3E%29%20-%3E%20fmt%3A%3AResult%20%7B%0A%20%20%20%20%20%20%20%20match%20self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3AEmpty%20%3D%3E%20write%21%28f%2C%20%22empty%20expression%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3ABadNumber%28s%29%20%3D%3E%20write%21%28f%2C%20%22bad%20number%3A%20%27%7Bs%7D%27%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3AUnknownOperator%28s%29%20%3D%3E%20write%21%28f%2C%20%22unknown%20operator%3A%20%27%7Bs%7D%27%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3AWrongTokenCount%28n%29%20%3D%3E%20write%21%28f%2C%20%22expected%203%20tokens%2C%20got%20%7Bn%7D%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3ADivisionByZero%20%3D%3E%20write%21%28f%2C%20%22division%20by%20zero%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3AOverflow%20%3D%3E%20write%21%28f%2C%20%22arithmetic%20overflow%22%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20std%3A%3Aerror%3A%3AError%20for%20CalcError%20%7B%7D%0A%0Afn%20parse_op%28token%3A%20%26str%29%20-%3E%20Result%3COp%2C%20CalcError%3E%20%7B%0A%20%20%20%20match%20token%20%7B%0A%20%20%20%20%20%20%20%20%22%2B%22%20%3D%3E%20Ok%28Op%3A%3AAdd%29%2C%0A%20%20%20%20%20%20%20%20%22-%22%20%3D%3E%20Ok%28Op%3A%3ASub%29%2C%0A%20%20%20%20%20%20%20%20%22%2A%22%20%7C%20%22x%22%20%3D%3E%20Ok%28Op%3A%3AMul%29%2C%0A%20%20%20%20%20%20%20%20%22/%22%20%3D%3E%20Ok%28Op%3A%3ADiv%29%2C%0A%20%20%20%20%20%20%20%20other%20%3D%3E%20Err%28CalcError%3A%3AUnknownOperator%28other.to_string%28%29%29%29%2C%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20parse_number%28token%3A%20%26str%29%20-%3E%20Result%3Ci64%2C%20CalcError%3E%20%7B%0A%20%20%20%20token%0A%20%20%20%20%20%20%20%20.parse%28%29%0A%20%20%20%20%20%20%20%20.map_err%28%7C_%7C%20CalcError%3A%3ABadNumber%28token.to_string%28%29%29%29%0A%7D%0A%0Afn%20apply%28op%3A%20Op%2C%20a%3A%20i64%2C%20b%3A%20i64%29%20-%3E%20Result%3Ci64%2C%20CalcError%3E%20%7B%0A%20%20%20%20match%20op%20%7B%0A%20%20%20%20%20%20%20%20Op%3A%3AAdd%20%3D%3E%20a.checked_add%28b%29.ok_or%28CalcError%3A%3AOverflow%29%2C%0A%20%20%20%20%20%20%20%20Op%3A%3ASub%20%3D%3E%20a.checked_sub%28b%29.ok_or%28CalcError%3A%3AOverflow%29%2C%0A%20%20%20%20%20%20%20%20Op%3A%3AMul%20%3D%3E%20a.checked_mul%28b%29.ok_or%28CalcError%3A%3AOverflow%29%2C%0A%20%20%20%20%20%20%20%20Op%3A%3ADiv%20if%20b%20%3D%3D%200%20%3D%3E%20Err%28CalcError%3A%3ADivisionByZero%29%2C%0A%20%20%20%20%20%20%20%20Op%3A%3ADiv%20%3D%3E%20a.checked_div%28b%29.ok_or%28CalcError%3A%3AOverflow%29%2C%0A%20%20%20%20%7D%0A%7D%0A%0A///%20Evaluates%20expressions%20of%20the%20form%20%22%3Cint%3E%20%3Cop%3E%20%3Cint%3E%22%2C%20e.g.%20%2212%20%2A%20-3%22.%0Afn%20evaluate%28expr%3A%20%26str%29%20-%3E%20Result%3Ci64%2C%20CalcError%3E%20%7B%0A%20%20%20%20let%20tokens%3A%20Vec%3C%26str%3E%20%3D%20expr.split_whitespace%28%29.collect%28%29%3B%0A%20%20%20%20match%20tokens.as_slice%28%29%20%7B%0A%20%20%20%20%20%20%20%20%5B%5D%20%3D%3E%20Err%28CalcError%3A%3AEmpty%29%2C%0A%20%20%20%20%20%20%20%20%5Ba%2C%20op%2C%20b%5D%20%3D%3E%20apply%28parse_op%28op%29%3F%2C%20parse_number%28a%29%3F%2C%20parse_number%28b%29%3F%29%2C%0A%20%20%20%20%20%20%20%20other%20%3D%3E%20Err%28CalcError%3A%3AWrongTokenCount%28other.len%28%29%29%29%2C%0A%20%20%20%20%7D%0A%7D%0A%0A///%20Classifies%20a%20password%3B%20returns%20every%20rule%20that%20failed%20%28empty%20%3D%20strong%29.%0Afn%20password_issues%28pw%3A%20%26str%29%20-%3E%20Vec%3C%26%27static%20str%3E%20%7B%0A%20%20%20%20let%20rules%3A%20%5B%28%26%27static%20str%2C%20fn%28%26str%29%20-%3E%20bool%29%3B%204%5D%20%3D%20%5B%0A%20%20%20%20%20%20%20%20%28%22too%20short%22%2C%20%7Cp%7C%20p.chars%28%29.count%28%29%20%3E%3D%208%29%2C%0A%20%20%20%20%20%20%20%20%28%22no%20digit%22%2C%20%7Cp%7C%20p.chars%28%29.any%28%7Cc%7C%20c.is_ascii_digit%28%29%29%29%2C%0A%20%20%20%20%20%20%20%20%28%22no%20uppercase%22%2C%20%7Cp%7C%20p.chars%28%29.any%28char%3A%3Ais_uppercase%29%29%2C%0A%20%20%20%20%20%20%20%20%28%22no%20lowercase%22%2C%20%7Cp%7C%20p.chars%28%29.any%28char%3A%3Ais_lowercase%29%29%2C%0A%20%20%20%20%5D%3B%0A%20%20%20%20rules%0A%20%20%20%20%20%20%20%20.iter%28%29%0A%20%20%20%20%20%20%20%20.filter%28%7C%28_%2C%20ok%29%7C%20%21ok%28pw%29%29%0A%20%20%20%20%20%20%20%20.map%28%7C%28name%2C%20_%29%7C%20%2Aname%29%0A%20%20%20%20%20%20%20%20.collect%28%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20for%20expr%20in%20%5B%0A%20%20%20%20%20%20%20%20%222%20%2B%203%22%2C%20%2212%20%2A%20-3%22%2C%20%227%20/%202%22%2C%20%221%20/%200%22%2C%20%224%20%25%202%22%2C%20%221%20%2B%22%2C%20%22%22%2C%20%22a%20%2B%201%22%2C%0A%20%20%20%20%5D%20%7B%0A%20%20%20%20%20%20%20%20match%20evaluate%28expr%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Ok%28v%29%20%3D%3E%20println%21%28%22%7Bexpr%3A%3E10%7D%20%3D%20%7Bv%7D%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28e%29%20%3D%3E%20println%21%28%22%7Bexpr%3A%3E10%7D%20-%3E%20error%3A%20%7Be%7D%22%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%20%20for%20pw%20in%20%5B%22short%22%2C%20%22longenough%22%2C%20%22Str0ngPassword%22%5D%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%7Bpw%3A%3E15%7D%3A%20%7B%3A%3F%7D%22%2C%20password_issues%28pw%29%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20///%20Shared%20assertion%20helper%3A%20reports%20the%20failing%20case%27s%20name%20and%20input.%0A%20%20%20%20%23%5Btrack_caller%5D%0A%20%20%20%20fn%20check_eval%28name%3A%20%26str%2C%20input%3A%20%26str%2C%20expected%3A%20Result%3Ci64%2C%20CalcError%3E%29%20%7B%0A%20%20%20%20%20%20%20%20let%20actual%20%3D%20evaluate%28input%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20actual%2C%20expected%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22case%20%27%7Bname%7D%27%3A%20evaluate%28%7Binput%3A%3F%7D%29%20returned%20%7Bactual%3A%3F%7D%2C%20expected%20%7Bexpected%3A%3F%7D%22%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20evaluates_valid_expressions%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20cases%20%3D%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22addition%22%2C%20%222%20%2B%203%22%2C%205%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22subtraction%20to%20negative%22%2C%20%222%20-%205%22%2C%20-3%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22multiplication%20with%20x%22%2C%20%224%20x%205%22%2C%2020%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22negative%20operand%22%2C%20%2212%20%2A%20-3%22%2C%20-36%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22integer%20division%20truncates%22%2C%20%227%20/%202%22%2C%203%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22extra%20whitespace%22%2C%20%22%20%2010%20%20%20-%20%20%201%20%22%2C%209%29%2C%0A%20%20%20%20%20%20%20%20%5D%3B%0A%20%20%20%20%20%20%20%20for%20%28name%2C%20input%2C%20expected%29%20in%20cases%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20check_eval%28name%2C%20input%2C%20Ok%28expected%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20reports_each_error_kind%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20cases%20%3D%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22empty%22%2C%20%22%22%2C%20CalcError%3A%3AEmpty%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22blank%22%2C%20%22%20%20%20%22%2C%20CalcError%3A%3AEmpty%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22bad%20left%22%2C%20%22a%20%2B%201%22%2C%20CalcError%3A%3ABadNumber%28%22a%22.into%28%29%29%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22bad%20right%22%2C%20%221%20%2B%202.5%22%2C%20CalcError%3A%3ABadNumber%28%222.5%22.into%28%29%29%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22unknown%20op%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%224%20%25%202%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3AUnknownOperator%28%22%25%22.into%28%29%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22too%20few%20tokens%22%2C%20%221%20%2B%22%2C%20CalcError%3A%3AWrongTokenCount%282%29%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22too%20many%20tokens%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%221%20%2B%202%20%2B%203%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3AWrongTokenCount%285%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22div%20by%20zero%22%2C%20%221%20/%200%22%2C%20CalcError%3A%3ADivisionByZero%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22add%20overflow%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%229223372036854775807%20%2B%201%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3AOverflow%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22div%20overflow%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22-9223372036854775808%20/%20-1%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20CalcError%3A%3AOverflow%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%29%2C%0A%20%20%20%20%20%20%20%20%5D%3B%0A%20%20%20%20%20%20%20%20for%20%28name%2C%20input%2C%20expected%29%20in%20cases%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20check_eval%28name%2C%20input%2C%20Err%28expected%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20error_messages_are_human_readable%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20cases%20%3D%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%28CalcError%3A%3AEmpty%2C%20%22empty%20expression%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28CalcError%3A%3ABadNumber%28%22z%22.into%28%29%29%2C%20%22bad%20number%3A%20%27z%27%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28CalcError%3A%3AWrongTokenCount%281%29%2C%20%22expected%203%20tokens%2C%20got%201%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28CalcError%3A%3ADivisionByZero%2C%20%22division%20by%20zero%22%29%2C%0A%20%20%20%20%20%20%20%20%5D%3B%0A%20%20%20%20%20%20%20%20for%20%28err%2C%20expected%29%20in%20cases%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20assert_eq%21%28err.to_string%28%29%2C%20expected%2C%20%22Display%20for%20%7Berr%3A%3F%7D%22%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20password_rules_table%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20cases%3A%20%26%5B%28%26str%2C%20%26%5B%26str%5D%29%5D%20%3D%20%26%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%26%5B%22too%20short%22%2C%20%22no%20digit%22%2C%20%22no%20uppercase%22%2C%20%22no%20lowercase%22%5D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22short%22%2C%20%26%5B%22too%20short%22%2C%20%22no%20digit%22%2C%20%22no%20uppercase%22%5D%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22longenough%22%2C%20%26%5B%22no%20digit%22%2C%20%22no%20uppercase%22%5D%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22ALLCAPS123%22%2C%20%26%5B%22no%20lowercase%22%5D%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%22Str0ngPassword%22%2C%20%26%5B%5D%29%2C%0A%20%20%20%20%20%20%20%20%5D%3B%0A%20%20%20%20%20%20%20%20for%20%26%28pw%2C%20expected%29%20in%20cases%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20password_issues%28pw%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20expected%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22password_issues%28%7Bpw%3A%3F%7D%29%20mismatch%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/12-testing/39-table-driven-tests.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::fmt;
+
+<span class="tok-attr">#[derive(Debug, Clone, Copy, PartialEq)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">Op</span> {
+    <span class="tok-type">Add</span>,
+    <span class="tok-type">Sub</span>,
+    <span class="tok-type">Mul</span>,
+    <span class="tok-type">Div</span>,
+}
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">CalcError</span> {
+    <span class="tok-type">Empty</span>,
+    <span class="tok-type">BadNumber</span>(<span class="tok-type">String</span>),
+    <span class="tok-type">UnknownOperator</span>(<span class="tok-type">String</span>),
+    <span class="tok-type">WrongTokenCount</span>(<span class="tok-type">usize</span>),
+    <span class="tok-type">DivisionByZero</span>,
+    <span class="tok-type">Overflow</span>,
+}
+
+<span class="tok-keyword">impl</span> fmt::<span class="tok-type">Display</span> <span class="tok-keyword">for</span> <span class="tok-type">CalcError</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">fmt</span>(&amp;<span class="tok-keyword">self</span>, f: &amp;<span class="tok-keyword">mut</span> fmt::<span class="tok-type">Formatter</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; fmt::<span class="tok-type">Result</span> {
+        <span class="tok-keyword">match</span> <span class="tok-keyword">self</span> {
+            <span class="tok-type">CalcError</span>::<span class="tok-type">Empty</span> =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"empty expression"</span>),
+            <span class="tok-type">CalcError</span>::<span class="tok-type">BadNumber</span>(s) =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"bad number: '{s}'"</span>),
+            <span class="tok-type">CalcError</span>::<span class="tok-type">UnknownOperator</span>(s) =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"unknown operator: '{s}'"</span>),
+            <span class="tok-type">CalcError</span>::<span class="tok-type">WrongTokenCount</span>(n) =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"expected 3 tokens, got {n}"</span>),
+            <span class="tok-type">CalcError</span>::<span class="tok-type">DivisionByZero</span> =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"division by zero"</span>),
+            <span class="tok-type">CalcError</span>::<span class="tok-type">Overflow</span> =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"arithmetic overflow"</span>),
+        }
+    }
+}
+
+<span class="tok-keyword">impl</span> std::error::<span class="tok-type">Error</span> <span class="tok-keyword">for</span> <span class="tok-type">CalcError</span> {}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">parse_op</span>(token: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">Op</span>, <span class="tok-type">CalcError</span>&gt; {
+    <span class="tok-keyword">match</span> token {
+        <span class="tok-string">"+"</span> =&gt; <span class="tok-type">Ok</span>(<span class="tok-type">Op</span>::<span class="tok-type">Add</span>),
+        <span class="tok-string">"-"</span> =&gt; <span class="tok-type">Ok</span>(<span class="tok-type">Op</span>::<span class="tok-type">Sub</span>),
+        <span class="tok-string">"*"</span> | <span class="tok-string">"x"</span> =&gt; <span class="tok-type">Ok</span>(<span class="tok-type">Op</span>::<span class="tok-type">Mul</span>),
+        <span class="tok-string">"/"</span> =&gt; <span class="tok-type">Ok</span>(<span class="tok-type">Op</span>::<span class="tok-type">Div</span>),
+        other =&gt; <span class="tok-type">Err</span>(<span class="tok-type">CalcError</span>::<span class="tok-type">UnknownOperator</span>(other.<span class="tok-fn">to_string</span>())),
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">parse_number</span>(token: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">i64</span>, <span class="tok-type">CalcError</span>&gt; {
+    token
+        .<span class="tok-fn">parse</span>()
+        .<span class="tok-fn">map_err</span>(|_| <span class="tok-type">CalcError</span>::<span class="tok-type">BadNumber</span>(token.<span class="tok-fn">to_string</span>()))
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">apply</span>(op: <span class="tok-type">Op</span>, a: <span class="tok-type">i64</span>, b: <span class="tok-type">i64</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">i64</span>, <span class="tok-type">CalcError</span>&gt; {
+    <span class="tok-keyword">match</span> op {
+        <span class="tok-type">Op</span>::<span class="tok-type">Add</span> =&gt; a.<span class="tok-fn">checked_add</span>(b).<span class="tok-fn">ok_or</span>(<span class="tok-type">CalcError</span>::<span class="tok-type">Overflow</span>),
+        <span class="tok-type">Op</span>::<span class="tok-type">Sub</span> =&gt; a.<span class="tok-fn">checked_sub</span>(b).<span class="tok-fn">ok_or</span>(<span class="tok-type">CalcError</span>::<span class="tok-type">Overflow</span>),
+        <span class="tok-type">Op</span>::<span class="tok-type">Mul</span> =&gt; a.<span class="tok-fn">checked_mul</span>(b).<span class="tok-fn">ok_or</span>(<span class="tok-type">CalcError</span>::<span class="tok-type">Overflow</span>),
+        <span class="tok-type">Op</span>::<span class="tok-type">Div</span> <span class="tok-keyword">if</span> b == <span class="tok-number">0</span> =&gt; <span class="tok-type">Err</span>(<span class="tok-type">CalcError</span>::<span class="tok-type">DivisionByZero</span>),
+        <span class="tok-type">Op</span>::<span class="tok-type">Div</span> =&gt; a.<span class="tok-fn">checked_div</span>(b).<span class="tok-fn">ok_or</span>(<span class="tok-type">CalcError</span>::<span class="tok-type">Overflow</span>),
+    }
+}
+
+<span class="tok-comment">/// Evaluates expressions of the form "&lt;int&gt; &lt;op&gt; &lt;int&gt;", e.g. "12 * -3".</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">evaluate</span>(expr: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">i64</span>, <span class="tok-type">CalcError</span>&gt; {
+    <span class="tok-keyword">let</span> tokens: <span class="tok-type">Vec</span>&lt;&amp;<span class="tok-type">str</span>&gt; = expr.<span class="tok-fn">split_whitespace</span>().<span class="tok-fn">collect</span>();
+    <span class="tok-keyword">match</span> tokens.<span class="tok-fn">as_slice</span>() {
+        [] =&gt; <span class="tok-type">Err</span>(<span class="tok-type">CalcError</span>::<span class="tok-type">Empty</span>),
+        [a, op, b] =&gt; <span class="tok-fn">apply</span>(<span class="tok-fn">parse_op</span>(op)?, <span class="tok-fn">parse_number</span>(a)?, <span class="tok-fn">parse_number</span>(b)?),
+        other =&gt; <span class="tok-type">Err</span>(<span class="tok-type">CalcError</span>::<span class="tok-type">WrongTokenCount</span>(other.<span class="tok-fn">len</span>())),
+    }
+}
+
+<span class="tok-comment">/// Classifies a password; returns every rule that failed (empty = strong).</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">password_issues</span>(pw: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Vec</span>&lt;&amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>&gt; {
+    <span class="tok-keyword">let</span> rules: [(&amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>, <span class="tok-keyword">fn</span>(&amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">bool</span>); <span class="tok-number">4</span>] = [
+        (<span class="tok-string">"too short"</span>, |p| p.<span class="tok-fn">chars</span>().<span class="tok-fn">count</span>() &gt;= <span class="tok-number">8</span>),
+        (<span class="tok-string">"no digit"</span>, |p| p.<span class="tok-fn">chars</span>().<span class="tok-fn">any</span>(|c| c.<span class="tok-fn">is_ascii_digit</span>())),
+        (<span class="tok-string">"no uppercase"</span>, |p| p.<span class="tok-fn">chars</span>().<span class="tok-fn">any</span>(<span class="tok-type">char</span>::is_uppercase)),
+        (<span class="tok-string">"no lowercase"</span>, |p| p.<span class="tok-fn">chars</span>().<span class="tok-fn">any</span>(<span class="tok-type">char</span>::is_lowercase)),
+    ];
+    rules
+        .<span class="tok-fn">iter</span>()
+        .<span class="tok-fn">filter</span>(|(_, ok)| !<span class="tok-fn">ok</span>(pw))
+        .<span class="tok-fn">map</span>(|(name, _)| *name)
+        .<span class="tok-fn">collect</span>()
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">for</span> expr <span class="tok-keyword">in</span> [
+        <span class="tok-string">"2 + 3"</span>, <span class="tok-string">"12 * -3"</span>, <span class="tok-string">"7 / 2"</span>, <span class="tok-string">"1 / 0"</span>, <span class="tok-string">"4 % 2"</span>, <span class="tok-string">"1 +"</span>, <span class="tok-string">""</span>, <span class="tok-string">"a + 1"</span>,
+    ] {
+        <span class="tok-keyword">match</span> <span class="tok-fn">evaluate</span>(expr) {
+            <span class="tok-type">Ok</span>(v) =&gt; <span class="tok-macro">println!</span>(<span class="tok-string">"{expr:&gt;10} = {v}"</span>),
+            <span class="tok-type">Err</span>(e) =&gt; <span class="tok-macro">println!</span>(<span class="tok-string">"{expr:&gt;10} -&gt; error: {e}"</span>),
+        }
+    }
+    <span class="tok-keyword">for</span> pw <span class="tok-keyword">in</span> [<span class="tok-string">"short"</span>, <span class="tok-string">"longenough"</span>, <span class="tok-string">"Str0ngPassword"</span>] {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"{pw:&gt;15}: {:?}"</span>, <span class="tok-fn">password_issues</span>(pw));
+    }
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-comment">/// Shared assertion helper: reports the failing case's name and input.</span>
+    <span class="tok-attr">#[track_caller]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">check_eval</span>(name: &amp;<span class="tok-type">str</span>, input: &amp;<span class="tok-type">str</span>, expected: <span class="tok-type">Result</span>&lt;<span class="tok-type">i64</span>, <span class="tok-type">CalcError</span>&gt;) {
+        <span class="tok-keyword">let</span> actual = <span class="tok-fn">evaluate</span>(input);
+        <span class="tok-macro">assert_eq!</span>(
+            actual, expected,
+            <span class="tok-string">"case '{name}': evaluate({input:?}) returned {actual:?}, expected {expected:?}"</span>
+        );
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">evaluates_valid_expressions</span>() {
+        <span class="tok-keyword">let</span> cases = [
+            (<span class="tok-string">"addition"</span>, <span class="tok-string">"2 + 3"</span>, <span class="tok-number">5</span>),
+            (<span class="tok-string">"subtraction to negative"</span>, <span class="tok-string">"2 - 5"</span>, -<span class="tok-number">3</span>),
+            (<span class="tok-string">"multiplication with x"</span>, <span class="tok-string">"4 x 5"</span>, <span class="tok-number">20</span>),
+            (<span class="tok-string">"negative operand"</span>, <span class="tok-string">"12 * -3"</span>, -<span class="tok-number">36</span>),
+            (<span class="tok-string">"integer division truncates"</span>, <span class="tok-string">"7 / 2"</span>, <span class="tok-number">3</span>),
+            (<span class="tok-string">"extra whitespace"</span>, <span class="tok-string">"  10   -   1 "</span>, <span class="tok-number">9</span>),
+        ];
+        <span class="tok-keyword">for</span> (name, input, expected) <span class="tok-keyword">in</span> cases {
+            <span class="tok-fn">check_eval</span>(name, input, <span class="tok-type">Ok</span>(expected));
+        }
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">reports_each_error_kind</span>() {
+        <span class="tok-keyword">let</span> cases = [
+            (<span class="tok-string">"empty"</span>, <span class="tok-string">""</span>, <span class="tok-type">CalcError</span>::<span class="tok-type">Empty</span>),
+            (<span class="tok-string">"blank"</span>, <span class="tok-string">"   "</span>, <span class="tok-type">CalcError</span>::<span class="tok-type">Empty</span>),
+            (<span class="tok-string">"bad left"</span>, <span class="tok-string">"a + 1"</span>, <span class="tok-type">CalcError</span>::<span class="tok-type">BadNumber</span>(<span class="tok-string">"a"</span>.<span class="tok-fn">into</span>())),
+            (<span class="tok-string">"bad right"</span>, <span class="tok-string">"1 + 2.5"</span>, <span class="tok-type">CalcError</span>::<span class="tok-type">BadNumber</span>(<span class="tok-string">"2.5"</span>.<span class="tok-fn">into</span>())),
+            (
+                <span class="tok-string">"unknown op"</span>,
+                <span class="tok-string">"4 % 2"</span>,
+                <span class="tok-type">CalcError</span>::<span class="tok-type">UnknownOperator</span>(<span class="tok-string">"%"</span>.<span class="tok-fn">into</span>()),
+            ),
+            (<span class="tok-string">"too few tokens"</span>, <span class="tok-string">"1 +"</span>, <span class="tok-type">CalcError</span>::<span class="tok-type">WrongTokenCount</span>(<span class="tok-number">2</span>)),
+            (
+                <span class="tok-string">"too many tokens"</span>,
+                <span class="tok-string">"1 + 2 + 3"</span>,
+                <span class="tok-type">CalcError</span>::<span class="tok-type">WrongTokenCount</span>(<span class="tok-number">5</span>),
+            ),
+            (<span class="tok-string">"div by zero"</span>, <span class="tok-string">"1 / 0"</span>, <span class="tok-type">CalcError</span>::<span class="tok-type">DivisionByZero</span>),
+            (
+                <span class="tok-string">"add overflow"</span>,
+                <span class="tok-string">"9223372036854775807 + 1"</span>,
+                <span class="tok-type">CalcError</span>::<span class="tok-type">Overflow</span>,
+            ),
+            (
+                <span class="tok-string">"div overflow"</span>,
+                <span class="tok-string">"-9223372036854775808 / -1"</span>,
+                <span class="tok-type">CalcError</span>::<span class="tok-type">Overflow</span>,
+            ),
+        ];
+        <span class="tok-keyword">for</span> (name, input, expected) <span class="tok-keyword">in</span> cases {
+            <span class="tok-fn">check_eval</span>(name, input, <span class="tok-type">Err</span>(expected));
+        }
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">error_messages_are_human_readable</span>() {
+        <span class="tok-keyword">let</span> cases = [
+            (<span class="tok-type">CalcError</span>::<span class="tok-type">Empty</span>, <span class="tok-string">"empty expression"</span>),
+            (<span class="tok-type">CalcError</span>::<span class="tok-type">BadNumber</span>(<span class="tok-string">"z"</span>.<span class="tok-fn">into</span>()), <span class="tok-string">"bad number: 'z'"</span>),
+            (<span class="tok-type">CalcError</span>::<span class="tok-type">WrongTokenCount</span>(<span class="tok-number">1</span>), <span class="tok-string">"expected 3 tokens, got 1"</span>),
+            (<span class="tok-type">CalcError</span>::<span class="tok-type">DivisionByZero</span>, <span class="tok-string">"division by zero"</span>),
+        ];
+        <span class="tok-keyword">for</span> (err, expected) <span class="tok-keyword">in</span> cases {
+            <span class="tok-macro">assert_eq!</span>(err.<span class="tok-fn">to_string</span>(), expected, <span class="tok-string">"Display for {err:?}"</span>);
+        }
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">password_rules_table</span>() {
+        <span class="tok-keyword">let</span> cases: &amp;[(&amp;<span class="tok-type">str</span>, &amp;[&amp;<span class="tok-type">str</span>])] = &amp;[
+            (
+                <span class="tok-string">""</span>,
+                &amp;[<span class="tok-string">"too short"</span>, <span class="tok-string">"no digit"</span>, <span class="tok-string">"no uppercase"</span>, <span class="tok-string">"no lowercase"</span>],
+            ),
+            (<span class="tok-string">"short"</span>, &amp;[<span class="tok-string">"too short"</span>, <span class="tok-string">"no digit"</span>, <span class="tok-string">"no uppercase"</span>]),
+            (<span class="tok-string">"longenough"</span>, &amp;[<span class="tok-string">"no digit"</span>, <span class="tok-string">"no uppercase"</span>]),
+            (<span class="tok-string">"ALLCAPS123"</span>, &amp;[<span class="tok-string">"no lowercase"</span>]),
+            (<span class="tok-string">"Str0ngPassword"</span>, &amp;[]),
+        ];
+        <span class="tok-keyword">for</span> &amp;(pw, expected) <span class="tok-keyword">in</span> cases {
+            <span class="tok-macro">assert_eq!</span>(
+                <span class="tok-fn">password_issues</span>(pw),
+                expected,
+                <span class="tok-string">"password_issues({pw:?}) mismatch"</span>
+            );
+        }
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 39-table-driven-tests.rs -o 39-table-driven-tests &amp;&amp; ./39-table-driven-tests
+
+# run the unit tests
+rustc --edition 2021 --test 39-table-driven-tests.rs -o 39-table-driven-tests-tests &amp;&amp; ./39-table-driven-tests-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/38-unit-tests.html"><small>← Previous</small>38 · Unit Tests</a><a class="pager-link next" href="../exercises/40-box-recursive-list.html"><small>Next →</small>40 · Box Recursive List</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

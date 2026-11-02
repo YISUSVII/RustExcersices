@@ -16,7 +16,10 @@ fn adds_two_numbers() { assert_eq!(2 + 2, 4); }
 Testing implementation details, weak assertion messages, slow test setup.
 
 ## Exercises
-Write tests for earlier modules and improve failing behavior.
+- [38 — Unit Tests](exercises/38-unit-tests.md)
+- [39 — Table-Driven Tests](exercises/39-table-driven-tests.md)
+
+See `exercises/` for starters and `../solutions/12-testing/` for reference solutions.
 
 ## Hints
 Prefer deterministic tests with clear names.

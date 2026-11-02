@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>16 · Option and Result Branching · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Combine `Option` and `Result` values and branch on every outcome explicitly.">
+<meta property="og:title" content="16 · Option and Result Branching · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Combine `Option` and `Result` values and branch on every outcome explicitly.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/06-pattern-matching.html">Level 6 — Pattern Matching</a><span>/</span><span>Exercise 16</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 16 · Level 6 — Pattern Matching</div>
+  <h1>Option and Result Branching</h1>
+  <p class="lead">Combine <code>Option</code> and <code>Result</code> values and branch on every outcome explicitly.</p>
+  <div class="meta"><span class="badge diff-intermediate">Intermediate</span><span class="chip">`match` on `Result`/`Option`</span><span class="chip">nested patterns</span><span class="chip">`if let`</span><span class="chip">`ParseIntError`</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="16"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<ol><li>Implement <code>parse_id(input: &amp;str) -&gt; Result&lt;u32, std::num::ParseIntError&gt;</code> (trim whitespace first).</li><li>Implement <code>lookup(id: u32) -&gt; Option&lt;&amp;'static str&gt;</code> using the provided <code>USERS</code> table.</li><li>Implement <code>greet(input: &amp;str) -&gt; String</code> with a single <code>match</code> on <code>parse_id(input).map(lookup)</code>: - valid id, user found → <code>"Hello, &lt;name&gt;!"</code> - valid id, no user → <code>"No user with id &lt;id&gt;"</code> - parse error → <code>"Invalid id '&lt;input&gt;': &lt;error&gt;"</code></li><li>Implement <code>sum_valid(inputs: &amp;[&amp;str]) -&gt; (u32, usize)</code> returning the sum of parseable ids and the number of invalid inputs. Use <code>if let</code> or <code>match</code>.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<pre class="code" data-lang="text"><code>Hello, ada!
+No user with id 99
+Invalid id 'abc': invalid digit found in string
+sum: 6, invalid: 2</code></pre>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li><code>Result&lt;Option&lt;&amp;str&gt;, _&gt;</code> can be matched with nested patterns like <code>Ok(Some(name))</code>.</li><li>You'll need the original id for the "not found" message — keep it around or match on <code>parse_id</code> first.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Rewrite <code>sum_valid</code> with <code>filter_map</code> and <code>partition</code>.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">06-pattern-matching/exercises/16-option-result-branching.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Anum%3A%3AParseIntError%3B%0A%0Aconst%20USERS%3A%20%5B%28u32%2C%20%26str%29%3B%203%5D%20%3D%20%5B%281%2C%20%22ada%22%29%2C%20%282%2C%20%22grace%22%29%2C%20%283%2C%20%22linus%22%29%5D%3B%0A%0Afn%20parse_id%28input%3A%20%26str%29%20-%3E%20Result%3Cu32%2C%20ParseIntError%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20input%3B%0A%20%20%20%20todo%21%28%22Trim%20the%20input%20and%20parse%20it%20into%20a%20u32%22%29%0A%7D%0A%0Afn%20lookup%28id%3A%20u32%29%20-%3E%20Option%3C%26%27static%20str%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20%28id%2C%20USERS%29%3B%0A%20%20%20%20todo%21%28%22Find%20the%20name%20for%20id%20in%20USERS%22%29%0A%7D%0A%0Afn%20greet%28input%3A%20%26str%29%20-%3E%20String%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20input%3B%0A%20%20%20%20todo%21%28%22match%20on%20Ok%28Some%28name%29%29%2C%20Ok%28None%29%20and%20Err%28e%29%22%29%0A%7D%0A%0Afn%20sum_valid%28inputs%3A%20%26%5B%26str%5D%29%20-%3E%20%28u32%2C%20usize%29%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20inputs%3B%0A%20%20%20%20todo%21%28%22Return%20%28sum%20of%20valid%20ids%2C%20number%20of%20invalid%20inputs%29%22%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20for%20input%20in%20%5B%221%22%2C%20%2299%22%2C%20%22abc%22%5D%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%7B%7D%22%2C%20greet%28input%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20let%20%28sum%2C%20invalid%29%20%3D%20sum_valid%28%26%5B%221%22%2C%20%22%202%20%22%2C%20%22x%22%2C%20%223%22%2C%20%22%22%5D%29%3B%0A%20%20%20%20println%21%28%22sum%3A%20%7Bsum%7D%2C%20invalid%3A%20%7Binvalid%7D%22%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20greet_found_and_missing%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28greet%28%222%22%29%2C%20%22Hello%2C%20grace%21%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28greet%28%22%203%20%22%29%2C%20%22Hello%2C%20linus%21%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28greet%28%2242%22%29%2C%20%22No%20user%20with%20id%2042%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20greet_invalid%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28greet%28%22-1%22%29.starts_with%28%22Invalid%20id%20%27-1%27%22%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28greet%28%22%22%29.starts_with%28%22Invalid%20id%20%27%27%22%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20sum_valid_counts_failures%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28sum_valid%28%26%5B%221%22%2C%20%222%22%2C%20%22nope%22%5D%29%2C%20%283%2C%201%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28sum_valid%28%26%5B%5D%29%2C%20%280%2C%200%29%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/06-pattern-matching/exercises/16-option-result-branching.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::num::<span class="tok-type">ParseIntError</span>;
+
+<span class="tok-keyword">const</span> <span class="tok-type">USERS</span>: [(<span class="tok-type">u32</span>, &amp;<span class="tok-type">str</span>); <span class="tok-number">3</span>] = [(<span class="tok-number">1</span>, <span class="tok-string">"ada"</span>), (<span class="tok-number">2</span>, <span class="tok-string">"grace"</span>), (<span class="tok-number">3</span>, <span class="tok-string">"linus"</span>)];
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">parse_id</span>(input: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">u32</span>, <span class="tok-type">ParseIntError</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = input;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Trim the input and parse it into a u32"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">lookup</span>(id: <span class="tok-type">u32</span>) -&gt; <span class="tok-type">Option</span>&lt;&amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = (id, <span class="tok-type">USERS</span>);
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Find the name for id in USERS"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">greet</span>(input: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">String</span> {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = input;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"match on Ok(Some(name)), Ok(None) and Err(e)"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">sum_valid</span>(inputs: &amp;[&amp;<span class="tok-type">str</span>]) -&gt; (<span class="tok-type">u32</span>, <span class="tok-type">usize</span>) {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = inputs;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Return (sum of valid ids, number of invalid inputs)"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">for</span> input <span class="tok-keyword">in</span> [<span class="tok-string">"1"</span>, <span class="tok-string">"99"</span>, <span class="tok-string">"abc"</span>] {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"{}"</span>, <span class="tok-fn">greet</span>(input));
+    }
+    <span class="tok-keyword">let</span> (sum, invalid) = <span class="tok-fn">sum_valid</span>(&amp;[<span class="tok-string">"1"</span>, <span class="tok-string">" 2 "</span>, <span class="tok-string">"x"</span>, <span class="tok-string">"3"</span>, <span class="tok-string">""</span>]);
+    <span class="tok-macro">println!</span>(<span class="tok-string">"sum: {sum}, invalid: {invalid}"</span>);
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">greet_found_and_missing</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">greet</span>(<span class="tok-string">"2"</span>), <span class="tok-string">"Hello, grace!"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">greet</span>(<span class="tok-string">" 3 "</span>), <span class="tok-string">"Hello, linus!"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">greet</span>(<span class="tok-string">"42"</span>), <span class="tok-string">"No user with id 42"</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">greet_invalid</span>() {
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">greet</span>(<span class="tok-string">"-1"</span>).<span class="tok-fn">starts_with</span>(<span class="tok-string">"Invalid id '-1'"</span>));
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">greet</span>(<span class="tok-string">""</span>).<span class="tok-fn">starts_with</span>(<span class="tok-string">"Invalid id ''"</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">sum_valid_counts_failures</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">sum_valid</span>(&amp;[<span class="tok-string">"1"</span>, <span class="tok-string">"2"</span>, <span class="tok-string">"nope"</span>]), (<span class="tok-number">3</span>, <span class="tok-number">1</span>));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">sum_valid</span>(&amp;[]), (<span class="tok-number">0</span>, <span class="tok-number">0</span>));
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/06-pattern-matching/16-option-result-branching.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Anum%3A%3AParseIntError%3B%0A%0Aconst%20USERS%3A%20%5B%28u32%2C%20%26str%29%3B%203%5D%20%3D%20%5B%281%2C%20%22ada%22%29%2C%20%282%2C%20%22grace%22%29%2C%20%283%2C%20%22linus%22%29%5D%3B%0A%0Afn%20parse_id%28input%3A%20%26str%29%20-%3E%20Result%3Cu32%2C%20ParseIntError%3E%20%7B%0A%20%20%20%20input.trim%28%29.parse%28%29%0A%7D%0A%0Afn%20lookup%28id%3A%20u32%29%20-%3E%20Option%3C%26%27static%20str%3E%20%7B%0A%20%20%20%20USERS%0A%20%20%20%20%20%20%20%20.iter%28%29%0A%20%20%20%20%20%20%20%20.find%28%7C%28user_id%2C%20_%29%7C%20%2Auser_id%20%3D%3D%20id%29%0A%20%20%20%20%20%20%20%20.map%28%7C%28_%2C%20name%29%7C%20%2Aname%29%0A%7D%0A%0Afn%20greet%28input%3A%20%26str%29%20-%3E%20String%20%7B%0A%20%20%20%20match%20parse_id%28input%29.map%28%7Cid%7C%20%28id%2C%20lookup%28id%29%29%29%20%7B%0A%20%20%20%20%20%20%20%20Ok%28%28_%2C%20Some%28name%29%29%29%20%3D%3E%20format%21%28%22Hello%2C%20%7Bname%7D%21%22%29%2C%0A%20%20%20%20%20%20%20%20Ok%28%28id%2C%20None%29%29%20%3D%3E%20format%21%28%22No%20user%20with%20id%20%7Bid%7D%22%29%2C%0A%20%20%20%20%20%20%20%20Err%28e%29%20%3D%3E%20format%21%28%22Invalid%20id%20%27%7Binput%7D%27%3A%20%7Be%7D%22%29%2C%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20sum_valid%28inputs%3A%20%26%5B%26str%5D%29%20-%3E%20%28u32%2C%20usize%29%20%7B%0A%20%20%20%20let%20mut%20sum%20%3D%200%3B%0A%20%20%20%20let%20mut%20invalid%20%3D%200%3B%0A%20%20%20%20for%20input%20in%20inputs%20%7B%0A%20%20%20%20%20%20%20%20match%20parse_id%28input%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Ok%28n%29%20%3D%3E%20sum%20%2B%3D%20n%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28_%29%20%3D%3E%20invalid%20%2B%3D%201%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%20%20%28sum%2C%20invalid%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20for%20input%20in%20%5B%221%22%2C%20%2299%22%2C%20%22abc%22%5D%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%7B%7D%22%2C%20greet%28input%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20let%20%28sum%2C%20invalid%29%20%3D%20sum_valid%28%26%5B%221%22%2C%20%22%202%20%22%2C%20%22x%22%2C%20%223%22%2C%20%22%22%5D%29%3B%0A%20%20%20%20println%21%28%22sum%3A%20%7Bsum%7D%2C%20invalid%3A%20%7Binvalid%7D%22%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20greet_found_and_missing%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28greet%28%222%22%29%2C%20%22Hello%2C%20grace%21%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28greet%28%22%203%20%22%29%2C%20%22Hello%2C%20linus%21%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28greet%28%2242%22%29%2C%20%22No%20user%20with%20id%2042%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20greet_invalid%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28greet%28%22-1%22%29.starts_with%28%22Invalid%20id%20%27-1%27%22%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28greet%28%22%22%29.starts_with%28%22Invalid%20id%20%27%27%22%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20sum_valid_counts_failures%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28sum_valid%28%26%5B%221%22%2C%20%222%22%2C%20%22nope%22%5D%29%2C%20%283%2C%201%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28sum_valid%28%26%5B%5D%29%2C%20%280%2C%200%29%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/06-pattern-matching/16-option-result-branching.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::num::<span class="tok-type">ParseIntError</span>;
+
+<span class="tok-keyword">const</span> <span class="tok-type">USERS</span>: [(<span class="tok-type">u32</span>, &amp;<span class="tok-type">str</span>); <span class="tok-number">3</span>] = [(<span class="tok-number">1</span>, <span class="tok-string">"ada"</span>), (<span class="tok-number">2</span>, <span class="tok-string">"grace"</span>), (<span class="tok-number">3</span>, <span class="tok-string">"linus"</span>)];
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">parse_id</span>(input: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">u32</span>, <span class="tok-type">ParseIntError</span>&gt; {
+    input.<span class="tok-fn">trim</span>().<span class="tok-fn">parse</span>()
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">lookup</span>(id: <span class="tok-type">u32</span>) -&gt; <span class="tok-type">Option</span>&lt;&amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>&gt; {
+    <span class="tok-type">USERS</span>
+        .<span class="tok-fn">iter</span>()
+        .<span class="tok-fn">find</span>(|(user_id, _)| *user_id == id)
+        .<span class="tok-fn">map</span>(|(_, name)| *name)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">greet</span>(input: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">String</span> {
+    <span class="tok-keyword">match</span> <span class="tok-fn">parse_id</span>(input).<span class="tok-fn">map</span>(|id| (id, <span class="tok-fn">lookup</span>(id))) {
+        <span class="tok-type">Ok</span>((_, <span class="tok-type">Some</span>(name))) =&gt; <span class="tok-macro">format!</span>(<span class="tok-string">"Hello, {name}!"</span>),
+        <span class="tok-type">Ok</span>((id, <span class="tok-type">None</span>)) =&gt; <span class="tok-macro">format!</span>(<span class="tok-string">"No user with id {id}"</span>),
+        <span class="tok-type">Err</span>(e) =&gt; <span class="tok-macro">format!</span>(<span class="tok-string">"Invalid id '{input}': {e}"</span>),
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">sum_valid</span>(inputs: &amp;[&amp;<span class="tok-type">str</span>]) -&gt; (<span class="tok-type">u32</span>, <span class="tok-type">usize</span>) {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> sum = <span class="tok-number">0</span>;
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> invalid = <span class="tok-number">0</span>;
+    <span class="tok-keyword">for</span> input <span class="tok-keyword">in</span> inputs {
+        <span class="tok-keyword">match</span> <span class="tok-fn">parse_id</span>(input) {
+            <span class="tok-type">Ok</span>(n) =&gt; sum += n,
+            <span class="tok-type">Err</span>(_) =&gt; invalid += <span class="tok-number">1</span>,
+        }
+    }
+    (sum, invalid)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">for</span> input <span class="tok-keyword">in</span> [<span class="tok-string">"1"</span>, <span class="tok-string">"99"</span>, <span class="tok-string">"abc"</span>] {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"{}"</span>, <span class="tok-fn">greet</span>(input));
+    }
+    <span class="tok-keyword">let</span> (sum, invalid) = <span class="tok-fn">sum_valid</span>(&amp;[<span class="tok-string">"1"</span>, <span class="tok-string">" 2 "</span>, <span class="tok-string">"x"</span>, <span class="tok-string">"3"</span>, <span class="tok-string">""</span>]);
+    <span class="tok-macro">println!</span>(<span class="tok-string">"sum: {sum}, invalid: {invalid}"</span>);
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">greet_found_and_missing</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">greet</span>(<span class="tok-string">"2"</span>), <span class="tok-string">"Hello, grace!"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">greet</span>(<span class="tok-string">" 3 "</span>), <span class="tok-string">"Hello, linus!"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">greet</span>(<span class="tok-string">"42"</span>), <span class="tok-string">"No user with id 42"</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">greet_invalid</span>() {
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">greet</span>(<span class="tok-string">"-1"</span>).<span class="tok-fn">starts_with</span>(<span class="tok-string">"Invalid id '-1'"</span>));
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">greet</span>(<span class="tok-string">""</span>).<span class="tok-fn">starts_with</span>(<span class="tok-string">"Invalid id ''"</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">sum_valid_counts_failures</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">sum_valid</span>(&amp;[<span class="tok-string">"1"</span>, <span class="tok-string">"2"</span>, <span class="tok-string">"nope"</span>]), (<span class="tok-number">3</span>, <span class="tok-number">1</span>));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">sum_valid</span>(&amp;[]), (<span class="tok-number">0</span>, <span class="tok-number">0</span>));
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 16-option-result-branching.rs -o 16-option-result-branching &amp;&amp; ./16-option-result-branching
+
+# run the unit tests
+rustc --edition 2021 --test 16-option-result-branching.rs -o 16-option-result-branching-tests &amp;&amp; ./16-option-result-branching-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/15-traffic-light.html"><small>← Previous</small>15 · Traffic Light Enum</a><a class="pager-link next" href="../exercises/17-enum-destructuring.html"><small>Next →</small>17 · Enum Destructuring Drills</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

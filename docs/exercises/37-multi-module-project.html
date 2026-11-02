@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>37 · Multi-Module Project · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Organize a mini bank library into a module tree with deliberate visibility, then map that tree onto a real Cargo project layout.">
+<meta property="og:title" content="37 · Multi-Module Project · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Organize a mini bank library into a module tree with deliberate visibility, then map that tree onto a real Cargo project layout.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/11-modules-crates.html">Level 11 — Modules, Crates and Project Structure</a><span>/</span><span>Exercise 37</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 37 · Level 11 — Modules, Crates and Project Structure</div>
+  <h1>Multi-Module Project</h1>
+  <p class="lead">Organize a mini bank library into a module tree with deliberate visibility, then map that tree onto a real Cargo project layout.</p>
+  <div class="meta"><span class="badge diff-advanced">Advanced</span><span class="chip">`mod`</span><span class="chip">`pub`</span><span class="chip">`pub(crate)`</span><span class="chip">`pub(super)`</span><span class="chip">private modules</span><span class="chip">`use`</span><span class="chip">`self::`</span><span class="chip">`super::`</span><span class="chip">`crate::` paths</span><span class="chip">re-exports (`pub use`)</span><span class="chip">library vs binary crates</span><span class="chip">workspaces</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="37"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<p>The starter is a single file that simulates a library with inline <code>mod</code> blocks. The module tree and visibility markers are given; implement the <code>todo!()</code> bodies <strong>and</strong> be ready to explain why each item has the visibility it has.</p>
+<pre class="code" data-lang="text"><code>crate
+├── bank                      (mod bank)
+│   ├── errors                (pub mod)      BankError + Display
+│   ├── money                 (pub(crate))   format_cents, validate_amount
+│   ├── account               (pub mod)      Account (fields partly private)
+│   ├── ledger                (private mod)  Entry, Ledger
+│   ├── service               (pub mod)      Bank
+│   └── pub use … re-exports  Account, BankError, Bank
+└── main / run                "binary" side, uses only bank::{Bank, BankError}</code></pre>
+<ol><li><code>bank::money</code>: - <code>pub(crate) fn format_cents(cents: u64) -&gt; String</code> — <code>12345</code> → <code>"$123.45"</code>. - <code>pub(crate) fn validate_amount(cents: u64) -&gt; Result&lt;u64, BankError&gt;</code> — <code>0</code> is <code>InvalidAmount</code>.</li><li><code>impl Display for BankError</code> — one message per variant; use <code>super::money::format_cents</code> for amounts.</li><li><code>bank::account::Account</code>: - <code>pub(super) fn deposit(&amp;mut self, cents: u64) -&gt; Result&lt;(), BankError&gt;</code> - <code>pub(super) fn withdraw(&amp;mut self, cents: u64) -&gt; Result&lt;(), BankError&gt;</code> — <code>InsufficientFunds { needed, available }</code> on overdraft.</li><li><code>bank::service::Bank</code>: - <code>pub fn open_account(&amp;mut self, owner: &amp;str) -&gt; u32</code> (ids start at 1) - <code>pub fn account(&amp;self, id: u32) -&gt; Result&lt;&amp;Account, BankError&gt;</code> - <code>pub fn deposit / withdraw(&amp;mut self, id: u32, cents: u64) -&gt; Result&lt;(), BankError&gt;</code> - <code>pub fn transfer(&amp;mut self, from: u32, to: u32, cents: u64) -&gt; Result&lt;(), BankError&gt;</code> — <code>SameAccount</code> if <code>from == to</code>; a failed transfer must leave all balances and the ledger unchanged. - <code>pub fn total_deposits_cents(&amp;self) -&gt; u64</code> - <code>pub fn statement(&amp;self) -&gt; Vec&lt;String&gt;</code> — one line per ledger entry (use the absolute path <code>crate::bank::money::format_cents</code>). - Record every successful operation in the private <code>ledger</code>.</li><li>Answer in comments: why can <code>main</code> call <code>bank::money::format_cents</code> but would <strong>not</strong> be able to if <code>bank</code> were an external crate? Why is <code>ledger</code> private yet <code>Bank</code> can use it?</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<pre class="code" data-lang="text"><code>Expected failure: insufficient funds: needed $500.00, available $30.00
+#1 Alice  $57.50
+#2 Bob    $30.00
+Total held: $87.50
+Statement (5 entries):
+  opened #1
+  opened #2
+  #1 +$100.00
+  #1 -$12.50
+  #1 -&gt; #2 $30.00</code></pre>
+<ul><li><code>bank.deposit(id, 0)</code> =&gt; <code>Err(BankError::InvalidAmount)</code></li><li><code>bank.transfer(a, 77, 500)</code> =&gt; <code>Err(BankError::AccountNotFound(77))</code> and <code>a</code>'s balance is unchanged.</li><li>Calling <code>Account::new(...)</code> or <code>account.deposit(...)</code> from <code>main</code> does <strong>not</strong> compile (<code>pub(super)</code>).</li></ul>
+<h2 id="mapping-to-a-real-cargo-project">Mapping to a real Cargo project</h2>
+<p>The same tree split into files (Rust 2018+ style, no <code>mod.rs</code> required):</p>
+<pre class="code" data-lang="text"><code>mini_bank/
+├── Cargo.toml
+└── src/
+    ├── lib.rs              // pub mod bank;  (or put bank's contents directly here)
+    ├── main.rs             // use mini_bank::bank::{Bank, BankError};  fn main() { … }
+    ├── bank.rs             // pub mod errors; pub(crate) mod money; pub mod account;
+    │                       // mod ledger; pub mod service;
+    │                       // pub use self::{account::Account, errors::BankError, service::Bank};
+    └── bank/
+        ├── errors.rs
+        ├── money.rs
+        ├── account.rs
+        ├── ledger.rs
+        └── service.rs</code></pre>
+<ul><li><code>mod foo;</code> (with a semicolon) tells the compiler to load <code>foo.rs</code> or <code>foo/mod.rs</code> next to the parent file.</li><li><code>src/lib.rs</code> is the <strong>library crate</strong> root; <code>src/main.rs</code> is a separate <strong>binary crate</strong> that depends on the library by package name (<code>mini_bank::…</code>). Inside <code>main.rs</code>, <code>crate::</code> refers to the binary, not the library.</li><li><code>pub(crate)</code> items in the library (like <code>money</code>) are <strong>not</strong> visible from <code>main.rs</code>, because the binary is a different crate. Expose what the binary needs via <code>pub</code> / <code>pub use</code> instead.</li><li>Tests: unit tests stay in <code>#[cfg(test)] mod tests</code> inside each file; integration tests go in <code>tests/*.rs</code> and can only use the public API.</li></ul>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li><code>super::</code> = parent module, <code>self::</code> = current module, <code>crate::</code> = crate root.</li><li><code>pub(super)</code> on <code>Account::new</code> lets <code>bank::service</code> build accounts while hiding the constructor from everyone else.</li><li>In <code>transfer</code>, check <code>self.account(to)?</code> <em>before</em> withdrawing from <code>from</code>.</li><li><code>ok_or(BankError::AccountNotFound(id))</code> converts <code>Option</code> to <code>Result</code>.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Turn it into a <strong>Cargo workspace</strong>:</p>
+<pre class="code" data-lang="text"><code>bank_workspace/
+├── Cargo.toml          # [workspace] members = ["bank_core", "bank_cli", "shared_utils"]
+├── shared_utils/       # lib: format_cents, validate_amount
+├── bank_core/          # lib: depends on shared_utils = { path = "../shared_utils" }
+└── bank_cli/           # bin: depends on bank_core = { path = "../bank_core" }</code></pre>
+<p>Run <code>cargo new --lib shared_utils</code>, etc., wire the path dependencies, and verify <code>cargo test --workspace</code> and <code>cargo run -p bank_cli</code> both work. Notice what had to change from <code>pub(crate)</code> to <code>pub</code> once <code>money</code> lived in another crate.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">11-modules-crates/exercises/37-multi-module-project.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=//%20A%20mini%20bank%20%22library%22%20laid%20out%20with%20inline%20modules.%0A//%20Each%20%60mod%20name%20%7B%20...%20%7D%60%20block%20corresponds%20to%20a%20file%20in%20a%20real%20Cargo%20project.%0A//%20The%20module%20tree%20and%20visibility%20are%20given%3B%20fill%20in%20the%20TODOs.%0A%0Amod%20bank%20%7B%0A%20%20%20%20pub%20mod%20errors%20%7B%0A%20%20%20%20%20%20%20%20use%20std%3A%3Afmt%3B%0A%0A%20%20%20%20%20%20%20%20%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0A%20%20%20%20%20%20%20%20pub%20enum%20BankError%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20AccountNotFound%28u32%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20InsufficientFunds%20%7B%20needed%3A%20u64%2C%20available%3A%20u64%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20InvalidAmount%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20SameAccount%2C%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20fmt%3A%3ADisplay%20for%20BankError%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20fn%20fmt%28%26self%2C%20f%3A%20%26mut%20fmt%3A%3AFormatter%3C%27_%3E%29%20-%3E%20fmt%3A%3AResult%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20write%20a%20message%20per%20variant.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Use%20%60super%3A%3Amoney%3A%3Aformat_cents%60%20to%20format%20amounts.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20_%20%3D%20f%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%22match%20self%20and%20write%21%20a%20friendly%20message%22%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20std%3A%3Aerror%3A%3AError%20for%20BankError%20%7B%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20Crate-visible%20helpers%3A%20usable%20anywhere%20inside%20this%20crate%2C%20hidden%20from%20library%20users.%0A%20%20%20%20pub%28crate%29%20mod%20money%20%7B%0A%20%20%20%20%20%20%20%20pub%28crate%29%20fn%20format_cents%28cents%3A%20u64%29%20-%3E%20String%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20_%20%3D%20cents%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%2212345%20-%3E%20%5C%22%24123.45%5C%22%22%29%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20pub%28crate%29%20fn%20validate_amount%28cents%3A%20u64%29%20-%3E%20Result%3Cu64%2C%20super%3A%3Aerrors%3A%3ABankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20_%20%3D%20cents%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%22Err%28InvalidAmount%29%20for%200%2C%20Ok%28cents%29%20otherwise%22%29%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20pub%20mod%20account%20%7B%0A%20%20%20%20%20%20%20%20use%20super%3A%3Aerrors%3A%3ABankError%3B%0A%20%20%20%20%20%20%20%20use%20super%3A%3Amoney%3B%0A%0A%20%20%20%20%20%20%20%20%23%5Bderive%28Debug%2C%20Clone%29%5D%0A%20%20%20%20%20%20%20%20pub%20struct%20Account%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20id%3A%20u32%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20owner%3A%20String%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20balance_cents%3A%20u64%2C%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20Account%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20//%20pub%28super%29%3A%20only%20the%20%60bank%60%20module%20may%20create%20accounts.%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%28super%29%20fn%20new%28id%3A%20u32%2C%20owner%3A%20%26str%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20id%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20owner%3A%20owner.to_string%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20balance_cents%3A%200%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20id%28%26self%29%20-%3E%20u32%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.id%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20balance_cents%28%26self%29%20-%3E%20u64%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.balance_cents%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20balance_display%28%26self%29%20-%3E%20String%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20money%3A%3Aformat_cents%28self.balance_cents%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%28super%29%20fn%20deposit%28%26mut%20self%2C%20cents%3A%20u64%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20validate%20the%20amount%2C%20then%20add%20it%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20_%20%3D%20cents%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%22Use%20money%3A%3Avalidate_amount%20and%20%3F%22%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%28super%29%20fn%20withdraw%28%26mut%20self%2C%20cents%3A%20u64%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20validate%20the%20amount%20and%20check%20the%20balance%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20_%20%3D%20cents%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%22Err%28InsufficientFunds%29%20when%20cents%20%3E%20balance%22%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20Private%20module%3A%20an%20implementation%20detail%20of%20%60bank%60.%0A%20%20%20%20mod%20ledger%20%7B%0A%20%20%20%20%20%20%20%20%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0A%20%20%20%20%20%20%20%20pub%20enum%20Entry%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Opened%20%7B%20id%3A%20u32%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Deposit%20%7B%20id%3A%20u32%2C%20cents%3A%20u64%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Withdrawal%20%7B%20id%3A%20u32%2C%20cents%3A%20u64%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Transfer%20%7B%20from%3A%20u32%2C%20to%3A%20u32%2C%20cents%3A%20u64%20%7D%2C%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%23%5Bderive%28Debug%2C%20Default%29%5D%0A%20%20%20%20%20%20%20%20pub%20struct%20Ledger%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20entries%3A%20Vec%3CEntry%3E%2C%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20Ledger%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20record%28%26mut%20self%2C%20entry%3A%20Entry%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.entries.push%28entry%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20entries%28%26self%29%20-%3E%20%26%5BEntry%5D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%26self.entries%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20Re-exports%20form%20the%20public%20API%3A%20callers%20write%20%60bank%3A%3ABank%60.%0A%20%20%20%20pub%20use%20self%3A%3Aaccount%3A%3AAccount%3B%0A%20%20%20%20pub%20use%20self%3A%3Aerrors%3A%3ABankError%3B%0A%20%20%20%20pub%20use%20self%3A%3Aservice%3A%3ABank%3B%0A%0A%20%20%20%20pub%20mod%20service%20%7B%0A%20%20%20%20%20%20%20%20use%20super%3A%3Aledger%3A%3A%7BEntry%2C%20Ledger%7D%3B%0A%20%20%20%20%20%20%20%20use%20super%3A%3A%7BAccount%2C%20BankError%7D%3B%0A%20%20%20%20%20%20%20%20use%20std%3A%3Acollections%3A%3ABTreeMap%3B%0A%0A%20%20%20%20%20%20%20%20%23%5Bderive%28Debug%2C%20Default%29%5D%0A%20%20%20%20%20%20%20%20pub%20struct%20Bank%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20accounts%3A%20BTreeMap%3Cu32%2C%20Account%3E%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20next_id%3A%20u32%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20ledger%3A%20Ledger%2C%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20Bank%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20new%28%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20next_id%3A%201%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20..Self%3A%3Adefault%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20open_account%28%26mut%20self%2C%20owner%3A%20%26str%29%20-%3E%20u32%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20assign%20next_id%2C%20insert%20Account%3A%3Anew%2C%20record%20Entry%3A%3AOpened%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20_%20%3D%20%28owner%2C%20%26mut%20self.accounts%2C%20%26mut%20self.ledger%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%22Return%20the%20new%20account%20id%22%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20account%28%26self%2C%20id%3A%20u32%29%20-%3E%20Result%3C%26Account%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20_%20%3D%20id%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%22Err%28AccountNotFound%29%20if%20missing%22%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20deposit%28%26mut%20self%2C%20id%3A%20u32%2C%20cents%3A%20u64%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%20and%20record%20Entry%3A%3ADeposit%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20_%20%3D%20%28id%2C%20cents%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20withdraw%28%26mut%20self%2C%20id%3A%20u32%2C%20cents%3A%20u64%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%20and%20record%20Entry%3A%3AWithdrawal%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20_%20%3D%20%28id%2C%20cents%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20transfer%28%26mut%20self%2C%20from%3A%20u32%2C%20to%3A%20u32%2C%20cents%3A%20u64%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20reject%20same%20account%3B%20make%20sure%20a%20failed%20transfer%20changes%20nothing%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20_%20%3D%20%28from%2C%20to%2C%20cents%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20total_deposits_cents%28%26self%29%20-%3E%20u64%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%22Sum%20all%20balances%22%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20history_len%28%26self%29%20-%3E%20usize%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.ledger.entries%28%29.len%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20statement%28%26self%29%20-%3E%20Vec%3CString%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20turn%20each%20ledger%20entry%20into%20a%20line%2C%20e.g.%20%22%231%20%2B%24100.00%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Hint%3A%20use%20the%20absolute%20path%20crate%3A%3Abank%3A%3Amoney%3A%3Aformat_cents%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20_%3A%20%26%5BEntry%5D%20%3D%20self.ledger.entries%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0A//%20The%20%22binary%20crate%22%20side%3A%20it%20only%20uses%20the%20public%20API.%0Ause%20bank%3A%3A%7BBank%2C%20BankError%7D%3B%0A%0Afn%20run%28%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20let%20mut%20bank%20%3D%20Bank%3A%3Anew%28%29%3B%0A%20%20%20%20let%20alice%20%3D%20bank.open_account%28%22Alice%22%29%3B%0A%20%20%20%20let%20bob%20%3D%20bank.open_account%28%22Bob%22%29%3B%0A%0A%20%20%20%20bank.deposit%28alice%2C%2010_000%29%3F%3B%0A%20%20%20%20bank.withdraw%28alice%2C%201_250%29%3F%3B%0A%20%20%20%20bank.transfer%28alice%2C%20bob%2C%203_000%29%3F%3B%0A%0A%20%20%20%20if%20let%20Err%28e%29%20%3D%20bank.transfer%28bob%2C%20alice%2C%2050_000%29%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22Expected%20failure%3A%20%7Be%7D%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20for%20id%20in%20%5Balice%2C%20bob%5D%20%7B%0A%20%20%20%20%20%20%20%20let%20acct%20%3D%20bank.account%28id%29%3F%3B%0A%20%20%20%20%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%22%23%7B%7D%20%7B%3A%3C6%7D%20%7B%7D%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20acct.id%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20acct.owner%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20acct.balance_display%28%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22Total%20held%3A%20%7B%7D%22%2C%0A%20%20%20%20%20%20%20%20bank%3A%3Amoney%3A%3Aformat_cents%28bank.total_deposits_cents%28%29%29%0A%20%20%20%20%29%3B%0A%0A%20%20%20%20println%21%28%22Statement%20%28%7B%7D%20entries%29%3A%22%2C%20bank.history_len%28%29%29%3B%0A%20%20%20%20for%20line%20in%20bank.statement%28%29%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%20%20%7Bline%7D%22%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20Ok%28%28%29%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20if%20let%20Err%28e%29%20%3D%20run%28%29%20%7B%0A%20%20%20%20%20%20%20%20eprintln%21%28%22error%3A%20%7Be%7D%22%29%3B%0A%20%20%20%20%20%20%20%20std%3A%3Aprocess%3A%3Aexit%281%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3Abank%3A%3A%7BBank%2C%20BankError%7D%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20deposit_withdraw_and_balance%28%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20bank%20%3D%20Bank%3A%3Anew%28%29%3B%0A%20%20%20%20%20%20%20%20let%20id%20%3D%20bank.open_account%28%22Ana%22%29%3B%0A%20%20%20%20%20%20%20%20bank.deposit%28id%2C%20500%29%3F%3B%0A%20%20%20%20%20%20%20%20bank.withdraw%28id%2C%20200%29%3F%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.account%28id%29%3F.balance_cents%28%29%2C%20300%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.account%28id%29%3F.balance_display%28%29%2C%20%22%243.00%22%29%3B%0A%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20errors_are_reported%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20bank%20%3D%20Bank%3A%3Anew%28%29%3B%0A%20%20%20%20%20%20%20%20let%20id%20%3D%20bank.open_account%28%22Ana%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.deposit%28id%2C%200%29%2C%20Err%28BankError%3A%3AInvalidAmount%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20bank.withdraw%28id%2C%201%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28BankError%3A%3AInsufficientFunds%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20needed%3A%201%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20available%3A%200%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.deposit%2842%2C%201%29%2C%20Err%28BankError%3A%3AAccountNotFound%2842%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.transfer%28id%2C%20id%2C%201%29%2C%20Err%28BankError%3A%3ASameAccount%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20failed_transfer_changes_nothing%28%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20bank%20%3D%20Bank%3A%3Anew%28%29%3B%0A%20%20%20%20%20%20%20%20let%20a%20%3D%20bank.open_account%28%22A%22%29%3B%0A%20%20%20%20%20%20%20%20bank.deposit%28a%2C%201_000%29%3F%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20bank.transfer%28a%2C%2077%2C%20500%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28BankError%3A%3AAccountNotFound%2877%29%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.account%28a%29%3F.balance_cents%28%29%2C%201_000%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.history_len%28%29%2C%202%29%3B%0A%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/11-modules-crates/exercises/37-multi-module-project.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-comment">// A mini bank "library" laid out with inline modules.</span>
+<span class="tok-comment">// Each `mod name { ... }` block corresponds to a file in a real Cargo project.</span>
+<span class="tok-comment">// The module tree and visibility are given; fill in the TODOs.</span>
+
+<span class="tok-keyword">mod</span> bank {
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">mod</span> errors {
+        <span class="tok-keyword">use</span> std::fmt;
+
+        <span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+        <span class="tok-keyword">pub</span> <span class="tok-keyword">enum</span> <span class="tok-type">BankError</span> {
+            <span class="tok-type">AccountNotFound</span>(<span class="tok-type">u32</span>),
+            <span class="tok-type">InsufficientFunds</span> { needed: <span class="tok-type">u64</span>, available: <span class="tok-type">u64</span> },
+            <span class="tok-type">InvalidAmount</span>,
+            <span class="tok-type">SameAccount</span>,
+        }
+
+        <span class="tok-keyword">impl</span> fmt::<span class="tok-type">Display</span> <span class="tok-keyword">for</span> <span class="tok-type">BankError</span> {
+            <span class="tok-keyword">fn</span> <span class="tok-fn">fmt</span>(&amp;<span class="tok-keyword">self</span>, f: &amp;<span class="tok-keyword">mut</span> fmt::<span class="tok-type">Formatter</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; fmt::<span class="tok-type">Result</span> {
+                <span class="tok-comment">// TODO: write a message per variant.</span>
+                <span class="tok-comment">// Use `super::money::format_cents` to format amounts.</span>
+                <span class="tok-keyword">let</span> _ = f;
+                <span class="tok-macro">todo!</span>(<span class="tok-string">"match self and write! a friendly message"</span>)
+            }
+        }
+
+        <span class="tok-keyword">impl</span> std::error::<span class="tok-type">Error</span> <span class="tok-keyword">for</span> <span class="tok-type">BankError</span> {}
+    }
+
+    <span class="tok-comment">// Crate-visible helpers: usable anywhere inside this crate, hidden from library users.</span>
+    <span class="tok-keyword">pub</span>(<span class="tok-keyword">crate</span>) <span class="tok-keyword">mod</span> money {
+        <span class="tok-keyword">pub</span>(<span class="tok-keyword">crate</span>) <span class="tok-keyword">fn</span> <span class="tok-fn">format_cents</span>(cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">String</span> {
+            <span class="tok-comment">// TODO: implement</span>
+            <span class="tok-keyword">let</span> _ = cents;
+            <span class="tok-macro">todo!</span>(<span class="tok-string">"12345 -&gt; \"$123.45\""</span>)
+        }
+
+        <span class="tok-keyword">pub</span>(<span class="tok-keyword">crate</span>) <span class="tok-keyword">fn</span> <span class="tok-fn">validate_amount</span>(cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">u64</span>, <span class="tok-keyword">super</span>::errors::<span class="tok-type">BankError</span>&gt; {
+            <span class="tok-comment">// TODO: implement</span>
+            <span class="tok-keyword">let</span> _ = cents;
+            <span class="tok-macro">todo!</span>(<span class="tok-string">"Err(InvalidAmount) for 0, Ok(cents) otherwise"</span>)
+        }
+    }
+
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">mod</span> account {
+        <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::errors::<span class="tok-type">BankError</span>;
+        <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::money;
+
+        <span class="tok-attr">#[derive(Debug, Clone)]</span>
+        <span class="tok-keyword">pub</span> <span class="tok-keyword">struct</span> <span class="tok-type">Account</span> {
+            id: <span class="tok-type">u32</span>,
+            <span class="tok-keyword">pub</span> owner: <span class="tok-type">String</span>,
+            balance_cents: <span class="tok-type">u64</span>,
+        }
+
+        <span class="tok-keyword">impl</span> <span class="tok-type">Account</span> {
+            <span class="tok-comment">// pub(super): only the `bank` module may create accounts.</span>
+            <span class="tok-keyword">pub</span>(<span class="tok-keyword">super</span>) <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(id: <span class="tok-type">u32</span>, owner: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-keyword">Self</span> {
+                <span class="tok-keyword">Self</span> {
+                    id,
+                    owner: owner.<span class="tok-fn">to_string</span>(),
+                    balance_cents: <span class="tok-number">0</span>,
+                }
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">id</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">u32</span> {
+                <span class="tok-keyword">self</span>.id
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">balance_cents</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">u64</span> {
+                <span class="tok-keyword">self</span>.balance_cents
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">balance_display</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">String</span> {
+                money::<span class="tok-fn">format_cents</span>(<span class="tok-keyword">self</span>.balance_cents)
+            }
+
+            <span class="tok-keyword">pub</span>(<span class="tok-keyword">super</span>) <span class="tok-keyword">fn</span> <span class="tok-fn">deposit</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+                <span class="tok-comment">// TODO: validate the amount, then add it</span>
+                <span class="tok-keyword">let</span> _ = cents;
+                <span class="tok-macro">todo!</span>(<span class="tok-string">"Use money::validate_amount and ?"</span>)
+            }
+
+            <span class="tok-keyword">pub</span>(<span class="tok-keyword">super</span>) <span class="tok-keyword">fn</span> <span class="tok-fn">withdraw</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+                <span class="tok-comment">// TODO: validate the amount and check the balance</span>
+                <span class="tok-keyword">let</span> _ = cents;
+                <span class="tok-macro">todo!</span>(<span class="tok-string">"Err(InsufficientFunds) when cents &gt; balance"</span>)
+            }
+        }
+    }
+
+    <span class="tok-comment">// Private module: an implementation detail of `bank`.</span>
+    <span class="tok-keyword">mod</span> ledger {
+        <span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+        <span class="tok-keyword">pub</span> <span class="tok-keyword">enum</span> <span class="tok-type">Entry</span> {
+            <span class="tok-type">Opened</span> { id: <span class="tok-type">u32</span> },
+            <span class="tok-type">Deposit</span> { id: <span class="tok-type">u32</span>, cents: <span class="tok-type">u64</span> },
+            <span class="tok-type">Withdrawal</span> { id: <span class="tok-type">u32</span>, cents: <span class="tok-type">u64</span> },
+            <span class="tok-type">Transfer</span> { from: <span class="tok-type">u32</span>, to: <span class="tok-type">u32</span>, cents: <span class="tok-type">u64</span> },
+        }
+
+        <span class="tok-attr">#[derive(Debug, Default)]</span>
+        <span class="tok-keyword">pub</span> <span class="tok-keyword">struct</span> <span class="tok-type">Ledger</span> {
+            entries: <span class="tok-type">Vec</span>&lt;<span class="tok-type">Entry</span>&gt;,
+        }
+
+        <span class="tok-keyword">impl</span> <span class="tok-type">Ledger</span> {
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">record</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, entry: <span class="tok-type">Entry</span>) {
+                <span class="tok-keyword">self</span>.entries.<span class="tok-fn">push</span>(entry);
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">entries</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;[<span class="tok-type">Entry</span>] {
+                &amp;<span class="tok-keyword">self</span>.entries
+            }
+        }
+    }
+
+    <span class="tok-comment">// Re-exports form the public API: callers write `bank::Bank`.</span>
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">use</span> <span class="tok-keyword">self</span>::account::<span class="tok-type">Account</span>;
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">use</span> <span class="tok-keyword">self</span>::errors::<span class="tok-type">BankError</span>;
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">use</span> <span class="tok-keyword">self</span>::service::<span class="tok-type">Bank</span>;
+
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">mod</span> service {
+        <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::ledger::{<span class="tok-type">Entry</span>, <span class="tok-type">Ledger</span>};
+        <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::{<span class="tok-type">Account</span>, <span class="tok-type">BankError</span>};
+        <span class="tok-keyword">use</span> std::collections::<span class="tok-type">BTreeMap</span>;
+
+        <span class="tok-attr">#[derive(Debug, Default)]</span>
+        <span class="tok-keyword">pub</span> <span class="tok-keyword">struct</span> <span class="tok-type">Bank</span> {
+            accounts: <span class="tok-type">BTreeMap</span>&lt;<span class="tok-type">u32</span>, <span class="tok-type">Account</span>&gt;,
+            next_id: <span class="tok-type">u32</span>,
+            ledger: <span class="tok-type">Ledger</span>,
+        }
+
+        <span class="tok-keyword">impl</span> <span class="tok-type">Bank</span> {
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>() -&gt; <span class="tok-keyword">Self</span> {
+                <span class="tok-keyword">Self</span> {
+                    next_id: <span class="tok-number">1</span>,
+                    ..<span class="tok-keyword">Self</span>::<span class="tok-fn">default</span>()
+                }
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">open_account</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, owner: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">u32</span> {
+                <span class="tok-comment">// TODO: assign next_id, insert Account::new, record Entry::Opened</span>
+                <span class="tok-keyword">let</span> _ = (owner, &amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>.accounts, &amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>.ledger);
+                <span class="tok-macro">todo!</span>(<span class="tok-string">"Return the new account id"</span>)
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">account</span>(&amp;<span class="tok-keyword">self</span>, id: <span class="tok-type">u32</span>) -&gt; <span class="tok-type">Result</span>&lt;&amp;<span class="tok-type">Account</span>, <span class="tok-type">BankError</span>&gt; {
+                <span class="tok-comment">// TODO: implement</span>
+                <span class="tok-keyword">let</span> _ = id;
+                <span class="tok-macro">todo!</span>(<span class="tok-string">"Err(AccountNotFound) if missing"</span>)
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">deposit</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, id: <span class="tok-type">u32</span>, cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+                <span class="tok-comment">// TODO: implement and record Entry::Deposit</span>
+                <span class="tok-keyword">let</span> _ = (id, cents);
+                <span class="tok-macro">todo!</span>()
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">withdraw</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, id: <span class="tok-type">u32</span>, cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+                <span class="tok-comment">// TODO: implement and record Entry::Withdrawal</span>
+                <span class="tok-keyword">let</span> _ = (id, cents);
+                <span class="tok-macro">todo!</span>()
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">transfer</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, from: <span class="tok-type">u32</span>, to: <span class="tok-type">u32</span>, cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+                <span class="tok-comment">// TODO: reject same account; make sure a failed transfer changes nothing</span>
+                <span class="tok-keyword">let</span> _ = (from, to, cents);
+                <span class="tok-macro">todo!</span>()
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">total_deposits_cents</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">u64</span> {
+                <span class="tok-comment">// TODO: implement</span>
+                <span class="tok-macro">todo!</span>(<span class="tok-string">"Sum all balances"</span>)
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">history_len</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">usize</span> {
+                <span class="tok-keyword">self</span>.ledger.<span class="tok-fn">entries</span>().<span class="tok-fn">len</span>()
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">statement</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">String</span>&gt; {
+                <span class="tok-comment">// TODO: turn each ledger entry into a line, e.g. "#1 +$100.00"</span>
+                <span class="tok-comment">// Hint: use the absolute path crate::bank::money::format_cents</span>
+                <span class="tok-keyword">let</span> _: &amp;[<span class="tok-type">Entry</span>] = <span class="tok-keyword">self</span>.ledger.<span class="tok-fn">entries</span>();
+                <span class="tok-macro">todo!</span>()
+            }
+        }
+    }
+}
+
+<span class="tok-comment">// The "binary crate" side: it only uses the public API.</span>
+<span class="tok-keyword">use</span> bank::{<span class="tok-type">Bank</span>, <span class="tok-type">BankError</span>};
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">run</span>() -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> bank = <span class="tok-type">Bank</span>::<span class="tok-fn">new</span>();
+    <span class="tok-keyword">let</span> alice = bank.<span class="tok-fn">open_account</span>(<span class="tok-string">"Alice"</span>);
+    <span class="tok-keyword">let</span> bob = bank.<span class="tok-fn">open_account</span>(<span class="tok-string">"Bob"</span>);
+
+    bank.<span class="tok-fn">deposit</span>(alice, <span class="tok-number">10_000</span>)?;
+    bank.<span class="tok-fn">withdraw</span>(alice, <span class="tok-number">1_250</span>)?;
+    bank.<span class="tok-fn">transfer</span>(alice, bob, <span class="tok-number">3_000</span>)?;
+
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = bank.<span class="tok-fn">transfer</span>(bob, alice, <span class="tok-number">50_000</span>) {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"Expected failure: {e}"</span>);
+    }
+
+    <span class="tok-keyword">for</span> id <span class="tok-keyword">in</span> [alice, bob] {
+        <span class="tok-keyword">let</span> acct = bank.<span class="tok-fn">account</span>(id)?;
+        <span class="tok-macro">println!</span>(
+            <span class="tok-string">"#{} {:&lt;6} {}"</span>,
+            acct.<span class="tok-fn">id</span>(),
+            acct.owner,
+            acct.<span class="tok-fn">balance_display</span>()
+        );
+    }
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"Total held: {}"</span>,
+        bank::money::<span class="tok-fn">format_cents</span>(bank.<span class="tok-fn">total_deposits_cents</span>())
+    );
+
+    <span class="tok-macro">println!</span>(<span class="tok-string">"Statement ({} entries):"</span>, bank.<span class="tok-fn">history_len</span>());
+    <span class="tok-keyword">for</span> line <span class="tok-keyword">in</span> bank.<span class="tok-fn">statement</span>() {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"  {line}"</span>);
+    }
+    <span class="tok-type">Ok</span>(())
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = <span class="tok-fn">run</span>() {
+        <span class="tok-macro">eprintln!</span>(<span class="tok-string">"error: {e}"</span>);
+        std::process::<span class="tok-fn">exit</span>(<span class="tok-number">1</span>);
+    }
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::bank::{<span class="tok-type">Bank</span>, <span class="tok-type">BankError</span>};
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">deposit_withdraw_and_balance</span>() -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> bank = <span class="tok-type">Bank</span>::<span class="tok-fn">new</span>();
+        <span class="tok-keyword">let</span> id = bank.<span class="tok-fn">open_account</span>(<span class="tok-string">"Ana"</span>);
+        bank.<span class="tok-fn">deposit</span>(id, <span class="tok-number">500</span>)?;
+        bank.<span class="tok-fn">withdraw</span>(id, <span class="tok-number">200</span>)?;
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">account</span>(id)?.<span class="tok-fn">balance_cents</span>(), <span class="tok-number">300</span>);
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">account</span>(id)?.<span class="tok-fn">balance_display</span>(), <span class="tok-string">"$3.00"</span>);
+        <span class="tok-type">Ok</span>(())
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">errors_are_reported</span>() {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> bank = <span class="tok-type">Bank</span>::<span class="tok-fn">new</span>();
+        <span class="tok-keyword">let</span> id = bank.<span class="tok-fn">open_account</span>(<span class="tok-string">"Ana"</span>);
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">deposit</span>(id, <span class="tok-number">0</span>), <span class="tok-type">Err</span>(<span class="tok-type">BankError</span>::<span class="tok-type">InvalidAmount</span>));
+        <span class="tok-macro">assert_eq!</span>(
+            bank.<span class="tok-fn">withdraw</span>(id, <span class="tok-number">1</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">BankError</span>::<span class="tok-type">InsufficientFunds</span> {
+                needed: <span class="tok-number">1</span>,
+                available: <span class="tok-number">0</span>
+            })
+        );
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">deposit</span>(<span class="tok-number">42</span>, <span class="tok-number">1</span>), <span class="tok-type">Err</span>(<span class="tok-type">BankError</span>::<span class="tok-type">AccountNotFound</span>(<span class="tok-number">42</span>)));
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">transfer</span>(id, id, <span class="tok-number">1</span>), <span class="tok-type">Err</span>(<span class="tok-type">BankError</span>::<span class="tok-type">SameAccount</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">failed_transfer_changes_nothing</span>() -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> bank = <span class="tok-type">Bank</span>::<span class="tok-fn">new</span>();
+        <span class="tok-keyword">let</span> a = bank.<span class="tok-fn">open_account</span>(<span class="tok-string">"A"</span>);
+        bank.<span class="tok-fn">deposit</span>(a, <span class="tok-number">1_000</span>)?;
+        <span class="tok-macro">assert_eq!</span>(
+            bank.<span class="tok-fn">transfer</span>(a, <span class="tok-number">77</span>, <span class="tok-number">500</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">BankError</span>::<span class="tok-type">AccountNotFound</span>(<span class="tok-number">77</span>))
+        );
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">account</span>(a)?.<span class="tok-fn">balance_cents</span>(), <span class="tok-number">1_000</span>);
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">history_len</span>(), <span class="tok-number">2</span>);
+        <span class="tok-type">Ok</span>(())
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/11-modules-crates/37-multi-module-project.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=//%20A%20mini%20bank%20%22library%22%20laid%20out%20with%20inline%20modules.%0A//%20Each%20%60mod%20name%20%7B%20...%20%7D%60%20block%20corresponds%20to%20a%20file%20in%20a%20real%20Cargo%20project%0A//%20%28see%20the%20exercise%20README%20for%20the%20mapping%29.%0A%0Amod%20bank%20%7B%0A%20%20%20%20pub%20mod%20errors%20%7B%0A%20%20%20%20%20%20%20%20use%20std%3A%3Afmt%3B%0A%0A%20%20%20%20%20%20%20%20%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0A%20%20%20%20%20%20%20%20pub%20enum%20BankError%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20AccountNotFound%28u32%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20InsufficientFunds%20%7B%20needed%3A%20u64%2C%20available%3A%20u64%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20InvalidAmount%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20SameAccount%2C%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20fmt%3A%3ADisplay%20for%20BankError%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20fn%20fmt%28%26self%2C%20f%3A%20%26mut%20fmt%3A%3AFormatter%3C%27_%3E%29%20-%3E%20fmt%3A%3AResult%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20match%20self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20BankError%3A%3AAccountNotFound%28id%29%20%3D%3E%20write%21%28f%2C%20%22account%20%23%7Bid%7D%20not%20found%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20BankError%3A%3AInsufficientFunds%20%7B%20needed%2C%20available%20%7D%20%3D%3E%20write%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20f%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22insufficient%20funds%3A%20needed%20%7B%7D%2C%20available%20%7B%7D%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20super%3A%3Amoney%3A%3Aformat_cents%28%2Aneeded%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20super%3A%3Amoney%3A%3Aformat_cents%28%2Aavailable%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20BankError%3A%3AInvalidAmount%20%3D%3E%20write%21%28f%2C%20%22amount%20must%20be%20greater%20than%20zero%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20BankError%3A%3ASameAccount%20%3D%3E%20write%21%28f%2C%20%22cannot%20transfer%20to%20the%20same%20account%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20std%3A%3Aerror%3A%3AError%20for%20BankError%20%7B%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20Crate-visible%20helpers%3A%20usable%20anywhere%20inside%20this%20crate%2C%20hidden%20from%20library%20users.%0A%20%20%20%20pub%28crate%29%20mod%20money%20%7B%0A%20%20%20%20%20%20%20%20pub%28crate%29%20fn%20format_cents%28cents%3A%20u64%29%20-%3E%20String%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20format%21%28%22%24%7B%7D.%7B%3A02%7D%22%2C%20cents%20/%20100%2C%20cents%20%25%20100%29%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20pub%28crate%29%20fn%20validate_amount%28cents%3A%20u64%29%20-%3E%20Result%3Cu64%2C%20super%3A%3Aerrors%3A%3ABankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20cents%20%3D%3D%200%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Err%28super%3A%3Aerrors%3A%3ABankError%3A%3AInvalidAmount%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Ok%28cents%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20pub%20mod%20account%20%7B%0A%20%20%20%20%20%20%20%20use%20super%3A%3Aerrors%3A%3ABankError%3B%0A%20%20%20%20%20%20%20%20use%20super%3A%3Amoney%3B%0A%0A%20%20%20%20%20%20%20%20%23%5Bderive%28Debug%2C%20Clone%29%5D%0A%20%20%20%20%20%20%20%20pub%20struct%20Account%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20id%3A%20u32%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20owner%3A%20String%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20balance_cents%3A%20u64%2C%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20Account%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20//%20Only%20the%20bank%20module%20may%20create%20accounts%2C%20so%20ids%20stay%20unique.%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%28super%29%20fn%20new%28id%3A%20u32%2C%20owner%3A%20%26str%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20id%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20owner%3A%20owner.to_string%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20balance_cents%3A%200%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20id%28%26self%29%20-%3E%20u32%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.id%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20balance_cents%28%26self%29%20-%3E%20u64%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.balance_cents%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20balance_display%28%26self%29%20-%3E%20String%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20money%3A%3Aformat_cents%28self.balance_cents%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%28super%29%20fn%20deposit%28%26mut%20self%2C%20cents%3A%20u64%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.balance_cents%20%2B%3D%20money%3A%3Avalidate_amount%28cents%29%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%28super%29%20fn%20withdraw%28%26mut%20self%2C%20cents%3A%20u64%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20money%3A%3Avalidate_amount%28cents%29%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20cents%20%3E%20self.balance_cents%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20Err%28BankError%3A%3AInsufficientFunds%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20needed%3A%20cents%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20available%3A%20self.balance_cents%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.balance_cents%20-%3D%20cents%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20Private%20module%3A%20an%20implementation%20detail%20of%20%60bank%60.%0A%20%20%20%20mod%20ledger%20%7B%0A%20%20%20%20%20%20%20%20%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0A%20%20%20%20%20%20%20%20pub%20enum%20Entry%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Opened%20%7B%20id%3A%20u32%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Deposit%20%7B%20id%3A%20u32%2C%20cents%3A%20u64%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Withdrawal%20%7B%20id%3A%20u32%2C%20cents%3A%20u64%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Transfer%20%7B%20from%3A%20u32%2C%20to%3A%20u32%2C%20cents%3A%20u64%20%7D%2C%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%23%5Bderive%28Debug%2C%20Default%29%5D%0A%20%20%20%20%20%20%20%20pub%20struct%20Ledger%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20entries%3A%20Vec%3CEntry%3E%2C%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20Ledger%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20record%28%26mut%20self%2C%20entry%3A%20Entry%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.entries.push%28entry%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20entries%28%26self%29%20-%3E%20%26%5BEntry%5D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%26self.entries%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20Re-exports%20form%20the%20public%20API%3A%20callers%20write%20%60bank%3A%3ABank%60%2C%20not%20%60bank%3A%3Aservice%3A%3ABank%60.%0A%20%20%20%20pub%20use%20self%3A%3Aaccount%3A%3AAccount%3B%0A%20%20%20%20pub%20use%20self%3A%3Aerrors%3A%3ABankError%3B%0A%20%20%20%20pub%20use%20self%3A%3Aservice%3A%3ABank%3B%0A%0A%20%20%20%20pub%20mod%20service%20%7B%0A%20%20%20%20%20%20%20%20use%20super%3A%3Aledger%3A%3A%7BEntry%2C%20Ledger%7D%3B%0A%20%20%20%20%20%20%20%20use%20super%3A%3A%7BAccount%2C%20BankError%7D%3B%0A%20%20%20%20%20%20%20%20use%20std%3A%3Acollections%3A%3ABTreeMap%3B%0A%0A%20%20%20%20%20%20%20%20%23%5Bderive%28Debug%2C%20Default%29%5D%0A%20%20%20%20%20%20%20%20pub%20struct%20Bank%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20accounts%3A%20BTreeMap%3Cu32%2C%20Account%3E%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20next_id%3A%20u32%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20ledger%3A%20Ledger%2C%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20Bank%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20new%28%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20next_id%3A%201%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20..Self%3A%3Adefault%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20open_account%28%26mut%20self%2C%20owner%3A%20%26str%29%20-%3E%20u32%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20id%20%3D%20self.next_id%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.next_id%20%2B%3D%201%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.accounts.insert%28id%2C%20Account%3A%3Anew%28id%2C%20owner%29%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.ledger.record%28Entry%3A%3AOpened%20%7B%20id%20%7D%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20id%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20account%28%26self%2C%20id%3A%20u32%29%20-%3E%20Result%3C%26Account%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.accounts.get%28%26id%29.ok_or%28BankError%3A%3AAccountNotFound%28id%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20fn%20account_mut%28%26mut%20self%2C%20id%3A%20u32%29%20-%3E%20Result%3C%26mut%20Account%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.accounts%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.get_mut%28%26id%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.ok_or%28BankError%3A%3AAccountNotFound%28id%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20deposit%28%26mut%20self%2C%20id%3A%20u32%2C%20cents%3A%20u64%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.account_mut%28id%29%3F.deposit%28cents%29%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.ledger.record%28Entry%3A%3ADeposit%20%7B%20id%2C%20cents%20%7D%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20withdraw%28%26mut%20self%2C%20id%3A%20u32%2C%20cents%3A%20u64%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.account_mut%28id%29%3F.withdraw%28cents%29%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.ledger.record%28Entry%3A%3AWithdrawal%20%7B%20id%2C%20cents%20%7D%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20transfer%28%26mut%20self%2C%20from%3A%20u32%2C%20to%3A%20u32%2C%20cents%3A%20u64%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20from%20%3D%3D%20to%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20Err%28BankError%3A%3ASameAccount%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Validate%20the%20destination%20first%20so%20a%20failed%20transfer%20changes%20nothing.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.account%28to%29%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.account_mut%28from%29%3F.withdraw%28cents%29%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.account_mut%28to%29%3F.deposit%28cents%29%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.ledger.record%28Entry%3A%3ATransfer%20%7B%20from%2C%20to%2C%20cents%20%7D%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20total_deposits_cents%28%26self%29%20-%3E%20u64%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.accounts.values%28%29.map%28Account%3A%3Abalance_cents%29.sum%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20history_len%28%26self%29%20-%3E%20usize%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.ledger.entries%28%29.len%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20statement%28%26self%29%20-%3E%20Vec%3CString%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.ledger%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.entries%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.iter%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.map%28%7Ce%7C%20match%20e%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Entry%3A%3AOpened%20%7B%20id%20%7D%20%3D%3E%20format%21%28%22opened%20%23%7Bid%7D%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Entry%3A%3ADeposit%20%7B%20id%2C%20cents%20%7D%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20format%21%28%22%23%7Bid%7D%20%2B%7B%7D%22%2C%20crate%3A%3Abank%3A%3Amoney%3A%3Aformat_cents%28%2Acents%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Entry%3A%3AWithdrawal%20%7B%20id%2C%20cents%20%7D%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20format%21%28%22%23%7Bid%7D%20-%7B%7D%22%2C%20crate%3A%3Abank%3A%3Amoney%3A%3Aformat_cents%28%2Acents%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Entry%3A%3ATransfer%20%7B%20from%2C%20to%2C%20cents%20%7D%20%3D%3E%20format%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22%23%7Bfrom%7D%20-%3E%20%23%7Bto%7D%20%7B%7D%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20crate%3A%3Abank%3A%3Amoney%3A%3Aformat_cents%28%2Acents%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.collect%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0A//%20The%20%22binary%20crate%22%20side%3A%20it%20only%20uses%20the%20public%20API.%0A//%0A//%20Q%3A%20Why%20can%20%60run%60%20call%20%60bank%3A%3Amoney%3A%3Aformat_cents%60%3F%0A//%20A%3A%20%60money%60%20is%20%60pub%28crate%29%60%20and%20%60run%60%20lives%20in%20the%20same%20crate.%20If%20%60bank%60%20were%20a%0A//%20%20%20%20separate%20library%20crate%20%28src/lib.rs%29%20and%20this%20were%20src/main.rs%2C%20it%20would%20be%20a%0A//%20%20%20%20different%20crate%20and%20%60pub%28crate%29%60%20items%20would%20be%20invisible.%0A//%0A//%20Q%3A%20Why%20can%20%60Bank%60%20use%20the%20private%20%60ledger%60%20module%3F%0A//%20A%3A%20Private%20items%20are%20visible%20to%20the%20module%20that%20declares%20them%20and%20all%20of%20its%0A//%20%20%20%20descendants.%20%60ledger%60%20is%20declared%20in%20%60bank%60%2C%20and%20%60service%60%20is%20a%20child%20of%20%60bank%60.%0Ause%20bank%3A%3A%7BBank%2C%20BankError%7D%3B%0A%0Afn%20run%28%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20let%20mut%20bank%20%3D%20Bank%3A%3Anew%28%29%3B%0A%20%20%20%20let%20alice%20%3D%20bank.open_account%28%22Alice%22%29%3B%0A%20%20%20%20let%20bob%20%3D%20bank.open_account%28%22Bob%22%29%3B%0A%0A%20%20%20%20bank.deposit%28alice%2C%2010_000%29%3F%3B%0A%20%20%20%20bank.withdraw%28alice%2C%201_250%29%3F%3B%0A%20%20%20%20bank.transfer%28alice%2C%20bob%2C%203_000%29%3F%3B%0A%0A%20%20%20%20if%20let%20Err%28e%29%20%3D%20bank.transfer%28bob%2C%20alice%2C%2050_000%29%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22Expected%20failure%3A%20%7Be%7D%22%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20if%20let%20Err%28e%29%20%3D%20bank.deposit%2899%2C%20100%29%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22Expected%20failure%3A%20%7Be%7D%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20for%20id%20in%20%5Balice%2C%20bob%5D%20%7B%0A%20%20%20%20%20%20%20%20let%20acct%20%3D%20bank.account%28id%29%3F%3B%0A%20%20%20%20%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%22%23%7B%7D%20%7B%3A%3C6%7D%20%7B%7D%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20acct.id%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20acct.owner%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20acct.balance_display%28%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22Total%20held%3A%20%7B%7D%22%2C%0A%20%20%20%20%20%20%20%20bank%3A%3Amoney%3A%3Aformat_cents%28bank.total_deposits_cents%28%29%29%0A%20%20%20%20%29%3B%0A%0A%20%20%20%20println%21%28%22Statement%20%28%7B%7D%20entries%29%3A%22%2C%20bank.history_len%28%29%29%3B%0A%20%20%20%20for%20line%20in%20bank.statement%28%29%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%20%20%7Bline%7D%22%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20Ok%28%28%29%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20if%20let%20Err%28e%29%20%3D%20run%28%29%20%7B%0A%20%20%20%20%20%20%20%20eprintln%21%28%22error%3A%20%7Be%7D%22%29%3B%0A%20%20%20%20%20%20%20%20std%3A%3Aprocess%3A%3Aexit%281%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3Abank%3A%3A%7BBank%2C%20BankError%7D%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20deposit_withdraw_and_balance%28%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20bank%20%3D%20Bank%3A%3Anew%28%29%3B%0A%20%20%20%20%20%20%20%20let%20id%20%3D%20bank.open_account%28%22Ana%22%29%3B%0A%20%20%20%20%20%20%20%20bank.deposit%28id%2C%20500%29%3F%3B%0A%20%20%20%20%20%20%20%20bank.withdraw%28id%2C%20200%29%3F%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.account%28id%29%3F.balance_cents%28%29%2C%20300%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.account%28id%29%3F.balance_display%28%29%2C%20%22%243.00%22%29%3B%0A%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20errors_are_reported%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20bank%20%3D%20Bank%3A%3Anew%28%29%3B%0A%20%20%20%20%20%20%20%20let%20id%20%3D%20bank.open_account%28%22Ana%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.deposit%28id%2C%200%29%2C%20Err%28BankError%3A%3AInvalidAmount%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20bank.withdraw%28id%2C%201%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28BankError%3A%3AInsufficientFunds%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20needed%3A%201%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20available%3A%200%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.deposit%2842%2C%201%29%2C%20Err%28BankError%3A%3AAccountNotFound%2842%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.transfer%28id%2C%20id%2C%201%29%2C%20Err%28BankError%3A%3ASameAccount%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20failed_transfer_changes_nothing%28%29%20-%3E%20Result%3C%28%29%2C%20BankError%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20bank%20%3D%20Bank%3A%3Anew%28%29%3B%0A%20%20%20%20%20%20%20%20let%20a%20%3D%20bank.open_account%28%22A%22%29%3B%0A%20%20%20%20%20%20%20%20bank.deposit%28a%2C%201_000%29%3F%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20bank.transfer%28a%2C%2077%2C%20500%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28BankError%3A%3AAccountNotFound%2877%29%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.account%28a%29%3F.balance_cents%28%29%2C%201_000%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.history_len%28%29%2C%202%29%3B%0A%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20money_helper_is_crate_visible%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28crate%3A%3Abank%3A%3Amoney%3A%3Aformat_cents%2812_345%29%2C%20%22%24123.45%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28crate%3A%3Abank%3A%3Amoney%3A%3Aformat_cents%285%29%2C%20%22%240.05%22%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/11-modules-crates/37-multi-module-project.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-comment">// A mini bank "library" laid out with inline modules.</span>
+<span class="tok-comment">// Each `mod name { ... }` block corresponds to a file in a real Cargo project</span>
+<span class="tok-comment">// (see the exercise README for the mapping).</span>
+
+<span class="tok-keyword">mod</span> bank {
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">mod</span> errors {
+        <span class="tok-keyword">use</span> std::fmt;
+
+        <span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+        <span class="tok-keyword">pub</span> <span class="tok-keyword">enum</span> <span class="tok-type">BankError</span> {
+            <span class="tok-type">AccountNotFound</span>(<span class="tok-type">u32</span>),
+            <span class="tok-type">InsufficientFunds</span> { needed: <span class="tok-type">u64</span>, available: <span class="tok-type">u64</span> },
+            <span class="tok-type">InvalidAmount</span>,
+            <span class="tok-type">SameAccount</span>,
+        }
+
+        <span class="tok-keyword">impl</span> fmt::<span class="tok-type">Display</span> <span class="tok-keyword">for</span> <span class="tok-type">BankError</span> {
+            <span class="tok-keyword">fn</span> <span class="tok-fn">fmt</span>(&amp;<span class="tok-keyword">self</span>, f: &amp;<span class="tok-keyword">mut</span> fmt::<span class="tok-type">Formatter</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; fmt::<span class="tok-type">Result</span> {
+                <span class="tok-keyword">match</span> <span class="tok-keyword">self</span> {
+                    <span class="tok-type">BankError</span>::<span class="tok-type">AccountNotFound</span>(id) =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"account #{id} not found"</span>),
+                    <span class="tok-type">BankError</span>::<span class="tok-type">InsufficientFunds</span> { needed, available } =&gt; <span class="tok-macro">write!</span>(
+                        f,
+                        <span class="tok-string">"insufficient funds: needed {}, available {}"</span>,
+                        <span class="tok-keyword">super</span>::money::<span class="tok-fn">format_cents</span>(*needed),
+                        <span class="tok-keyword">super</span>::money::<span class="tok-fn">format_cents</span>(*available)
+                    ),
+                    <span class="tok-type">BankError</span>::<span class="tok-type">InvalidAmount</span> =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"amount must be greater than zero"</span>),
+                    <span class="tok-type">BankError</span>::<span class="tok-type">SameAccount</span> =&gt; <span class="tok-macro">write!</span>(f, <span class="tok-string">"cannot transfer to the same account"</span>),
+                }
+            }
+        }
+
+        <span class="tok-keyword">impl</span> std::error::<span class="tok-type">Error</span> <span class="tok-keyword">for</span> <span class="tok-type">BankError</span> {}
+    }
+
+    <span class="tok-comment">// Crate-visible helpers: usable anywhere inside this crate, hidden from library users.</span>
+    <span class="tok-keyword">pub</span>(<span class="tok-keyword">crate</span>) <span class="tok-keyword">mod</span> money {
+        <span class="tok-keyword">pub</span>(<span class="tok-keyword">crate</span>) <span class="tok-keyword">fn</span> <span class="tok-fn">format_cents</span>(cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">String</span> {
+            <span class="tok-macro">format!</span>(<span class="tok-string">"${}.{:02}"</span>, cents / <span class="tok-number">100</span>, cents % <span class="tok-number">100</span>)
+        }
+
+        <span class="tok-keyword">pub</span>(<span class="tok-keyword">crate</span>) <span class="tok-keyword">fn</span> <span class="tok-fn">validate_amount</span>(cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">u64</span>, <span class="tok-keyword">super</span>::errors::<span class="tok-type">BankError</span>&gt; {
+            <span class="tok-keyword">if</span> cents == <span class="tok-number">0</span> {
+                <span class="tok-type">Err</span>(<span class="tok-keyword">super</span>::errors::<span class="tok-type">BankError</span>::<span class="tok-type">InvalidAmount</span>)
+            } <span class="tok-keyword">else</span> {
+                <span class="tok-type">Ok</span>(cents)
+            }
+        }
+    }
+
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">mod</span> account {
+        <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::errors::<span class="tok-type">BankError</span>;
+        <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::money;
+
+        <span class="tok-attr">#[derive(Debug, Clone)]</span>
+        <span class="tok-keyword">pub</span> <span class="tok-keyword">struct</span> <span class="tok-type">Account</span> {
+            id: <span class="tok-type">u32</span>,
+            <span class="tok-keyword">pub</span> owner: <span class="tok-type">String</span>,
+            balance_cents: <span class="tok-type">u64</span>,
+        }
+
+        <span class="tok-keyword">impl</span> <span class="tok-type">Account</span> {
+            <span class="tok-comment">// Only the bank module may create accounts, so ids stay unique.</span>
+            <span class="tok-keyword">pub</span>(<span class="tok-keyword">super</span>) <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(id: <span class="tok-type">u32</span>, owner: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-keyword">Self</span> {
+                <span class="tok-keyword">Self</span> {
+                    id,
+                    owner: owner.<span class="tok-fn">to_string</span>(),
+                    balance_cents: <span class="tok-number">0</span>,
+                }
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">id</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">u32</span> {
+                <span class="tok-keyword">self</span>.id
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">balance_cents</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">u64</span> {
+                <span class="tok-keyword">self</span>.balance_cents
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">balance_display</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">String</span> {
+                money::<span class="tok-fn">format_cents</span>(<span class="tok-keyword">self</span>.balance_cents)
+            }
+
+            <span class="tok-keyword">pub</span>(<span class="tok-keyword">super</span>) <span class="tok-keyword">fn</span> <span class="tok-fn">deposit</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+                <span class="tok-keyword">self</span>.balance_cents += money::<span class="tok-fn">validate_amount</span>(cents)?;
+                <span class="tok-type">Ok</span>(())
+            }
+
+            <span class="tok-keyword">pub</span>(<span class="tok-keyword">super</span>) <span class="tok-keyword">fn</span> <span class="tok-fn">withdraw</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+                money::<span class="tok-fn">validate_amount</span>(cents)?;
+                <span class="tok-keyword">if</span> cents &gt; <span class="tok-keyword">self</span>.balance_cents {
+                    <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-type">BankError</span>::<span class="tok-type">InsufficientFunds</span> {
+                        needed: cents,
+                        available: <span class="tok-keyword">self</span>.balance_cents,
+                    });
+                }
+                <span class="tok-keyword">self</span>.balance_cents -= cents;
+                <span class="tok-type">Ok</span>(())
+            }
+        }
+    }
+
+    <span class="tok-comment">// Private module: an implementation detail of `bank`.</span>
+    <span class="tok-keyword">mod</span> ledger {
+        <span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+        <span class="tok-keyword">pub</span> <span class="tok-keyword">enum</span> <span class="tok-type">Entry</span> {
+            <span class="tok-type">Opened</span> { id: <span class="tok-type">u32</span> },
+            <span class="tok-type">Deposit</span> { id: <span class="tok-type">u32</span>, cents: <span class="tok-type">u64</span> },
+            <span class="tok-type">Withdrawal</span> { id: <span class="tok-type">u32</span>, cents: <span class="tok-type">u64</span> },
+            <span class="tok-type">Transfer</span> { from: <span class="tok-type">u32</span>, to: <span class="tok-type">u32</span>, cents: <span class="tok-type">u64</span> },
+        }
+
+        <span class="tok-attr">#[derive(Debug, Default)]</span>
+        <span class="tok-keyword">pub</span> <span class="tok-keyword">struct</span> <span class="tok-type">Ledger</span> {
+            entries: <span class="tok-type">Vec</span>&lt;<span class="tok-type">Entry</span>&gt;,
+        }
+
+        <span class="tok-keyword">impl</span> <span class="tok-type">Ledger</span> {
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">record</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, entry: <span class="tok-type">Entry</span>) {
+                <span class="tok-keyword">self</span>.entries.<span class="tok-fn">push</span>(entry);
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">entries</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;[<span class="tok-type">Entry</span>] {
+                &amp;<span class="tok-keyword">self</span>.entries
+            }
+        }
+    }
+
+    <span class="tok-comment">// Re-exports form the public API: callers write `bank::Bank`, not `bank::service::Bank`.</span>
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">use</span> <span class="tok-keyword">self</span>::account::<span class="tok-type">Account</span>;
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">use</span> <span class="tok-keyword">self</span>::errors::<span class="tok-type">BankError</span>;
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">use</span> <span class="tok-keyword">self</span>::service::<span class="tok-type">Bank</span>;
+
+    <span class="tok-keyword">pub</span> <span class="tok-keyword">mod</span> service {
+        <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::ledger::{<span class="tok-type">Entry</span>, <span class="tok-type">Ledger</span>};
+        <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::{<span class="tok-type">Account</span>, <span class="tok-type">BankError</span>};
+        <span class="tok-keyword">use</span> std::collections::<span class="tok-type">BTreeMap</span>;
+
+        <span class="tok-attr">#[derive(Debug, Default)]</span>
+        <span class="tok-keyword">pub</span> <span class="tok-keyword">struct</span> <span class="tok-type">Bank</span> {
+            accounts: <span class="tok-type">BTreeMap</span>&lt;<span class="tok-type">u32</span>, <span class="tok-type">Account</span>&gt;,
+            next_id: <span class="tok-type">u32</span>,
+            ledger: <span class="tok-type">Ledger</span>,
+        }
+
+        <span class="tok-keyword">impl</span> <span class="tok-type">Bank</span> {
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>() -&gt; <span class="tok-keyword">Self</span> {
+                <span class="tok-keyword">Self</span> {
+                    next_id: <span class="tok-number">1</span>,
+                    ..<span class="tok-keyword">Self</span>::<span class="tok-fn">default</span>()
+                }
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">open_account</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, owner: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">u32</span> {
+                <span class="tok-keyword">let</span> id = <span class="tok-keyword">self</span>.next_id;
+                <span class="tok-keyword">self</span>.next_id += <span class="tok-number">1</span>;
+                <span class="tok-keyword">self</span>.accounts.<span class="tok-fn">insert</span>(id, <span class="tok-type">Account</span>::<span class="tok-fn">new</span>(id, owner));
+                <span class="tok-keyword">self</span>.ledger.<span class="tok-fn">record</span>(<span class="tok-type">Entry</span>::<span class="tok-type">Opened</span> { id });
+                id
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">account</span>(&amp;<span class="tok-keyword">self</span>, id: <span class="tok-type">u32</span>) -&gt; <span class="tok-type">Result</span>&lt;&amp;<span class="tok-type">Account</span>, <span class="tok-type">BankError</span>&gt; {
+                <span class="tok-keyword">self</span>.accounts.<span class="tok-fn">get</span>(&amp;id).<span class="tok-fn">ok_or</span>(<span class="tok-type">BankError</span>::<span class="tok-type">AccountNotFound</span>(id))
+            }
+
+            <span class="tok-keyword">fn</span> <span class="tok-fn">account_mut</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, id: <span class="tok-type">u32</span>) -&gt; <span class="tok-type">Result</span>&lt;&amp;<span class="tok-keyword">mut</span> <span class="tok-type">Account</span>, <span class="tok-type">BankError</span>&gt; {
+                <span class="tok-keyword">self</span>.accounts
+                    .<span class="tok-fn">get_mut</span>(&amp;id)
+                    .<span class="tok-fn">ok_or</span>(<span class="tok-type">BankError</span>::<span class="tok-type">AccountNotFound</span>(id))
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">deposit</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, id: <span class="tok-type">u32</span>, cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+                <span class="tok-keyword">self</span>.<span class="tok-fn">account_mut</span>(id)?.<span class="tok-fn">deposit</span>(cents)?;
+                <span class="tok-keyword">self</span>.ledger.<span class="tok-fn">record</span>(<span class="tok-type">Entry</span>::<span class="tok-type">Deposit</span> { id, cents });
+                <span class="tok-type">Ok</span>(())
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">withdraw</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, id: <span class="tok-type">u32</span>, cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+                <span class="tok-keyword">self</span>.<span class="tok-fn">account_mut</span>(id)?.<span class="tok-fn">withdraw</span>(cents)?;
+                <span class="tok-keyword">self</span>.ledger.<span class="tok-fn">record</span>(<span class="tok-type">Entry</span>::<span class="tok-type">Withdrawal</span> { id, cents });
+                <span class="tok-type">Ok</span>(())
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">transfer</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, from: <span class="tok-type">u32</span>, to: <span class="tok-type">u32</span>, cents: <span class="tok-type">u64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+                <span class="tok-keyword">if</span> from == to {
+                    <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-type">BankError</span>::<span class="tok-type">SameAccount</span>);
+                }
+                <span class="tok-comment">// Validate the destination first so a failed transfer changes nothing.</span>
+                <span class="tok-keyword">self</span>.<span class="tok-fn">account</span>(to)?;
+                <span class="tok-keyword">self</span>.<span class="tok-fn">account_mut</span>(from)?.<span class="tok-fn">withdraw</span>(cents)?;
+                <span class="tok-keyword">self</span>.<span class="tok-fn">account_mut</span>(to)?.<span class="tok-fn">deposit</span>(cents)?;
+                <span class="tok-keyword">self</span>.ledger.<span class="tok-fn">record</span>(<span class="tok-type">Entry</span>::<span class="tok-type">Transfer</span> { from, to, cents });
+                <span class="tok-type">Ok</span>(())
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">total_deposits_cents</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">u64</span> {
+                <span class="tok-keyword">self</span>.accounts.<span class="tok-fn">values</span>().<span class="tok-fn">map</span>(<span class="tok-type">Account</span>::balance_cents).<span class="tok-fn">sum</span>()
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">history_len</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">usize</span> {
+                <span class="tok-keyword">self</span>.ledger.<span class="tok-fn">entries</span>().<span class="tok-fn">len</span>()
+            }
+
+            <span class="tok-keyword">pub</span> <span class="tok-keyword">fn</span> <span class="tok-fn">statement</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">String</span>&gt; {
+                <span class="tok-keyword">self</span>.ledger
+                    .<span class="tok-fn">entries</span>()
+                    .<span class="tok-fn">iter</span>()
+                    .<span class="tok-fn">map</span>(|e| <span class="tok-keyword">match</span> e {
+                        <span class="tok-type">Entry</span>::<span class="tok-type">Opened</span> { id } =&gt; <span class="tok-macro">format!</span>(<span class="tok-string">"opened #{id}"</span>),
+                        <span class="tok-type">Entry</span>::<span class="tok-type">Deposit</span> { id, cents } =&gt; {
+                            <span class="tok-macro">format!</span>(<span class="tok-string">"#{id} +{}"</span>, <span class="tok-keyword">crate</span>::bank::money::<span class="tok-fn">format_cents</span>(*cents))
+                        }
+                        <span class="tok-type">Entry</span>::<span class="tok-type">Withdrawal</span> { id, cents } =&gt; {
+                            <span class="tok-macro">format!</span>(<span class="tok-string">"#{id} -{}"</span>, <span class="tok-keyword">crate</span>::bank::money::<span class="tok-fn">format_cents</span>(*cents))
+                        }
+                        <span class="tok-type">Entry</span>::<span class="tok-type">Transfer</span> { from, to, cents } =&gt; <span class="tok-macro">format!</span>(
+                            <span class="tok-string">"#{from} -&gt; #{to} {}"</span>,
+                            <span class="tok-keyword">crate</span>::bank::money::<span class="tok-fn">format_cents</span>(*cents)
+                        ),
+                    })
+                    .<span class="tok-fn">collect</span>()
+            }
+        }
+    }
+}
+
+<span class="tok-comment">// The "binary crate" side: it only uses the public API.</span>
+<span class="tok-comment">//</span>
+<span class="tok-comment">// Q: Why can `run` call `bank::money::format_cents`?</span>
+<span class="tok-comment">// A: `money` is `pub(crate)` and `run` lives in the same crate. If `bank` were a</span>
+<span class="tok-comment">//    separate library crate (src/lib.rs) and this were src/main.rs, it would be a</span>
+<span class="tok-comment">//    different crate and `pub(crate)` items would be invisible.</span>
+<span class="tok-comment">//</span>
+<span class="tok-comment">// Q: Why can `Bank` use the private `ledger` module?</span>
+<span class="tok-comment">// A: Private items are visible to the module that declares them and all of its</span>
+<span class="tok-comment">//    descendants. `ledger` is declared in `bank`, and `service` is a child of `bank`.</span>
+<span class="tok-keyword">use</span> bank::{<span class="tok-type">Bank</span>, <span class="tok-type">BankError</span>};
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">run</span>() -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> bank = <span class="tok-type">Bank</span>::<span class="tok-fn">new</span>();
+    <span class="tok-keyword">let</span> alice = bank.<span class="tok-fn">open_account</span>(<span class="tok-string">"Alice"</span>);
+    <span class="tok-keyword">let</span> bob = bank.<span class="tok-fn">open_account</span>(<span class="tok-string">"Bob"</span>);
+
+    bank.<span class="tok-fn">deposit</span>(alice, <span class="tok-number">10_000</span>)?;
+    bank.<span class="tok-fn">withdraw</span>(alice, <span class="tok-number">1_250</span>)?;
+    bank.<span class="tok-fn">transfer</span>(alice, bob, <span class="tok-number">3_000</span>)?;
+
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = bank.<span class="tok-fn">transfer</span>(bob, alice, <span class="tok-number">50_000</span>) {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"Expected failure: {e}"</span>);
+    }
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = bank.<span class="tok-fn">deposit</span>(<span class="tok-number">99</span>, <span class="tok-number">100</span>) {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"Expected failure: {e}"</span>);
+    }
+
+    <span class="tok-keyword">for</span> id <span class="tok-keyword">in</span> [alice, bob] {
+        <span class="tok-keyword">let</span> acct = bank.<span class="tok-fn">account</span>(id)?;
+        <span class="tok-macro">println!</span>(
+            <span class="tok-string">"#{} {:&lt;6} {}"</span>,
+            acct.<span class="tok-fn">id</span>(),
+            acct.owner,
+            acct.<span class="tok-fn">balance_display</span>()
+        );
+    }
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"Total held: {}"</span>,
+        bank::money::<span class="tok-fn">format_cents</span>(bank.<span class="tok-fn">total_deposits_cents</span>())
+    );
+
+    <span class="tok-macro">println!</span>(<span class="tok-string">"Statement ({} entries):"</span>, bank.<span class="tok-fn">history_len</span>());
+    <span class="tok-keyword">for</span> line <span class="tok-keyword">in</span> bank.<span class="tok-fn">statement</span>() {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"  {line}"</span>);
+    }
+    <span class="tok-type">Ok</span>(())
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Err</span>(e) = <span class="tok-fn">run</span>() {
+        <span class="tok-macro">eprintln!</span>(<span class="tok-string">"error: {e}"</span>);
+        std::process::<span class="tok-fn">exit</span>(<span class="tok-number">1</span>);
+    }
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::bank::{<span class="tok-type">Bank</span>, <span class="tok-type">BankError</span>};
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">deposit_withdraw_and_balance</span>() -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> bank = <span class="tok-type">Bank</span>::<span class="tok-fn">new</span>();
+        <span class="tok-keyword">let</span> id = bank.<span class="tok-fn">open_account</span>(<span class="tok-string">"Ana"</span>);
+        bank.<span class="tok-fn">deposit</span>(id, <span class="tok-number">500</span>)?;
+        bank.<span class="tok-fn">withdraw</span>(id, <span class="tok-number">200</span>)?;
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">account</span>(id)?.<span class="tok-fn">balance_cents</span>(), <span class="tok-number">300</span>);
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">account</span>(id)?.<span class="tok-fn">balance_display</span>(), <span class="tok-string">"$3.00"</span>);
+        <span class="tok-type">Ok</span>(())
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">errors_are_reported</span>() {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> bank = <span class="tok-type">Bank</span>::<span class="tok-fn">new</span>();
+        <span class="tok-keyword">let</span> id = bank.<span class="tok-fn">open_account</span>(<span class="tok-string">"Ana"</span>);
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">deposit</span>(id, <span class="tok-number">0</span>), <span class="tok-type">Err</span>(<span class="tok-type">BankError</span>::<span class="tok-type">InvalidAmount</span>));
+        <span class="tok-macro">assert_eq!</span>(
+            bank.<span class="tok-fn">withdraw</span>(id, <span class="tok-number">1</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">BankError</span>::<span class="tok-type">InsufficientFunds</span> {
+                needed: <span class="tok-number">1</span>,
+                available: <span class="tok-number">0</span>
+            })
+        );
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">deposit</span>(<span class="tok-number">42</span>, <span class="tok-number">1</span>), <span class="tok-type">Err</span>(<span class="tok-type">BankError</span>::<span class="tok-type">AccountNotFound</span>(<span class="tok-number">42</span>)));
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">transfer</span>(id, id, <span class="tok-number">1</span>), <span class="tok-type">Err</span>(<span class="tok-type">BankError</span>::<span class="tok-type">SameAccount</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">failed_transfer_changes_nothing</span>() -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">BankError</span>&gt; {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> bank = <span class="tok-type">Bank</span>::<span class="tok-fn">new</span>();
+        <span class="tok-keyword">let</span> a = bank.<span class="tok-fn">open_account</span>(<span class="tok-string">"A"</span>);
+        bank.<span class="tok-fn">deposit</span>(a, <span class="tok-number">1_000</span>)?;
+        <span class="tok-macro">assert_eq!</span>(
+            bank.<span class="tok-fn">transfer</span>(a, <span class="tok-number">77</span>, <span class="tok-number">500</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">BankError</span>::<span class="tok-type">AccountNotFound</span>(<span class="tok-number">77</span>))
+        );
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">account</span>(a)?.<span class="tok-fn">balance_cents</span>(), <span class="tok-number">1_000</span>);
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">history_len</span>(), <span class="tok-number">2</span>);
+        <span class="tok-type">Ok</span>(())
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">money_helper_is_crate_visible</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-keyword">crate</span>::bank::money::<span class="tok-fn">format_cents</span>(<span class="tok-number">12_345</span>), <span class="tok-string">"$123.45"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-keyword">crate</span>::bank::money::<span class="tok-fn">format_cents</span>(<span class="tok-number">5</span>), <span class="tok-string">"$0.05"</span>);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 37-multi-module-project.rs -o 37-multi-module-project &amp;&amp; ./37-multi-module-project
+
+# run the unit tests
+rustc --edition 2021 --test 37-multi-module-project.rs -o 37-multi-module-project-tests &amp;&amp; ./37-multi-module-project-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/36-word-processing.html"><small>← Previous</small>36 · Word Processing</a><a class="pager-link next" href="../exercises/38-unit-tests.html"><small>Next →</small>38 · Unit Tests</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

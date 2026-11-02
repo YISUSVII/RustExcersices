@@ -16,7 +16,11 @@ let shared = Rc::new(String::from("data"));
 Reference cycles, unnecessary shared ownership, misusing `RefCell`.
 
 ## Exercises
-Solve realistic ownership problems with appropriate pointer choices.
+- [40 — Box Recursive List](exercises/40-box-recursive-list.md)
+- [41 — Rc + RefCell Shared State](exercises/41-rc-refcell-shared-state.md)
+- [42 — Weak Tree](exercises/42-weak-tree.md)
+
+See `exercises/` for starters and `../solutions/13-smart-pointers/` for reference solutions.
 
 ## Hints
 Pick the smallest abstraction that fits your ownership needs.
