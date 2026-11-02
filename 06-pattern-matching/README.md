@@ -15,7 +15,11 @@ if let Some(value) = maybe { println!("{value}"); }
 Ignoring unmatched cases, overusing `_`, and missing guard conditions.
 
 ## Exercises
-Option/Result-heavy branch handling and enum destructuring drills.
+- [16 — Option/Result Branching](exercises/16-option-result-branching.md)
+- [17 — Enum Destructuring](exercises/17-enum-destructuring.md)
+- [18 — Nested `if` to `match`](exercises/18-nested-if-to-match.md)
+
+See `exercises/` for starters and `../solutions/06-pattern-matching/` for reference solutions.
 
 ## Hints
 Prefer explicit matches before compact syntax.

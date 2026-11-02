@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11 · User Model · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Model a user with a struct, an associated constructor, and methods.">
+<meta property="og:title" content="11 · User Model · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Model a user with a struct, an associated constructor, and methods.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/05-structs-enums.html">Level 5 — Structs and Enums</a><span>/</span><span>Exercise 11</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 11 · Level 5 — Structs and Enums</div>
+  <h1>User Model</h1>
+  <p class="lead">Model a user with a struct, an associated constructor, and methods.</p>
+  <div class="meta"><span class="badge diff-beginner">Beginner</span><span class="chip">structs</span><span class="chip">`impl` blocks</span><span class="chip">associated functions</span><span class="chip">`&amp;self` / `&amp;mut self`</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="11"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<p>Complete the <code>User</code> struct in <code>11-user-model.rs</code>:</p>
+<ol><li><code>User::new(username: &amp;str, email: &amp;str, age: u8) -&gt; User</code> creates an active user.</li><li><code>display_name(&amp;self) -&gt; String</code> returns <code>"username &lt;email&gt;"</code>.</li><li><code>is_adult(&amp;self) -&gt; bool</code> returns <code>true</code> when <code>age &gt;= 18</code>.</li><li><code>deactivate(&amp;mut self)</code> sets <code>active</code> to <code>false</code>.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<pre class="code" data-lang="text"><code>alice &lt;alice@example.com&gt;
+adult: true
+active: false</code></pre>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li>Use field init shorthand: <code>User { username, email, age, active: true }</code>.</li><li>Convert <code>&amp;str</code> to <code>String</code> with <code>.to_string()</code> or <code>String::from</code>.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Use struct update syntax (<code>..user</code>) to create a second user that copies everything except the email.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">05-structs-enums/exercises/11-user-model.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=%23%5Bderive%28Debug%2C%20Clone%29%5D%0Astruct%20User%20%7B%0A%20%20%20%20username%3A%20String%2C%0A%20%20%20%20email%3A%20String%2C%0A%20%20%20%20age%3A%20u8%2C%0A%20%20%20%20active%3A%20bool%2C%0A%7D%0A%0Aimpl%20User%20%7B%0A%20%20%20%20fn%20new%28username%3A%20%26str%2C%20email%3A%20%26str%2C%20age%3A%20u8%29%20-%3E%20User%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20%28username%2C%20email%2C%20age%29%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Build%20a%20User%20with%20owned%20Strings%20and%20active%3A%20true%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20display_name%28%26self%29%20-%3E%20String%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20todo%21%28%22Return%20%5C%22username%20%3Cemail%3E%5C%22%20using%20format%21%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20is_adult%28%26self%29%20-%3E%20bool%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20todo%21%28%22Return%20true%20when%20age%20%3E%3D%2018%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20deactivate%28%26mut%20self%29%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20todo%21%28%22Set%20active%20to%20false%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20mut%20user%20%3D%20User%3A%3Anew%28%22alice%22%2C%20%22alice%40example.com%22%2C%2030%29%3B%0A%20%20%20%20println%21%28%22%7B%7D%22%2C%20user.display_name%28%29%29%3B%0A%20%20%20%20println%21%28%22adult%3A%20%7B%7D%22%2C%20user.is_adult%28%29%29%3B%0A%20%20%20%20user.deactivate%28%29%3B%0A%20%20%20%20println%21%28%22active%3A%20%7B%7D%22%2C%20user.active%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20new_user_is_active%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20u%20%3D%20User%3A%3Anew%28%22bob%22%2C%20%22bob%40example.com%22%2C%2017%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28u.active%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%21u.is_adult%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28u.display_name%28%29%2C%20%22bob%20%3Cbob%40example.com%3E%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20deactivate_works%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20u%20%3D%20User%3A%3Anew%28%22bob%22%2C%20%22bob%40example.com%22%2C%2040%29%3B%0A%20%20%20%20%20%20%20%20u.deactivate%28%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%21u.active%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/05-structs-enums/exercises/11-user-model.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-attr">#[derive(Debug, Clone)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">User</span> {
+    username: <span class="tok-type">String</span>,
+    email: <span class="tok-type">String</span>,
+    age: <span class="tok-type">u8</span>,
+    active: <span class="tok-type">bool</span>,
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">User</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(username: &amp;<span class="tok-type">str</span>, email: &amp;<span class="tok-type">str</span>, age: <span class="tok-type">u8</span>) -&gt; <span class="tok-type">User</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-keyword">let</span> _ = (username, email, age);
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Build a User with owned Strings and active: true"</span>)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">display_name</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">String</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Return \"username &lt;email&gt;\" using format!"</span>)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">is_adult</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">bool</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Return true when age &gt;= 18"</span>)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">deactivate</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>) {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Set active to false"</span>)
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> user = <span class="tok-type">User</span>::<span class="tok-fn">new</span>(<span class="tok-string">"alice"</span>, <span class="tok-string">"alice@example.com"</span>, <span class="tok-number">30</span>);
+    <span class="tok-macro">println!</span>(<span class="tok-string">"{}"</span>, user.<span class="tok-fn">display_name</span>());
+    <span class="tok-macro">println!</span>(<span class="tok-string">"adult: {}"</span>, user.<span class="tok-fn">is_adult</span>());
+    user.<span class="tok-fn">deactivate</span>();
+    <span class="tok-macro">println!</span>(<span class="tok-string">"active: {}"</span>, user.active);
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new_user_is_active</span>() {
+        <span class="tok-keyword">let</span> u = <span class="tok-type">User</span>::<span class="tok-fn">new</span>(<span class="tok-string">"bob"</span>, <span class="tok-string">"bob@example.com"</span>, <span class="tok-number">17</span>);
+        <span class="tok-macro">assert!</span>(u.active);
+        <span class="tok-macro">assert!</span>(!u.<span class="tok-fn">is_adult</span>());
+        <span class="tok-macro">assert_eq!</span>(u.<span class="tok-fn">display_name</span>(), <span class="tok-string">"bob &lt;bob@example.com&gt;"</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">deactivate_works</span>() {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> u = <span class="tok-type">User</span>::<span class="tok-fn">new</span>(<span class="tok-string">"bob"</span>, <span class="tok-string">"bob@example.com"</span>, <span class="tok-number">40</span>);
+        u.<span class="tok-fn">deactivate</span>();
+        <span class="tok-macro">assert!</span>(!u.active);
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/05-structs-enums/11-user-model.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=%23%5Bderive%28Debug%2C%20Clone%29%5D%0Astruct%20User%20%7B%0A%20%20%20%20username%3A%20String%2C%0A%20%20%20%20email%3A%20String%2C%0A%20%20%20%20age%3A%20u8%2C%0A%20%20%20%20active%3A%20bool%2C%0A%7D%0A%0Aimpl%20User%20%7B%0A%20%20%20%20fn%20new%28username%3A%20%26str%2C%20email%3A%20%26str%2C%20age%3A%20u8%29%20-%3E%20User%20%7B%0A%20%20%20%20%20%20%20%20User%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20username%3A%20username.to_string%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20email%3A%20email.to_string%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20age%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20active%3A%20true%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20display_name%28%26self%29%20-%3E%20String%20%7B%0A%20%20%20%20%20%20%20%20format%21%28%22%7B%7D%20%3C%7B%7D%3E%22%2C%20self.username%2C%20self.email%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20is_adult%28%26self%29%20-%3E%20bool%20%7B%0A%20%20%20%20%20%20%20%20self.age%20%3E%3D%2018%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20deactivate%28%26mut%20self%29%20%7B%0A%20%20%20%20%20%20%20%20self.active%20%3D%20false%3B%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20mut%20user%20%3D%20User%3A%3Anew%28%22alice%22%2C%20%22alice%40example.com%22%2C%2030%29%3B%0A%20%20%20%20println%21%28%22%7B%7D%22%2C%20user.display_name%28%29%29%3B%0A%20%20%20%20println%21%28%22adult%3A%20%7B%7D%22%2C%20user.is_adult%28%29%29%3B%0A%20%20%20%20user.deactivate%28%29%3B%0A%20%20%20%20println%21%28%22active%3A%20%7B%7D%22%2C%20user.active%29%3B%0A%0A%20%20%20%20//%20Bonus%3A%20struct%20update%20syntax.%0A%20%20%20%20let%20work%20%3D%20User%20%7B%0A%20%20%20%20%20%20%20%20email%3A%20String%3A%3Afrom%28%22alice%40work.example%22%29%2C%0A%20%20%20%20%20%20%20%20..user.clone%28%29%0A%20%20%20%20%7D%3B%0A%20%20%20%20println%21%28%22%7Bwork%3A%3F%7D%22%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20new_user_is_active%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20u%20%3D%20User%3A%3Anew%28%22bob%22%2C%20%22bob%40example.com%22%2C%2017%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28u.active%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%21u.is_adult%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28u.display_name%28%29%2C%20%22bob%20%3Cbob%40example.com%3E%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20deactivate_works%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20u%20%3D%20User%3A%3Anew%28%22bob%22%2C%20%22bob%40example.com%22%2C%2040%29%3B%0A%20%20%20%20%20%20%20%20u.deactivate%28%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%21u.active%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/05-structs-enums/11-user-model.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-attr">#[derive(Debug, Clone)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">User</span> {
+    username: <span class="tok-type">String</span>,
+    email: <span class="tok-type">String</span>,
+    age: <span class="tok-type">u8</span>,
+    active: <span class="tok-type">bool</span>,
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">User</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(username: &amp;<span class="tok-type">str</span>, email: &amp;<span class="tok-type">str</span>, age: <span class="tok-type">u8</span>) -&gt; <span class="tok-type">User</span> {
+        <span class="tok-type">User</span> {
+            username: username.<span class="tok-fn">to_string</span>(),
+            email: email.<span class="tok-fn">to_string</span>(),
+            age,
+            active: <span class="tok-keyword">true</span>,
+        }
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">display_name</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">String</span> {
+        <span class="tok-macro">format!</span>(<span class="tok-string">"{} &lt;{}&gt;"</span>, <span class="tok-keyword">self</span>.username, <span class="tok-keyword">self</span>.email)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">is_adult</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">bool</span> {
+        <span class="tok-keyword">self</span>.age &gt;= <span class="tok-number">18</span>
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">deactivate</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>) {
+        <span class="tok-keyword">self</span>.active = <span class="tok-keyword">false</span>;
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> user = <span class="tok-type">User</span>::<span class="tok-fn">new</span>(<span class="tok-string">"alice"</span>, <span class="tok-string">"alice@example.com"</span>, <span class="tok-number">30</span>);
+    <span class="tok-macro">println!</span>(<span class="tok-string">"{}"</span>, user.<span class="tok-fn">display_name</span>());
+    <span class="tok-macro">println!</span>(<span class="tok-string">"adult: {}"</span>, user.<span class="tok-fn">is_adult</span>());
+    user.<span class="tok-fn">deactivate</span>();
+    <span class="tok-macro">println!</span>(<span class="tok-string">"active: {}"</span>, user.active);
+
+    <span class="tok-comment">// Bonus: struct update syntax.</span>
+    <span class="tok-keyword">let</span> work = <span class="tok-type">User</span> {
+        email: <span class="tok-type">String</span>::<span class="tok-fn">from</span>(<span class="tok-string">"alice@work.example"</span>),
+        ..user.<span class="tok-fn">clone</span>()
+    };
+    <span class="tok-macro">println!</span>(<span class="tok-string">"{work:?}"</span>);
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new_user_is_active</span>() {
+        <span class="tok-keyword">let</span> u = <span class="tok-type">User</span>::<span class="tok-fn">new</span>(<span class="tok-string">"bob"</span>, <span class="tok-string">"bob@example.com"</span>, <span class="tok-number">17</span>);
+        <span class="tok-macro">assert!</span>(u.active);
+        <span class="tok-macro">assert!</span>(!u.<span class="tok-fn">is_adult</span>());
+        <span class="tok-macro">assert_eq!</span>(u.<span class="tok-fn">display_name</span>(), <span class="tok-string">"bob &lt;bob@example.com&gt;"</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">deactivate_works</span>() {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> u = <span class="tok-type">User</span>::<span class="tok-fn">new</span>(<span class="tok-string">"bob"</span>, <span class="tok-string">"bob@example.com"</span>, <span class="tok-number">40</span>);
+        u.<span class="tok-fn">deactivate</span>();
+        <span class="tok-macro">assert!</span>(!u.active);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 11-user-model.rs -o 11-user-model &amp;&amp; ./11-user-model
+
+# run the unit tests
+rustc --edition 2021 --test 11-user-model.rs -o 11-user-model-tests &amp;&amp; ./11-user-model-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/10-mutable-borrowing.html"><small>← Previous</small>10 · Mutable Borrowing String Editor</a><a class="pager-link next" href="../exercises/12-rectangle-model.html"><small>Next →</small>12 · Rectangle Model</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -16,7 +16,12 @@ handle.join().unwrap();
 Data races via poor design, lock contention, panics on poisoned mutexes.
 
 ## Exercises
-Parallel counter, producer/consumer, worker pool, shared-state simulation.
+- [43 — Parallel Counter](exercises/43-parallel-counter.md)
+- [44 — Producer / Consumer](exercises/44-producer-consumer.md)
+- [45 — Worker Pool](exercises/45-worker-pool.md)
+- [46 — Shared State Simulation](exercises/46-shared-state-simulation.md)
+
+See `exercises/` for starters and `../solutions/14-concurrency/` for reference solutions.
 
 ## Hints
 Prefer message passing before shared mutable state.

@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>30 · Shape Trait · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Model geometric shapes behind a common trait and compute aggregate values over a heterogeneous collection.">
+<meta property="og:title" content="30 · Shape Trait · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Model geometric shapes behind a common trait and compute aggregate values over a heterogeneous collection.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/09-generics-traits-lifetimes.html">Level 9 — Generics, Traits and Lifetimes</a><span>/</span><span>Exercise 30</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 30 · Level 9 — Generics, Traits and Lifetimes</div>
+  <h1>Shape Trait</h1>
+  <p class="lead">Model geometric shapes behind a common trait and compute aggregate values over a heterogeneous collection.</p>
+  <div class="meta"><span class="badge diff-intermediate">Intermediate</span><span class="chip">traits</span><span class="chip">trait objects (`Box&lt;dyn Trait&gt;`)</span><span class="chip">generic functions with `where` clauses</span><span class="chip">supertraits</span><span class="chip">`Result` for validation</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="30"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<ol><li>Define the trait:
+<pre class="code" data-lang="rust"><code><span class="tok-keyword">trait</span> <span class="tok-type">Shape</span>: std::fmt::<span class="tok-type">Debug</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">name</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>;
+    <span class="tok-keyword">fn</span> <span class="tok-fn">area</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span>;
+    <span class="tok-keyword">fn</span> <span class="tok-fn">perimeter</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span>;
+}</code></pre></li><li>Create <code>Circle { radius: f64 }</code>, <code>Rectangle { width: f64, height: f64 }</code> and <code>Triangle { a: f64, b: f64, c: f64 }</code>, each deriving <code>Debug</code> and implementing <code>Shape</code>. - Use Heron's formula for the triangle area.</li><li>Add validating constructors that return <code>Result&lt;Self, String&gt;</code>: - <code>Circle::new(radius: f64)</code> — radius must be <code>&gt; 0</code>. - <code>Rectangle::new(width: f64, height: f64)</code> — both sides <code>&gt; 0</code>. - <code>Triangle::new(a: f64, b: f64, c: f64)</code> — sides <code>&gt; 0</code> and satisfy the triangle inequality.</li><li>Implement: - <code>total_area(shapes: &amp;[Box&lt;dyn Shape&gt;]) -&gt; f64</code> - <code>largest_shape(shapes: &amp;[Box&lt;dyn Shape&gt;]) -&gt; Option&lt;&amp;dyn Shape&gt;</code> (by area) - <code>describe&lt;S&gt;(shape: &amp;S) -&gt; String where S: Shape + ?Sized</code> returning e.g. <code>"Circle: area=3.14, perimeter=6.28"</code> (2 decimals).</li><li>Build a <code>Vec&lt;Box&lt;dyn Shape&gt;&gt;</code> in <code>main</code> and print each description, the total area and the largest shape.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<ul><li><code>Circle::new(1.0)?.area()</code> ≈ <code>3.14159</code></li><li><code>Rectangle::new(2.0, 3.0)?.perimeter()</code> =&gt; <code>10.0</code></li><li><code>Triangle::new(3.0, 4.0, 5.0)?.area()</code> =&gt; <code>6.0</code></li><li><code>Triangle::new(1.0, 2.0, 10.0)</code> =&gt; <code>Err("...triangle inequality...")</code></li><li><code>Circle::new(-1.0)</code> =&gt; <code>Err(...)</code></li></ul>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li><code>std::f64::consts::PI</code></li><li>Heron: <code>s = (a + b + c) / 2</code>, <code>area = sqrt(s(s-a)(s-b)(s-c))</code>.</li><li>Compare floats with <code>partial_cmp</code> or <code>f64::total_cmp</code> when finding a maximum.</li><li><code>?Sized</code> lets <code>describe</code> accept <code>dyn Shape</code> as well as concrete types.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Add a <code>Square</code> that reuses <code>Rectangle</code> internally, and sort the shape list by area (descending) using <code>sort_by</code>.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">09-generics-traits-lifetimes/exercises/30-shape-trait.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Af64%3A%3Aconsts%3A%3API%3B%0Ause%20std%3A%3Afmt%3A%3ADebug%3B%0A%0Atrait%20Shape%3A%20Debug%20%7B%0A%20%20%20%20fn%20name%28%26self%29%20-%3E%20%26%27static%20str%3B%0A%20%20%20%20fn%20area%28%26self%29%20-%3E%20f64%3B%0A%20%20%20%20fn%20perimeter%28%26self%29%20-%3E%20f64%3B%0A%7D%0A%0A%23%5Bderive%28Debug%29%5D%0Astruct%20Circle%20%7B%0A%20%20%20%20radius%3A%20f64%2C%0A%7D%0A%0A%23%5Bderive%28Debug%29%5D%0Astruct%20Rectangle%20%7B%0A%20%20%20%20width%3A%20f64%2C%0A%20%20%20%20height%3A%20f64%2C%0A%7D%0A%0A%23%5Bderive%28Debug%29%5D%0Astruct%20Triangle%20%7B%0A%20%20%20%20a%3A%20f64%2C%0A%20%20%20%20b%3A%20f64%2C%0A%20%20%20%20c%3A%20f64%2C%0A%7D%0A%0Aimpl%20Circle%20%7B%0A%20%20%20%20fn%20new%28radius%3A%20f64%29%20-%3E%20Result%3CSelf%2C%20String%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20validate%20radius%20%3E%200%0A%20%20%20%20%20%20%20%20Ok%28Self%20%7B%20radius%20%7D%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Rectangle%20%7B%0A%20%20%20%20fn%20new%28width%3A%20f64%2C%20height%3A%20f64%29%20-%3E%20Result%3CSelf%2C%20String%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20validate%20both%20sides%20%3E%200%0A%20%20%20%20%20%20%20%20Ok%28Self%20%7B%20width%2C%20height%20%7D%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Triangle%20%7B%0A%20%20%20%20fn%20new%28a%3A%20f64%2C%20b%3A%20f64%2C%20c%3A%20f64%29%20-%3E%20Result%3CSelf%2C%20String%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20validate%20sides%20%3E%200%20and%20the%20triangle%20inequality%0A%20%20%20%20%20%20%20%20Ok%28Self%20%7B%20a%2C%20b%2C%20c%20%7D%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Shape%20for%20Circle%20%7B%0A%20%20%20%20fn%20name%28%26self%29%20-%3E%20%26%27static%20str%20%7B%0A%20%20%20%20%20%20%20%20%22Circle%22%0A%20%20%20%20%7D%0A%20%20%20%20fn%20area%28%26self%29%20-%3E%20f64%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20%28PI%2C%20self.radius%29%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22PI%20%2A%20r%20%2A%20r%22%29%0A%20%20%20%20%7D%0A%20%20%20%20fn%20perimeter%28%26self%29%20-%3E%20f64%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20todo%21%28%222%20%2A%20PI%20%2A%20r%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Shape%20for%20Rectangle%20%7B%0A%20%20%20%20fn%20name%28%26self%29%20-%3E%20%26%27static%20str%20%7B%0A%20%20%20%20%20%20%20%20%22Rectangle%22%0A%20%20%20%20%7D%0A%20%20%20%20fn%20area%28%26self%29%20-%3E%20f64%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20%28self.width%2C%20self.height%29%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22width%20%2A%20height%22%29%0A%20%20%20%20%7D%0A%20%20%20%20fn%20perimeter%28%26self%29%20-%3E%20f64%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20todo%21%28%222%20%2A%20%28width%20%2B%20height%29%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Shape%20for%20Triangle%20%7B%0A%20%20%20%20fn%20name%28%26self%29%20-%3E%20%26%27static%20str%20%7B%0A%20%20%20%20%20%20%20%20%22Triangle%22%0A%20%20%20%20%7D%0A%20%20%20%20fn%20area%28%26self%29%20-%3E%20f64%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%20with%20Heron%27s%20formula%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20%28self.a%2C%20self.b%2C%20self.c%29%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22s%20%3D%20perimeter%20/%202%3B%20sqrt%28s%28s-a%29%28s-b%29%28s-c%29%29%22%29%0A%20%20%20%20%7D%0A%20%20%20%20fn%20perimeter%28%26self%29%20-%3E%20f64%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20todo%21%28%22a%20%2B%20b%20%2B%20c%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20total_area%28shapes%3A%20%26%5BBox%3Cdyn%20Shape%3E%5D%29%20-%3E%20f64%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20shapes%3B%0A%20%20%20%20todo%21%28%22Sum%20the%20area%20of%20every%20shape%22%29%0A%7D%0A%0Afn%20largest_shape%28shapes%3A%20%26%5BBox%3Cdyn%20Shape%3E%5D%29%20-%3E%20Option%3C%26dyn%20Shape%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20shapes%3B%0A%20%20%20%20todo%21%28%22Find%20the%20shape%20with%20the%20biggest%20area%20%28hint%3A%20f64%3A%3Atotal_cmp%29%22%29%0A%7D%0A%0Afn%20describe%3CS%3E%28shape%3A%20%26S%29%20-%3E%20String%0Awhere%0A%20%20%20%20S%3A%20Shape%20%2B%20%3FSized%2C%0A%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20shape%3B%0A%20%20%20%20todo%21%28%22%5C%22%3Cname%3E%3A%20area%3D%3Ca%3E%2C%20perimeter%3D%3Cp%3E%5C%22%20with%202%20decimals%22%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20shapes%3A%20Vec%3CBox%3Cdyn%20Shape%3E%3E%20%3D%20vec%21%5B%0A%20%20%20%20%20%20%20%20Box%3A%3Anew%28Circle%3A%3Anew%281.0%29.expect%28%22valid%20circle%22%29%29%2C%0A%20%20%20%20%20%20%20%20Box%3A%3Anew%28Rectangle%3A%3Anew%282.0%2C%203.0%29.expect%28%22valid%20rectangle%22%29%29%2C%0A%20%20%20%20%20%20%20%20Box%3A%3Anew%28Triangle%3A%3Anew%283.0%2C%204.0%2C%205.0%29.expect%28%22valid%20triangle%22%29%29%2C%0A%20%20%20%20%5D%3B%0A%0A%20%20%20%20for%20shape%20in%20%26shapes%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%7B%7D%22%2C%20describe%28shape.as_ref%28%29%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%22Total%20area%3A%20%7B%3A.2%7D%22%2C%20total_area%28%26shapes%29%29%3B%0A%20%20%20%20if%20let%20Some%28big%29%20%3D%20largest_shape%28%26shapes%29%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22Largest%3A%20%7Bbig%3A%3F%7D%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22Invalid%20triangle%3A%20%7B%3A%3F%7D%22%2C%0A%20%20%20%20%20%20%20%20Triangle%3A%3Anew%281.0%2C%202.0%2C%2010.0%29.err%28%29%0A%20%20%20%20%29%3B%0A%20%20%20%20println%21%28%22Invalid%20circle%3A%20%7B%3A%3F%7D%22%2C%20Circle%3A%3Anew%28-1.0%29.err%28%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20fn%20approx%28a%3A%20f64%2C%20b%3A%20f64%29%20-%3E%20bool%20%7B%0A%20%20%20%20%20%20%20%20%28a%20-%20b%29.abs%28%29%20%3C%201e-9%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20areas_and_perimeters%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28approx%28Circle%3A%3Anew%281.0%29.unwrap%28%29.area%28%29%2C%20PI%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28approx%28Rectangle%3A%3Anew%282.0%2C%203.0%29.unwrap%28%29.perimeter%28%29%2C%2010.0%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28approx%28Triangle%3A%3Anew%283.0%2C%204.0%2C%205.0%29.unwrap%28%29.area%28%29%2C%206.0%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20constructors_validate_input%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28Circle%3A%3Anew%28-1.0%29.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28Rectangle%3A%3Anew%280.0%2C%202.0%29.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20let%20err%20%3D%20Triangle%3A%3Anew%281.0%2C%202.0%2C%2010.0%29.unwrap_err%28%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20err.contains%28%22triangle%20inequality%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22unexpected%20error%3A%20%7Berr%7D%22%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20describe_formats_two_decimals%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20r%20%3D%20Rectangle%3A%3Anew%282.0%2C%203.0%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28describe%28%26r%29%2C%20%22Rectangle%3A%20area%3D6.00%2C%20perimeter%3D10.00%22%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/09-generics-traits-lifetimes/exercises/30-shape-trait.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::<span class="tok-type">f64</span>::consts::<span class="tok-type">PI</span>;
+<span class="tok-keyword">use</span> std::fmt::<span class="tok-type">Debug</span>;
+
+<span class="tok-keyword">trait</span> <span class="tok-type">Shape</span>: <span class="tok-type">Debug</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">name</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>;
+    <span class="tok-keyword">fn</span> <span class="tok-fn">area</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span>;
+    <span class="tok-keyword">fn</span> <span class="tok-fn">perimeter</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span>;
+}
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Circle</span> {
+    radius: <span class="tok-type">f64</span>,
+}
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Rectangle</span> {
+    width: <span class="tok-type">f64</span>,
+    height: <span class="tok-type">f64</span>,
+}
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Triangle</span> {
+    a: <span class="tok-type">f64</span>,
+    b: <span class="tok-type">f64</span>,
+    c: <span class="tok-type">f64</span>,
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Circle</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(radius: <span class="tok-type">f64</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-keyword">Self</span>, <span class="tok-type">String</span>&gt; {
+        <span class="tok-comment">// TODO: validate radius &gt; 0</span>
+        <span class="tok-type">Ok</span>(<span class="tok-keyword">Self</span> { radius })
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Rectangle</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(width: <span class="tok-type">f64</span>, height: <span class="tok-type">f64</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-keyword">Self</span>, <span class="tok-type">String</span>&gt; {
+        <span class="tok-comment">// TODO: validate both sides &gt; 0</span>
+        <span class="tok-type">Ok</span>(<span class="tok-keyword">Self</span> { width, height })
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Triangle</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(a: <span class="tok-type">f64</span>, b: <span class="tok-type">f64</span>, c: <span class="tok-type">f64</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-keyword">Self</span>, <span class="tok-type">String</span>&gt; {
+        <span class="tok-comment">// TODO: validate sides &gt; 0 and the triangle inequality</span>
+        <span class="tok-type">Ok</span>(<span class="tok-keyword">Self</span> { a, b, c })
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Shape</span> <span class="tok-keyword">for</span> <span class="tok-type">Circle</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">name</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span> {
+        <span class="tok-string">"Circle"</span>
+    }
+    <span class="tok-keyword">fn</span> <span class="tok-fn">area</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-keyword">let</span> _ = (<span class="tok-type">PI</span>, <span class="tok-keyword">self</span>.radius);
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"PI * r * r"</span>)
+    }
+    <span class="tok-keyword">fn</span> <span class="tok-fn">perimeter</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"2 * PI * r"</span>)
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Shape</span> <span class="tok-keyword">for</span> <span class="tok-type">Rectangle</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">name</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span> {
+        <span class="tok-string">"Rectangle"</span>
+    }
+    <span class="tok-keyword">fn</span> <span class="tok-fn">area</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-keyword">let</span> _ = (<span class="tok-keyword">self</span>.width, <span class="tok-keyword">self</span>.height);
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"width * height"</span>)
+    }
+    <span class="tok-keyword">fn</span> <span class="tok-fn">perimeter</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"2 * (width + height)"</span>)
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Shape</span> <span class="tok-keyword">for</span> <span class="tok-type">Triangle</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">name</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span> {
+        <span class="tok-string">"Triangle"</span>
+    }
+    <span class="tok-keyword">fn</span> <span class="tok-fn">area</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span> {
+        <span class="tok-comment">// TODO: implement with Heron's formula</span>
+        <span class="tok-keyword">let</span> _ = (<span class="tok-keyword">self</span>.a, <span class="tok-keyword">self</span>.b, <span class="tok-keyword">self</span>.c);
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"s = perimeter / 2; sqrt(s(s-a)(s-b)(s-c))"</span>)
+    }
+    <span class="tok-keyword">fn</span> <span class="tok-fn">perimeter</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"a + b + c"</span>)
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">total_area</span>(shapes: &amp;[<span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">Shape</span>&gt;]) -&gt; <span class="tok-type">f64</span> {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = shapes;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Sum the area of every shape"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">largest_shape</span>(shapes: &amp;[<span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">Shape</span>&gt;]) -&gt; <span class="tok-type">Option</span>&lt;&amp;<span class="tok-keyword">dyn</span> <span class="tok-type">Shape</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = shapes;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Find the shape with the biggest area (hint: f64::total_cmp)"</span>)
+}
+
+<span class="tok-keyword">fn</span> describe&lt;<span class="tok-type">S</span>&gt;(shape: &amp;<span class="tok-type">S</span>) -&gt; <span class="tok-type">String</span>
+<span class="tok-keyword">where</span>
+    <span class="tok-type">S</span>: <span class="tok-type">Shape</span> + ?<span class="tok-type">Sized</span>,
+{
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = shape;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"\"&lt;name&gt;: area=&lt;a&gt;, perimeter=&lt;p&gt;\" with 2 decimals"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> shapes: <span class="tok-type">Vec</span>&lt;<span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">Shape</span>&gt;&gt; = <span class="tok-macro">vec!</span>[
+        <span class="tok-type">Box</span>::<span class="tok-fn">new</span>(<span class="tok-type">Circle</span>::<span class="tok-fn">new</span>(<span class="tok-number">1.0</span>).<span class="tok-fn">expect</span>(<span class="tok-string">"valid circle"</span>)),
+        <span class="tok-type">Box</span>::<span class="tok-fn">new</span>(<span class="tok-type">Rectangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">2.0</span>, <span class="tok-number">3.0</span>).<span class="tok-fn">expect</span>(<span class="tok-string">"valid rectangle"</span>)),
+        <span class="tok-type">Box</span>::<span class="tok-fn">new</span>(<span class="tok-type">Triangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">3.0</span>, <span class="tok-number">4.0</span>, <span class="tok-number">5.0</span>).<span class="tok-fn">expect</span>(<span class="tok-string">"valid triangle"</span>)),
+    ];
+
+    <span class="tok-keyword">for</span> shape <span class="tok-keyword">in</span> &amp;shapes {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"{}"</span>, <span class="tok-fn">describe</span>(shape.<span class="tok-fn">as_ref</span>()));
+    }
+    <span class="tok-macro">println!</span>(<span class="tok-string">"Total area: {:.2}"</span>, <span class="tok-fn">total_area</span>(&amp;shapes));
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span>(big) = <span class="tok-fn">largest_shape</span>(&amp;shapes) {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"Largest: {big:?}"</span>);
+    }
+
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"Invalid triangle: {:?}"</span>,
+        <span class="tok-type">Triangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">1.0</span>, <span class="tok-number">2.0</span>, <span class="tok-number">10.0</span>).<span class="tok-fn">err</span>()
+    );
+    <span class="tok-macro">println!</span>(<span class="tok-string">"Invalid circle: {:?}"</span>, <span class="tok-type">Circle</span>::<span class="tok-fn">new</span>(-<span class="tok-number">1.0</span>).<span class="tok-fn">err</span>());
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">approx</span>(a: <span class="tok-type">f64</span>, b: <span class="tok-type">f64</span>) -&gt; <span class="tok-type">bool</span> {
+        (a - b).<span class="tok-fn">abs</span>() &lt; <span class="tok-number">1e-9</span>
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">areas_and_perimeters</span>() {
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">approx</span>(<span class="tok-type">Circle</span>::<span class="tok-fn">new</span>(<span class="tok-number">1.0</span>).<span class="tok-fn">unwrap</span>().<span class="tok-fn">area</span>(), <span class="tok-type">PI</span>));
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">approx</span>(<span class="tok-type">Rectangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">2.0</span>, <span class="tok-number">3.0</span>).<span class="tok-fn">unwrap</span>().<span class="tok-fn">perimeter</span>(), <span class="tok-number">10.0</span>));
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">approx</span>(<span class="tok-type">Triangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">3.0</span>, <span class="tok-number">4.0</span>, <span class="tok-number">5.0</span>).<span class="tok-fn">unwrap</span>().<span class="tok-fn">area</span>(), <span class="tok-number">6.0</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">constructors_validate_input</span>() {
+        <span class="tok-macro">assert!</span>(<span class="tok-type">Circle</span>::<span class="tok-fn">new</span>(-<span class="tok-number">1.0</span>).<span class="tok-fn">is_err</span>());
+        <span class="tok-macro">assert!</span>(<span class="tok-type">Rectangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">0.0</span>, <span class="tok-number">2.0</span>).<span class="tok-fn">is_err</span>());
+        <span class="tok-keyword">let</span> err = <span class="tok-type">Triangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">1.0</span>, <span class="tok-number">2.0</span>, <span class="tok-number">10.0</span>).<span class="tok-fn">unwrap_err</span>();
+        <span class="tok-macro">assert!</span>(
+            err.<span class="tok-fn">contains</span>(<span class="tok-string">"triangle inequality"</span>),
+            <span class="tok-string">"unexpected error: {err}"</span>
+        );
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">describe_formats_two_decimals</span>() {
+        <span class="tok-keyword">let</span> r = <span class="tok-type">Rectangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">2.0</span>, <span class="tok-number">3.0</span>).<span class="tok-fn">unwrap</span>();
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">describe</span>(&amp;r), <span class="tok-string">"Rectangle: area=6.00, perimeter=10.00"</span>);
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/09-generics-traits-lifetimes/30-shape-trait.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Af64%3A%3Aconsts%3A%3API%3B%0Ause%20std%3A%3Afmt%3A%3ADebug%3B%0A%0Atrait%20Shape%3A%20Debug%20%7B%0A%20%20%20%20fn%20name%28%26self%29%20-%3E%20%26%27static%20str%3B%0A%20%20%20%20fn%20area%28%26self%29%20-%3E%20f64%3B%0A%20%20%20%20fn%20perimeter%28%26self%29%20-%3E%20f64%3B%0A%7D%0A%0A%23%5Bderive%28Debug%29%5D%0Astruct%20Circle%20%7B%0A%20%20%20%20radius%3A%20f64%2C%0A%7D%0A%0A%23%5Bderive%28Debug%29%5D%0Astruct%20Rectangle%20%7B%0A%20%20%20%20width%3A%20f64%2C%0A%20%20%20%20height%3A%20f64%2C%0A%7D%0A%0A%23%5Bderive%28Debug%29%5D%0Astruct%20Triangle%20%7B%0A%20%20%20%20a%3A%20f64%2C%0A%20%20%20%20b%3A%20f64%2C%0A%20%20%20%20c%3A%20f64%2C%0A%7D%0A%0A%23%5Bderive%28Debug%29%5D%0Astruct%20Square%28Rectangle%29%3B%0A%0Afn%20ensure_positive%28value%3A%20f64%2C%20what%3A%20%26str%29%20-%3E%20Result%3C%28%29%2C%20String%3E%20%7B%0A%20%20%20%20if%20value%20%3E%200.0%20%26%26%20value.is_finite%28%29%20%7B%0A%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20Err%28format%21%28%22%7Bwhat%7D%20must%20be%20a%20positive%20number%2C%20got%20%7Bvalue%7D%22%29%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Circle%20%7B%0A%20%20%20%20fn%20new%28radius%3A%20f64%29%20-%3E%20Result%3CSelf%2C%20String%3E%20%7B%0A%20%20%20%20%20%20%20%20ensure_positive%28radius%2C%20%22radius%22%29%3F%3B%0A%20%20%20%20%20%20%20%20Ok%28Self%20%7B%20radius%20%7D%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Rectangle%20%7B%0A%20%20%20%20fn%20new%28width%3A%20f64%2C%20height%3A%20f64%29%20-%3E%20Result%3CSelf%2C%20String%3E%20%7B%0A%20%20%20%20%20%20%20%20ensure_positive%28width%2C%20%22width%22%29%3F%3B%0A%20%20%20%20%20%20%20%20ensure_positive%28height%2C%20%22height%22%29%3F%3B%0A%20%20%20%20%20%20%20%20Ok%28Self%20%7B%20width%2C%20height%20%7D%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Triangle%20%7B%0A%20%20%20%20fn%20new%28a%3A%20f64%2C%20b%3A%20f64%2C%20c%3A%20f64%29%20-%3E%20Result%3CSelf%2C%20String%3E%20%7B%0A%20%20%20%20%20%20%20%20for%20%28side%2C%20name%29%20in%20%5B%28a%2C%20%22a%22%29%2C%20%28b%2C%20%22b%22%29%2C%20%28c%2C%20%22c%22%29%5D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20ensure_positive%28side%2C%20name%29%3F%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20if%20a%20%2B%20b%20%3C%3D%20c%20%7C%7C%20a%20%2B%20c%20%3C%3D%20b%20%7C%7C%20b%20%2B%20c%20%3C%3D%20a%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20Err%28format%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22sides%20%7Ba%7D%2C%20%7Bb%7D%2C%20%7Bc%7D%20violate%20the%20triangle%20inequality%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20Ok%28Self%20%7B%20a%2C%20b%2C%20c%20%7D%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Square%20%7B%0A%20%20%20%20fn%20new%28side%3A%20f64%29%20-%3E%20Result%3CSelf%2C%20String%3E%20%7B%0A%20%20%20%20%20%20%20%20Rectangle%3A%3Anew%28side%2C%20side%29.map%28Square%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Shape%20for%20Circle%20%7B%0A%20%20%20%20fn%20name%28%26self%29%20-%3E%20%26%27static%20str%20%7B%0A%20%20%20%20%20%20%20%20%22Circle%22%0A%20%20%20%20%7D%0A%20%20%20%20fn%20area%28%26self%29%20-%3E%20f64%20%7B%0A%20%20%20%20%20%20%20%20PI%20%2A%20self.radius%20%2A%20self.radius%0A%20%20%20%20%7D%0A%20%20%20%20fn%20perimeter%28%26self%29%20-%3E%20f64%20%7B%0A%20%20%20%20%20%20%20%202.0%20%2A%20PI%20%2A%20self.radius%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Shape%20for%20Rectangle%20%7B%0A%20%20%20%20fn%20name%28%26self%29%20-%3E%20%26%27static%20str%20%7B%0A%20%20%20%20%20%20%20%20%22Rectangle%22%0A%20%20%20%20%7D%0A%20%20%20%20fn%20area%28%26self%29%20-%3E%20f64%20%7B%0A%20%20%20%20%20%20%20%20self.width%20%2A%20self.height%0A%20%20%20%20%7D%0A%20%20%20%20fn%20perimeter%28%26self%29%20-%3E%20f64%20%7B%0A%20%20%20%20%20%20%20%202.0%20%2A%20%28self.width%20%2B%20self.height%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Shape%20for%20Triangle%20%7B%0A%20%20%20%20fn%20name%28%26self%29%20-%3E%20%26%27static%20str%20%7B%0A%20%20%20%20%20%20%20%20%22Triangle%22%0A%20%20%20%20%7D%0A%20%20%20%20fn%20area%28%26self%29%20-%3E%20f64%20%7B%0A%20%20%20%20%20%20%20%20let%20s%20%3D%20self.perimeter%28%29%20/%202.0%3B%0A%20%20%20%20%20%20%20%20%28s%20%2A%20%28s%20-%20self.a%29%20%2A%20%28s%20-%20self.b%29%20%2A%20%28s%20-%20self.c%29%29.sqrt%28%29%0A%20%20%20%20%7D%0A%20%20%20%20fn%20perimeter%28%26self%29%20-%3E%20f64%20%7B%0A%20%20%20%20%20%20%20%20self.a%20%2B%20self.b%20%2B%20self.c%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Shape%20for%20Square%20%7B%0A%20%20%20%20fn%20name%28%26self%29%20-%3E%20%26%27static%20str%20%7B%0A%20%20%20%20%20%20%20%20%22Square%22%0A%20%20%20%20%7D%0A%20%20%20%20fn%20area%28%26self%29%20-%3E%20f64%20%7B%0A%20%20%20%20%20%20%20%20self.0.area%28%29%0A%20%20%20%20%7D%0A%20%20%20%20fn%20perimeter%28%26self%29%20-%3E%20f64%20%7B%0A%20%20%20%20%20%20%20%20self.0.perimeter%28%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20total_area%28shapes%3A%20%26%5BBox%3Cdyn%20Shape%3E%5D%29%20-%3E%20f64%20%7B%0A%20%20%20%20shapes.iter%28%29.map%28%7Cs%7C%20s.area%28%29%29.sum%28%29%0A%7D%0A%0Afn%20largest_shape%28shapes%3A%20%26%5BBox%3Cdyn%20Shape%3E%5D%29%20-%3E%20Option%3C%26dyn%20Shape%3E%20%7B%0A%20%20%20%20shapes%0A%20%20%20%20%20%20%20%20.iter%28%29%0A%20%20%20%20%20%20%20%20.max_by%28%7Ca%2C%20b%7C%20a.area%28%29.total_cmp%28%26b.area%28%29%29%29%0A%20%20%20%20%20%20%20%20.map%28%7Cboxed%7C%20boxed.as_ref%28%29%29%0A%7D%0A%0Afn%20describe%3CS%3E%28shape%3A%20%26S%29%20-%3E%20String%0Awhere%0A%20%20%20%20S%3A%20Shape%20%2B%20%3FSized%2C%0A%7B%0A%20%20%20%20format%21%28%0A%20%20%20%20%20%20%20%20%22%7B%7D%3A%20area%3D%7B%3A.2%7D%2C%20perimeter%3D%7B%3A.2%7D%22%2C%0A%20%20%20%20%20%20%20%20shape.name%28%29%2C%0A%20%20%20%20%20%20%20%20shape.area%28%29%2C%0A%20%20%20%20%20%20%20%20shape.perimeter%28%29%0A%20%20%20%20%29%0A%7D%0A%0Afn%20build_shapes%28%29%20-%3E%20Result%3CVec%3CBox%3Cdyn%20Shape%3E%3E%2C%20String%3E%20%7B%0A%20%20%20%20Ok%28vec%21%5B%0A%20%20%20%20%20%20%20%20Box%3A%3Anew%28Circle%3A%3Anew%281.0%29%3F%29%2C%0A%20%20%20%20%20%20%20%20Box%3A%3Anew%28Rectangle%3A%3Anew%282.0%2C%203.0%29%3F%29%2C%0A%20%20%20%20%20%20%20%20Box%3A%3Anew%28Triangle%3A%3Anew%283.0%2C%204.0%2C%205.0%29%3F%29%2C%0A%20%20%20%20%20%20%20%20Box%3A%3Anew%28Square%3A%3Anew%282.5%29%3F%29%2C%0A%20%20%20%20%5D%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20mut%20shapes%20%3D%20match%20build_shapes%28%29%20%7B%0A%20%20%20%20%20%20%20%20Ok%28shapes%29%20%3D%3E%20shapes%2C%0A%20%20%20%20%20%20%20%20Err%28e%29%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20eprintln%21%28%22could%20not%20build%20shapes%3A%20%7Be%7D%22%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%3B%0A%0A%20%20%20%20for%20shape%20in%20%26shapes%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%7B%7D%22%2C%20describe%28shape.as_ref%28%29%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%22Total%20area%3A%20%7B%3A.2%7D%22%2C%20total_area%28%26shapes%29%29%3B%0A%20%20%20%20if%20let%20Some%28big%29%20%3D%20largest_shape%28%26shapes%29%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22Largest%3A%20%7Bbig%3A%3F%7D%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20shapes.sort_by%28%7Ca%2C%20b%7C%20b.area%28%29.total_cmp%28%26a.area%28%29%29%29%3B%0A%20%20%20%20let%20order%3A%20Vec%3C%26str%3E%20%3D%20shapes.iter%28%29.map%28%7Cs%7C%20s.name%28%29%29.collect%28%29%3B%0A%20%20%20%20println%21%28%22Sorted%20by%20area%20%28desc%29%3A%20%7Border%3A%3F%7D%22%29%3B%0A%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22Invalid%20triangle%3A%20%7B%3A%3F%7D%22%2C%0A%20%20%20%20%20%20%20%20Triangle%3A%3Anew%281.0%2C%202.0%2C%2010.0%29.err%28%29%0A%20%20%20%20%29%3B%0A%20%20%20%20println%21%28%22Invalid%20circle%3A%20%7B%3A%3F%7D%22%2C%20Circle%3A%3Anew%28-1.0%29.err%28%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20fn%20approx%28a%3A%20f64%2C%20b%3A%20f64%29%20-%3E%20bool%20%7B%0A%20%20%20%20%20%20%20%20%28a%20-%20b%29.abs%28%29%20%3C%201e-9%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20areas_and_perimeters%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28approx%28Circle%3A%3Anew%281.0%29.unwrap%28%29.area%28%29%2C%20PI%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28approx%28Rectangle%3A%3Anew%282.0%2C%203.0%29.unwrap%28%29.perimeter%28%29%2C%2010.0%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28approx%28Triangle%3A%3Anew%283.0%2C%204.0%2C%205.0%29.unwrap%28%29.area%28%29%2C%206.0%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20constructors_validate_input%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28Circle%3A%3Anew%28-1.0%29.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28Rectangle%3A%3Anew%280.0%2C%202.0%29.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20let%20err%20%3D%20Triangle%3A%3Anew%281.0%2C%202.0%2C%2010.0%29.unwrap_err%28%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20err.contains%28%22triangle%20inequality%22%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22unexpected%20error%3A%20%7Berr%7D%22%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20aggregates_over_trait_objects%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20shapes%3A%20Vec%3CBox%3Cdyn%20Shape%3E%3E%20%3D%20vec%21%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20Box%3A%3Anew%28Rectangle%3A%3Anew%281.0%2C%201.0%29.unwrap%28%29%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Box%3A%3Anew%28Rectangle%3A%3Anew%282.0%2C%205.0%29.unwrap%28%29%29%2C%0A%20%20%20%20%20%20%20%20%5D%3B%0A%20%20%20%20%20%20%20%20assert%21%28approx%28total_area%28%26shapes%29%2C%2011.0%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28approx%28largest_shape%28%26shapes%29.unwrap%28%29.area%28%29%2C%2010.0%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28largest_shape%28%26%5B%5D%29.is_none%28%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20describe_formats_two_decimals%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20r%20%3D%20Rectangle%3A%3Anew%282.0%2C%203.0%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28describe%28%26r%29%2C%20%22Rectangle%3A%20area%3D6.00%2C%20perimeter%3D10.00%22%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/09-generics-traits-lifetimes/30-shape-trait.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::<span class="tok-type">f64</span>::consts::<span class="tok-type">PI</span>;
+<span class="tok-keyword">use</span> std::fmt::<span class="tok-type">Debug</span>;
+
+<span class="tok-keyword">trait</span> <span class="tok-type">Shape</span>: <span class="tok-type">Debug</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">name</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>;
+    <span class="tok-keyword">fn</span> <span class="tok-fn">area</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span>;
+    <span class="tok-keyword">fn</span> <span class="tok-fn">perimeter</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span>;
+}
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Circle</span> {
+    radius: <span class="tok-type">f64</span>,
+}
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Rectangle</span> {
+    width: <span class="tok-type">f64</span>,
+    height: <span class="tok-type">f64</span>,
+}
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Triangle</span> {
+    a: <span class="tok-type">f64</span>,
+    b: <span class="tok-type">f64</span>,
+    c: <span class="tok-type">f64</span>,
+}
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Square</span>(<span class="tok-type">Rectangle</span>);
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">ensure_positive</span>(value: <span class="tok-type">f64</span>, what: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">String</span>&gt; {
+    <span class="tok-keyword">if</span> value &gt; <span class="tok-number">0.0</span> &amp;&amp; value.<span class="tok-fn">is_finite</span>() {
+        <span class="tok-type">Ok</span>(())
+    } <span class="tok-keyword">else</span> {
+        <span class="tok-type">Err</span>(<span class="tok-macro">format!</span>(<span class="tok-string">"{what} must be a positive number, got {value}"</span>))
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Circle</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(radius: <span class="tok-type">f64</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-keyword">Self</span>, <span class="tok-type">String</span>&gt; {
+        <span class="tok-fn">ensure_positive</span>(radius, <span class="tok-string">"radius"</span>)?;
+        <span class="tok-type">Ok</span>(<span class="tok-keyword">Self</span> { radius })
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Rectangle</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(width: <span class="tok-type">f64</span>, height: <span class="tok-type">f64</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-keyword">Self</span>, <span class="tok-type">String</span>&gt; {
+        <span class="tok-fn">ensure_positive</span>(width, <span class="tok-string">"width"</span>)?;
+        <span class="tok-fn">ensure_positive</span>(height, <span class="tok-string">"height"</span>)?;
+        <span class="tok-type">Ok</span>(<span class="tok-keyword">Self</span> { width, height })
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Triangle</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(a: <span class="tok-type">f64</span>, b: <span class="tok-type">f64</span>, c: <span class="tok-type">f64</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-keyword">Self</span>, <span class="tok-type">String</span>&gt; {
+        <span class="tok-keyword">for</span> (side, name) <span class="tok-keyword">in</span> [(a, <span class="tok-string">"a"</span>), (b, <span class="tok-string">"b"</span>), (c, <span class="tok-string">"c"</span>)] {
+            <span class="tok-fn">ensure_positive</span>(side, name)?;
+        }
+        <span class="tok-keyword">if</span> a + b &lt;= c || a + c &lt;= b || b + c &lt;= a {
+            <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-macro">format!</span>(
+                <span class="tok-string">"sides {a}, {b}, {c} violate the triangle inequality"</span>
+            ));
+        }
+        <span class="tok-type">Ok</span>(<span class="tok-keyword">Self</span> { a, b, c })
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Square</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(side: <span class="tok-type">f64</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-keyword">Self</span>, <span class="tok-type">String</span>&gt; {
+        <span class="tok-type">Rectangle</span>::<span class="tok-fn">new</span>(side, side).<span class="tok-fn">map</span>(<span class="tok-type">Square</span>)
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Shape</span> <span class="tok-keyword">for</span> <span class="tok-type">Circle</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">name</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span> {
+        <span class="tok-string">"Circle"</span>
+    }
+    <span class="tok-keyword">fn</span> <span class="tok-fn">area</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span> {
+        <span class="tok-type">PI</span> * <span class="tok-keyword">self</span>.radius * <span class="tok-keyword">self</span>.radius
+    }
+    <span class="tok-keyword">fn</span> <span class="tok-fn">perimeter</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span> {
+        <span class="tok-number">2.0</span> * <span class="tok-type">PI</span> * <span class="tok-keyword">self</span>.radius
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Shape</span> <span class="tok-keyword">for</span> <span class="tok-type">Rectangle</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">name</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span> {
+        <span class="tok-string">"Rectangle"</span>
+    }
+    <span class="tok-keyword">fn</span> <span class="tok-fn">area</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span> {
+        <span class="tok-keyword">self</span>.width * <span class="tok-keyword">self</span>.height
+    }
+    <span class="tok-keyword">fn</span> <span class="tok-fn">perimeter</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span> {
+        <span class="tok-number">2.0</span> * (<span class="tok-keyword">self</span>.width + <span class="tok-keyword">self</span>.height)
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Shape</span> <span class="tok-keyword">for</span> <span class="tok-type">Triangle</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">name</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span> {
+        <span class="tok-string">"Triangle"</span>
+    }
+    <span class="tok-keyword">fn</span> <span class="tok-fn">area</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span> {
+        <span class="tok-keyword">let</span> s = <span class="tok-keyword">self</span>.<span class="tok-fn">perimeter</span>() / <span class="tok-number">2.0</span>;
+        (s * (s - <span class="tok-keyword">self</span>.a) * (s - <span class="tok-keyword">self</span>.b) * (s - <span class="tok-keyword">self</span>.c)).<span class="tok-fn">sqrt</span>()
+    }
+    <span class="tok-keyword">fn</span> <span class="tok-fn">perimeter</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span> {
+        <span class="tok-keyword">self</span>.a + <span class="tok-keyword">self</span>.b + <span class="tok-keyword">self</span>.c
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Shape</span> <span class="tok-keyword">for</span> <span class="tok-type">Square</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">name</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span> {
+        <span class="tok-string">"Square"</span>
+    }
+    <span class="tok-keyword">fn</span> <span class="tok-fn">area</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span> {
+        <span class="tok-keyword">self</span>.<span class="tok-number">0</span>.<span class="tok-fn">area</span>()
+    }
+    <span class="tok-keyword">fn</span> <span class="tok-fn">perimeter</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">f64</span> {
+        <span class="tok-keyword">self</span>.<span class="tok-number">0</span>.<span class="tok-fn">perimeter</span>()
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">total_area</span>(shapes: &amp;[<span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">Shape</span>&gt;]) -&gt; <span class="tok-type">f64</span> {
+    shapes.<span class="tok-fn">iter</span>().<span class="tok-fn">map</span>(|s| s.<span class="tok-fn">area</span>()).<span class="tok-fn">sum</span>()
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">largest_shape</span>(shapes: &amp;[<span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">Shape</span>&gt;]) -&gt; <span class="tok-type">Option</span>&lt;&amp;<span class="tok-keyword">dyn</span> <span class="tok-type">Shape</span>&gt; {
+    shapes
+        .<span class="tok-fn">iter</span>()
+        .<span class="tok-fn">max_by</span>(|a, b| a.<span class="tok-fn">area</span>().<span class="tok-fn">total_cmp</span>(&amp;b.<span class="tok-fn">area</span>()))
+        .<span class="tok-fn">map</span>(|boxed| boxed.<span class="tok-fn">as_ref</span>())
+}
+
+<span class="tok-keyword">fn</span> describe&lt;<span class="tok-type">S</span>&gt;(shape: &amp;<span class="tok-type">S</span>) -&gt; <span class="tok-type">String</span>
+<span class="tok-keyword">where</span>
+    <span class="tok-type">S</span>: <span class="tok-type">Shape</span> + ?<span class="tok-type">Sized</span>,
+{
+    <span class="tok-macro">format!</span>(
+        <span class="tok-string">"{}: area={:.2}, perimeter={:.2}"</span>,
+        shape.<span class="tok-fn">name</span>(),
+        shape.<span class="tok-fn">area</span>(),
+        shape.<span class="tok-fn">perimeter</span>()
+    )
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">build_shapes</span>() -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">Vec</span>&lt;<span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">Shape</span>&gt;&gt;, <span class="tok-type">String</span>&gt; {
+    <span class="tok-type">Ok</span>(<span class="tok-macro">vec!</span>[
+        <span class="tok-type">Box</span>::<span class="tok-fn">new</span>(<span class="tok-type">Circle</span>::<span class="tok-fn">new</span>(<span class="tok-number">1.0</span>)?),
+        <span class="tok-type">Box</span>::<span class="tok-fn">new</span>(<span class="tok-type">Rectangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">2.0</span>, <span class="tok-number">3.0</span>)?),
+        <span class="tok-type">Box</span>::<span class="tok-fn">new</span>(<span class="tok-type">Triangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">3.0</span>, <span class="tok-number">4.0</span>, <span class="tok-number">5.0</span>)?),
+        <span class="tok-type">Box</span>::<span class="tok-fn">new</span>(<span class="tok-type">Square</span>::<span class="tok-fn">new</span>(<span class="tok-number">2.5</span>)?),
+    ])
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> shapes = <span class="tok-keyword">match</span> <span class="tok-fn">build_shapes</span>() {
+        <span class="tok-type">Ok</span>(shapes) =&gt; shapes,
+        <span class="tok-type">Err</span>(e) =&gt; {
+            <span class="tok-macro">eprintln!</span>(<span class="tok-string">"could not build shapes: {e}"</span>);
+            <span class="tok-keyword">return</span>;
+        }
+    };
+
+    <span class="tok-keyword">for</span> shape <span class="tok-keyword">in</span> &amp;shapes {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"{}"</span>, <span class="tok-fn">describe</span>(shape.<span class="tok-fn">as_ref</span>()));
+    }
+    <span class="tok-macro">println!</span>(<span class="tok-string">"Total area: {:.2}"</span>, <span class="tok-fn">total_area</span>(&amp;shapes));
+    <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span>(big) = <span class="tok-fn">largest_shape</span>(&amp;shapes) {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"Largest: {big:?}"</span>);
+    }
+
+    shapes.<span class="tok-fn">sort_by</span>(|a, b| b.<span class="tok-fn">area</span>().<span class="tok-fn">total_cmp</span>(&amp;a.<span class="tok-fn">area</span>()));
+    <span class="tok-keyword">let</span> order: <span class="tok-type">Vec</span>&lt;&amp;<span class="tok-type">str</span>&gt; = shapes.<span class="tok-fn">iter</span>().<span class="tok-fn">map</span>(|s| s.<span class="tok-fn">name</span>()).<span class="tok-fn">collect</span>();
+    <span class="tok-macro">println!</span>(<span class="tok-string">"Sorted by area (desc): {order:?}"</span>);
+
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"Invalid triangle: {:?}"</span>,
+        <span class="tok-type">Triangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">1.0</span>, <span class="tok-number">2.0</span>, <span class="tok-number">10.0</span>).<span class="tok-fn">err</span>()
+    );
+    <span class="tok-macro">println!</span>(<span class="tok-string">"Invalid circle: {:?}"</span>, <span class="tok-type">Circle</span>::<span class="tok-fn">new</span>(-<span class="tok-number">1.0</span>).<span class="tok-fn">err</span>());
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">approx</span>(a: <span class="tok-type">f64</span>, b: <span class="tok-type">f64</span>) -&gt; <span class="tok-type">bool</span> {
+        (a - b).<span class="tok-fn">abs</span>() &lt; <span class="tok-number">1e-9</span>
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">areas_and_perimeters</span>() {
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">approx</span>(<span class="tok-type">Circle</span>::<span class="tok-fn">new</span>(<span class="tok-number">1.0</span>).<span class="tok-fn">unwrap</span>().<span class="tok-fn">area</span>(), <span class="tok-type">PI</span>));
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">approx</span>(<span class="tok-type">Rectangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">2.0</span>, <span class="tok-number">3.0</span>).<span class="tok-fn">unwrap</span>().<span class="tok-fn">perimeter</span>(), <span class="tok-number">10.0</span>));
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">approx</span>(<span class="tok-type">Triangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">3.0</span>, <span class="tok-number">4.0</span>, <span class="tok-number">5.0</span>).<span class="tok-fn">unwrap</span>().<span class="tok-fn">area</span>(), <span class="tok-number">6.0</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">constructors_validate_input</span>() {
+        <span class="tok-macro">assert!</span>(<span class="tok-type">Circle</span>::<span class="tok-fn">new</span>(-<span class="tok-number">1.0</span>).<span class="tok-fn">is_err</span>());
+        <span class="tok-macro">assert!</span>(<span class="tok-type">Rectangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">0.0</span>, <span class="tok-number">2.0</span>).<span class="tok-fn">is_err</span>());
+        <span class="tok-keyword">let</span> err = <span class="tok-type">Triangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">1.0</span>, <span class="tok-number">2.0</span>, <span class="tok-number">10.0</span>).<span class="tok-fn">unwrap_err</span>();
+        <span class="tok-macro">assert!</span>(
+            err.<span class="tok-fn">contains</span>(<span class="tok-string">"triangle inequality"</span>),
+            <span class="tok-string">"unexpected error: {err}"</span>
+        );
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">aggregates_over_trait_objects</span>() {
+        <span class="tok-keyword">let</span> shapes: <span class="tok-type">Vec</span>&lt;<span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">Shape</span>&gt;&gt; = <span class="tok-macro">vec!</span>[
+            <span class="tok-type">Box</span>::<span class="tok-fn">new</span>(<span class="tok-type">Rectangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">1.0</span>, <span class="tok-number">1.0</span>).<span class="tok-fn">unwrap</span>()),
+            <span class="tok-type">Box</span>::<span class="tok-fn">new</span>(<span class="tok-type">Rectangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">2.0</span>, <span class="tok-number">5.0</span>).<span class="tok-fn">unwrap</span>()),
+        ];
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">approx</span>(<span class="tok-fn">total_area</span>(&amp;shapes), <span class="tok-number">11.0</span>));
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">approx</span>(<span class="tok-fn">largest_shape</span>(&amp;shapes).<span class="tok-fn">unwrap</span>().<span class="tok-fn">area</span>(), <span class="tok-number">10.0</span>));
+        <span class="tok-macro">assert!</span>(<span class="tok-fn">largest_shape</span>(&amp;[]).<span class="tok-fn">is_none</span>());
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">describe_formats_two_decimals</span>() {
+        <span class="tok-keyword">let</span> r = <span class="tok-type">Rectangle</span>::<span class="tok-fn">new</span>(<span class="tok-number">2.0</span>, <span class="tok-number">3.0</span>).<span class="tok-fn">unwrap</span>();
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">describe</span>(&amp;r), <span class="tok-string">"Rectangle: area=6.00, perimeter=10.00"</span>);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 30-shape-trait.rs -o 30-shape-trait &amp;&amp; ./30-shape-trait
+
+# run the unit tests
+rustc --edition 2021 --test 30-shape-trait.rs -o 30-shape-trait-tests &amp;&amp; ./30-shape-trait-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/29-printable-trait.html"><small>← Previous</small>29 · Printable Trait</a><a class="pager-link next" href="../exercises/31-repository-abstraction.html"><small>Next →</small>31 · Repository Abstraction</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

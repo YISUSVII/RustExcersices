@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>49 · Async API Client · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Build an async API client over a fake in-memory HTTP transport, with timeouts (a select-like future) and retries with backoff.">
+<meta property="og:title" content="49 · Async API Client · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Build an async API client over a fake in-memory HTTP transport, with timeouts (a select-like future) and retries with backoff.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/15-async-rust.html">Level 15 — Async Rust</a><span>/</span><span>Exercise 49</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 49 · Level 15 — Async Rust</div>
+  <h1>Async API Client</h1>
+  <p class="lead">Build an async API client over a fake in-memory HTTP transport, with timeouts (a select-like future) and retries with backoff.</p>
+  <div class="meta"><span class="badge diff-ninja">Ninja</span><span class="chip">async traits via boxed futures</span><span class="chip">`Pin&lt;Box&lt;dyn Future + Send + &#x27;a&gt;&gt;`</span><span class="chip">select/timeout futures</span><span class="chip">retry policies</span><span class="chip">error enums</span><span class="chip">`async fn` methods</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="49"> Mark as completed</label>
+</header>
+<section class="prose"><blockquote><p><strong>Real projects use a runtime and an HTTP crate.</strong> With Tokio + reqwest this is <code>tokio::time::timeout(dur, reqwest::get(url)).await</code>. Here everything is std-only: the <code>block_on</code>/<code>sleep</code> runtime from exercise 47 is provided, and the "network" is an in-memory fake, so you can focus on how timeouts and retries are built from futures.</p></blockquote>
+<h2 id="instructions">Instructions</h2>
+<ol><li>Implement the timeout combinator:
+<pre class="code" data-lang="rust"><code><span class="tok-keyword">struct</span> <span class="tok-type">Timeout</span>&lt;<span class="tok-type">F</span>&gt; { inner: <span class="tok-type">Pin</span>&lt;<span class="tok-type">Box</span>&lt;<span class="tok-type">F</span>&gt;&gt;, deadline: <span class="tok-type">Sleep</span> }
+<span class="tok-keyword">fn</span> timeout&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt;(duration: <span class="tok-type">Duration</span>, fut: <span class="tok-type">F</span>) -&gt; <span class="tok-type">Timeout</span>&lt;<span class="tok-type">F</span>&gt;
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt; <span class="tok-type">Future</span> <span class="tok-keyword">for</span> <span class="tok-type">Timeout</span>&lt;<span class="tok-type">F</span>&gt; { <span class="tok-keyword">type</span> <span class="tok-type">Output</span> = <span class="tok-type">Result</span>&lt;<span class="tok-type">F</span>::<span class="tok-type">Output</span>, <span class="tok-type">Elapsed</span>&gt;; ... }</code></pre>
+<p>Poll <code>inner</code> first (<code>Ready</code> → <code>Ok</code>), then <code>deadline</code> (<code>Ready</code> → <code>Err(Elapsed)</code>).</p></li><li>Use the "async trait" pattern:
+<pre class="code" data-lang="rust"><code><span class="tok-keyword">type</span> <span class="tok-type">BoxFuture</span>&lt;<span class="tok-lifetime">'a</span>, <span class="tok-type">T</span>&gt; = <span class="tok-type">Pin</span>&lt;<span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">Future</span>&lt;<span class="tok-type">Output</span> = <span class="tok-type">T</span>&gt; + <span class="tok-type">Send</span> + <span class="tok-lifetime">'a</span>&gt;&gt;;
+<span class="tok-keyword">trait</span> <span class="tok-type">Transport</span> { <span class="tok-keyword">fn</span> <span class="tok-fn">send</span>(&amp;<span class="tok-keyword">self</span>, req: <span class="tok-type">Request</span>) -&gt; <span class="tok-type">BoxFuture</span>&lt;<span class="tok-lifetime">'_</span>, <span class="tok-type">Result</span>&lt;<span class="tok-type">Response</span>, <span class="tok-type">TransportError</span>&gt;&gt;; }</code></pre></li><li>Implement <code>Transport for FakeTransport</code>: increment <code>calls</code>, await <code>sleep(latency)</code>, fail with <code>TransportError::ConnectionReset</code> while <code>failures_left &gt; 0</code> (decrementing it), otherwise return the configured route or a <code>404</code>.</li><li>Implement <code>ApiClient&lt;T: Transport&gt; { transport, max_retries, timeout, backoff }</code> with:
+<pre class="code" data-lang="rust"><code><span class="tok-keyword">async</span> <span class="tok-keyword">fn</span> <span class="tok-fn">get</span>(&amp;<span class="tok-keyword">self</span>, path: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">String</span>, <span class="tok-type">ApiError</span>&gt;</code></pre>
+<ul><li>map results: <code>Elapsed</code> → <code>ApiError::Timeout</code>, transport error → <code>ApiError::Transport(e)</code>, <code>2xx</code> → <code>Ok(body)</code>, otherwise <code>ApiError::Status(code)</code>;</li><li>retry while <code>error.is_retryable()</code> (timeouts, transport errors, <code>5xx</code>) and <code>attempt &lt; max_retries</code>, sleeping <code>backoff * attempt</code> between attempts.</li></ul></li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<ul><li>With 2 initial connection failures and <code>max_retries = 2</code>, <code>get("/users/1")</code> succeeds on the 3rd call.</li><li><code>get("/missing")</code> → <code>Err(Status(404))</code> after exactly <strong>1</strong> call (4xx is not retried).</li><li>With server latency 100 ms, timeout 20 ms and <code>max_retries = 1</code> → <code>Err(Timeout)</code> after 2 calls.</li><li><code>timeout(50ms, async { 7 })</code> → <code>Ok(7)</code>.</li></ul>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li><code>Box::pin(async move { ... })</code> turns an <code>async</code> block into the <code>BoxFuture</code> the trait returns; the <code>'_</code> lifetime lets the future borrow <code>self</code>.</li><li>Native <code>async fn</code> in traits is stable since Rust 1.75, but such traits are not object-safe (<code>dyn Transport</code> won't work) — that's why crates like <code>async-trait</code> box the future, as done here.</li><li>Struct-update syntax <code>ApiClient { timeout: ..., ..ApiClient::new(t) }</code> is handy for tests.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>The Tokio + reqwest equivalent:</p>
+<pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::time::<span class="tok-type">Duration</span>;
+
+<span class="tok-attr">#[tokio::main]</span>
+<span class="tok-keyword">async</span> <span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> std::error::<span class="tok-type">Error</span>&gt;&gt; {
+    <span class="tok-keyword">let</span> client = reqwest::<span class="tok-type">Client</span>::<span class="tok-fn">new</span>();
+    <span class="tok-keyword">for</span> attempt <span class="tok-keyword">in</span> <span class="tok-number">0</span>..<span class="tok-number">3</span> {
+        <span class="tok-keyword">match</span> tokio::time::<span class="tok-fn">timeout</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_secs</span>(<span class="tok-number">2</span>), client.<span class="tok-fn">get</span>(<span class="tok-string">"https://httpbin.org/get"</span>).<span class="tok-fn">send</span>()).<span class="tok-keyword">await</span> {
+            <span class="tok-type">Ok</span>(<span class="tok-type">Ok</span>(resp)) <span class="tok-keyword">if</span> resp.<span class="tok-fn">status</span>().<span class="tok-fn">is_success</span>() =&gt; { <span class="tok-macro">println!</span>(<span class="tok-string">"{}"</span>, resp.<span class="tok-fn">text</span>().<span class="tok-keyword">await</span>?); <span class="tok-keyword">break</span>; }
+            _ =&gt; tokio::time::<span class="tok-fn">sleep</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">100</span> * (attempt + <span class="tok-number">1</span>))).<span class="tok-keyword">await</span>,
+        }
+    }
+    <span class="tok-type">Ok</span>(())
+}</code></pre>
+<p>Add a <code>get_many(&amp;self, paths: &amp;[&amp;str])</code> that fetches all paths concurrently using your <code>join_all</code> from exercise 48, and add jitter to the backoff.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">15-async-rust/exercises/49-async-api-client.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=%23%21%5Ballow%28dead_code%2C%20unused_imports%2C%20unused_variables%29%5D%0Ause%20std%3A%3Acollections%3A%3AHashMap%3B%0Ause%20std%3A%3Afuture%3A%3AFuture%3B%0Ause%20std%3A%3Apin%3A%3A%7Bpin%2C%20Pin%7D%3B%0Ause%20std%3A%3Async%3A%3Aatomic%3A%3A%7BAtomicUsize%2C%20Ordering%7D%3B%0Ause%20std%3A%3Async%3A%3A%7BArc%2C%20Mutex%7D%3B%0Ause%20std%3A%3Atask%3A%3A%7BContext%2C%20Poll%2C%20Wake%2C%20Waker%7D%3B%0Ause%20std%3A%3Athread%3A%3A%7Bself%2C%20Thread%7D%3B%0Ause%20std%3A%3Atime%3A%3A%7BDuration%2C%20Instant%7D%3B%0A%0A//%20----------%20tiny%20runtime%20%28see%20exercise%2047%29%20----------%0A%0Astruct%20ThreadWaker%28Thread%29%3B%0A%0Aimpl%20Wake%20for%20ThreadWaker%20%7B%0A%20%20%20%20fn%20wake%28self%3A%20Arc%3CSelf%3E%29%20%7B%0A%20%20%20%20%20%20%20%20self.0.unpark%28%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20block_on%3CF%3A%20Future%3E%28fut%3A%20F%29%20-%3E%20F%3A%3AOutput%20%7B%0A%20%20%20%20let%20mut%20fut%20%3D%20pin%21%28fut%29%3B%0A%20%20%20%20let%20waker%20%3D%20Waker%3A%3Afrom%28Arc%3A%3Anew%28ThreadWaker%28thread%3A%3Acurrent%28%29%29%29%29%3B%0A%20%20%20%20let%20mut%20cx%20%3D%20Context%3A%3Afrom_waker%28%26waker%29%3B%0A%20%20%20%20loop%20%7B%0A%20%20%20%20%20%20%20%20if%20let%20Poll%3A%3AReady%28out%29%20%3D%20fut.as_mut%28%29.poll%28%26mut%20cx%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20out%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20thread%3A%3Apark%28%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bderive%28Default%29%5D%0Astruct%20TimerState%20%7B%0A%20%20%20%20completed%3A%20bool%2C%0A%20%20%20%20waker%3A%20Option%3CWaker%3E%2C%0A%7D%0A%0Astruct%20Sleep%20%7B%0A%20%20%20%20state%3A%20Arc%3CMutex%3CTimerState%3E%3E%2C%0A%7D%0A%0Afn%20sleep%28duration%3A%20Duration%29%20-%3E%20Sleep%20%7B%0A%20%20%20%20let%20state%20%3D%20Arc%3A%3Anew%28Mutex%3A%3Anew%28TimerState%3A%3Adefault%28%29%29%29%3B%0A%20%20%20%20let%20thread_state%20%3D%20Arc%3A%3Aclone%28%26state%29%3B%0A%20%20%20%20thread%3A%3Aspawn%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20thread%3A%3Asleep%28duration%29%3B%0A%20%20%20%20%20%20%20%20let%20mut%20s%20%3D%20thread_state.lock%28%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20s.completed%20%3D%20true%3B%0A%20%20%20%20%20%20%20%20if%20let%20Some%28w%29%20%3D%20s.waker.take%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20w.wake%28%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%29%3B%0A%20%20%20%20Sleep%20%7B%20state%20%7D%0A%7D%0A%0Aimpl%20Future%20for%20Sleep%20%7B%0A%20%20%20%20type%20Output%20%3D%20%28%29%3B%0A%20%20%20%20fn%20poll%28self%3A%20Pin%3C%26mut%20Self%3E%2C%20cx%3A%20%26mut%20Context%3C%27_%3E%29%20-%3E%20Poll%3C%28%29%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20s%20%3D%20self.state.lock%28%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20if%20s.completed%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Poll%3A%3AReady%28%28%29%29%0A%20%20%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20s.waker%20%3D%20Some%28cx.waker%28%29.clone%28%29%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20Poll%3A%3APending%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0A//%20----------%20timeout%3A%20a%20two-branch%20%22select%22%20----------%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Astruct%20Elapsed%3B%0A%0Astruct%20Timeout%3CF%3E%20%7B%0A%20%20%20%20inner%3A%20Pin%3CBox%3CF%3E%3E%2C%0A%20%20%20%20deadline%3A%20Sleep%2C%0A%7D%0A%0Afn%20timeout%3CF%3A%20Future%3E%28duration%3A%20Duration%2C%20fut%3A%20F%29%20-%3E%20Timeout%3CF%3E%20%7B%0A%20%20%20%20Timeout%20%7B%0A%20%20%20%20%20%20%20%20inner%3A%20Box%3A%3Apin%28fut%29%2C%0A%20%20%20%20%20%20%20%20deadline%3A%20sleep%28duration%29%2C%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%3CF%3A%20Future%3E%20Future%20for%20Timeout%3CF%3E%20%7B%0A%20%20%20%20type%20Output%20%3D%20Result%3CF%3A%3AOutput%2C%20Elapsed%3E%3B%0A%0A%20%20%20%20fn%20poll%28self%3A%20Pin%3C%26mut%20Self%3E%2C%20cx%3A%20%26mut%20Context%3C%27_%3E%29%20-%3E%20Poll%3CSelf%3A%3AOutput%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%20%E2%80%94%20poll%20%60inner%60%20first%20%28Ready%20%3D%3E%20Ok%29%2C%20then%20%60deadline%60%20%28Ready%20%3D%3E%20Err%28Elapsed%29%29%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20cx%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22A%20two-branch%20select%22%29%0A%20%20%20%20%7D%0A%7D%0A%0A//%20----------%20fake%20HTTP%20----------%0A%0A%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0Astruct%20Request%20%7B%0A%20%20%20%20method%3A%20%26%27static%20str%2C%0A%20%20%20%20path%3A%20String%2C%0A%7D%0A%0A%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0Astruct%20Response%20%7B%0A%20%20%20%20status%3A%20u16%2C%0A%20%20%20%20body%3A%20String%2C%0A%7D%0A%0A%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0Aenum%20TransportError%20%7B%0A%20%20%20%20ConnectionReset%2C%0A%7D%0A%0Atype%20BoxFuture%3C%27a%2C%20T%3E%20%3D%20Pin%3CBox%3Cdyn%20Future%3COutput%20%3D%20T%3E%20%2B%20Send%20%2B%20%27a%3E%3E%3B%0A%0A///%20An%20%22async%20trait%22%3A%20methods%20return%20boxed%20futures%2C%20which%20is%20what%20the%0A///%20%60async-trait%60%20crate%20generates%20and%20what%20keeps%20the%20trait%20object-safe.%0Atrait%20Transport%20%7B%0A%20%20%20%20fn%20send%28%26self%2C%20req%3A%20Request%29%20-%3E%20BoxFuture%3C%27_%2C%20Result%3CResponse%2C%20TransportError%3E%3E%3B%0A%7D%0A%0Astruct%20FakeTransport%20%7B%0A%20%20%20%20routes%3A%20HashMap%3CString%2C%20%28u16%2C%20String%29%3E%2C%0A%20%20%20%20latency%3A%20Duration%2C%0A%20%20%20%20failures_left%3A%20Mutex%3Cusize%3E%2C%0A%20%20%20%20calls%3A%20AtomicUsize%2C%0A%7D%0A%0Aimpl%20FakeTransport%20%7B%0A%20%20%20%20fn%20new%28latency%3A%20Duration%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20FakeTransport%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20routes%3A%20HashMap%3A%3Anew%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20latency%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20failures_left%3A%20Mutex%3A%3Anew%280%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20calls%3A%20AtomicUsize%3A%3Anew%280%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20route%28mut%20self%2C%20path%3A%20%26str%2C%20status%3A%20u16%2C%20body%3A%20%26str%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20self.routes.insert%28path.to_string%28%29%2C%20%28status%2C%20body.to_string%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20self%0A%20%20%20%20%7D%0A%0A%20%20%20%20///%20The%20first%20%60n%60%20requests%20fail%20with%20%60ConnectionReset%60.%0A%20%20%20%20fn%20failing_first%28self%2C%20n%3A%20usize%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20%2Aself.failures_left.lock%28%29.unwrap%28%29%20%3D%20n%3B%0A%20%20%20%20%20%20%20%20self%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20calls%28%26self%29%20-%3E%20usize%20%7B%0A%20%20%20%20%20%20%20%20self.calls.load%28Ordering%3A%3ASeqCst%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Transport%20for%20FakeTransport%20%7B%0A%20%20%20%20fn%20send%28%26self%2C%20req%3A%20Request%29%20-%3E%20BoxFuture%3C%27_%2C%20Result%3CResponse%2C%20TransportError%3E%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%20%E2%80%94%20return%20Box%3A%3Apin%28async%20move%20%7B%20...%20%7D%29%20that%3A%0A%20%20%20%20%20%20%20%20//%20%20%201.%20increments%20%60calls%60%2C%202.%20awaits%20sleep%28self.latency%29%2C%0A%20%20%20%20%20%20%20%20//%20%20%203.%20fails%20with%20ConnectionReset%20while%20failures_left%20%3E%200%20%28decrement%20it%29%2C%0A%20%20%20%20%20%20%20%20//%20%20%204.%20otherwise%20looks%20up%20the%20route%20%28default%20404%29.%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20req%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Fake%20network%20round-trip%22%29%0A%20%20%20%20%7D%0A%7D%0A%0A//%20----------%20client%20----------%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Aenum%20ApiError%20%7B%0A%20%20%20%20Timeout%2C%0A%20%20%20%20Transport%28TransportError%29%2C%0A%20%20%20%20Status%28u16%29%2C%0A%7D%0A%0Aimpl%20ApiError%20%7B%0A%20%20%20%20fn%20is_retryable%28%26self%29%20-%3E%20bool%20%7B%0A%20%20%20%20%20%20%20%20match%20self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20ApiError%3A%3ATimeout%20%7C%20ApiError%3A%3ATransport%28_%29%20%3D%3E%20true%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20ApiError%3A%3AStatus%28code%29%20%3D%3E%20%2Acode%20%3E%3D%20500%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Astruct%20ApiClient%3CT%3A%20Transport%3E%20%7B%0A%20%20%20%20transport%3A%20T%2C%0A%20%20%20%20max_retries%3A%20u32%2C%0A%20%20%20%20timeout%3A%20Duration%2C%0A%20%20%20%20backoff%3A%20Duration%2C%0A%7D%0A%0Aimpl%3CT%3A%20Transport%3E%20ApiClient%3CT%3E%20%7B%0A%20%20%20%20fn%20new%28transport%3A%20T%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20ApiClient%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20transport%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20max_retries%3A%202%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20timeout%3A%20Duration%3A%3Afrom_millis%28100%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20backoff%3A%20Duration%3A%3Afrom_millis%285%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20async%20fn%20get%28%26self%2C%20path%3A%20%26str%29%20-%3E%20Result%3CString%2C%20ApiError%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20//%20loop%3A%0A%20%20%20%20%20%20%20%20//%20%20%20send%20a%20GET%20Request%20wrapped%20in%20timeout%28self.timeout%2C%20...%29%0A%20%20%20%20%20%20%20%20//%20%20%20map%3A%20Elapsed%20-%3E%20Timeout%2C%20transport%20error%20-%3E%20Transport%2C%202xx%20-%3E%20Ok%28body%29%2C%20else%20Status%28code%29%0A%20%20%20%20%20%20%20%20//%20%20%20if%20the%20error%20is_retryable%28%29%20and%20attempt%20%3C%20max_retries%3A%20sleep%28backoff%20%2A%20attempt%29%20and%20retry%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20path%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Request%20with%20timeout%20and%20retries%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20transport%20%3D%20FakeTransport%3A%3Anew%28Duration%3A%3Afrom_millis%2820%29%29%0A%20%20%20%20%20%20%20%20.route%28%22/users/1%22%2C%20200%2C%20r%23%22%7B%22id%22%3A1%2C%22name%22%3A%22Ferris%22%7D%22%23%29%0A%20%20%20%20%20%20%20%20.route%28%22/broken%22%2C%20503%2C%20%22unavailable%22%29%0A%20%20%20%20%20%20%20%20.failing_first%282%29%3B%0A%20%20%20%20let%20client%20%3D%20ApiClient%3A%3Anew%28transport%29%3B%0A%0A%20%20%20%20block_on%28async%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22GET%20/users/1%20-%3E%20%7B%3A%3F%7D%22%2C%20client.get%28%22/users/1%22%29.await%29%3B%0A%20%20%20%20%20%20%20%20println%21%28%22calls%20so%20far%3A%20%7B%7D%22%2C%20client.transport.calls%28%29%29%3B%0A%20%20%20%20%20%20%20%20println%21%28%22GET%20/missing%20-%3E%20%7B%3A%3F%7D%22%2C%20client.get%28%22/missing%22%29.await%29%3B%0A%20%20%20%20%20%20%20%20println%21%28%22GET%20/broken%20%20-%3E%20%7B%3A%3F%7D%22%2C%20client.get%28%22/broken%22%29.await%29%3B%0A%20%20%20%20%7D%29%3B%0A%0A%20%20%20%20let%20slow%20%3D%20ApiClient%20%7B%0A%20%20%20%20%20%20%20%20timeout%3A%20Duration%3A%3Afrom_millis%2830%29%2C%0A%20%20%20%20%20%20%20%20max_retries%3A%201%2C%0A%20%20%20%20%20%20%20%20..ApiClient%3A%3Anew%28FakeTransport%3A%3Anew%28Duration%3A%3Afrom_millis%28100%29%29%29%0A%20%20%20%20%7D%3B%0A%20%20%20%20let%20start%20%3D%20Instant%3A%3Anow%28%29%3B%0A%20%20%20%20let%20res%20%3D%20block_on%28slow.get%28%22/anything%22%29%29%3B%0A%20%20%20%20println%21%28%22slow%20server%20-%3E%20%7Bres%3A%3F%7D%20after%20%7B%3A%3F%7D%22%2C%20start.elapsed%28%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20fn%20client%28t%3A%20FakeTransport%29%20-%3E%20ApiClient%3CFakeTransport%3E%20%7B%0A%20%20%20%20%20%20%20%20ApiClient%3A%3Anew%28t%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20successful_request%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20c%20%3D%20client%28FakeTransport%3A%3Anew%28Duration%3A%3Afrom_millis%285%29%29.route%28%22/ok%22%2C%20200%2C%20%22hi%22%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28block_on%28c.get%28%22/ok%22%29%29%2C%20Ok%28%22hi%22.to_string%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28c.transport.calls%28%29%2C%201%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20retries_transient_failures%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20t%20%3D%20FakeTransport%3A%3Anew%28Duration%3A%3Afrom_millis%285%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.route%28%22/ok%22%2C%20200%2C%20%22hi%22%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.failing_first%282%29%3B%0A%20%20%20%20%20%20%20%20let%20c%20%3D%20client%28t%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28block_on%28c.get%28%22/ok%22%29%29%2C%20Ok%28%22hi%22.to_string%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28c.transport.calls%28%29%2C%203%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20client_errors_are_not_retried%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20c%20%3D%20client%28FakeTransport%3A%3Anew%28Duration%3A%3Afrom_millis%285%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28block_on%28c.get%28%22/nope%22%29%29%2C%20Err%28ApiError%3A%3AStatus%28404%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28c.transport.calls%28%29%2C%201%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20times_out_and_gives_up_after_retries%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20c%20%3D%20ApiClient%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20timeout%3A%20Duration%3A%3Afrom_millis%2820%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20max_retries%3A%201%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20..client%28FakeTransport%3A%3Anew%28Duration%3A%3Afrom_millis%28100%29%29%29%0A%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28block_on%28c.get%28%22/slow%22%29%29%2C%20Err%28ApiError%3A%3ATimeout%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28c.transport.calls%28%29%2C%202%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20timeout_passes_fast_futures_through%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28block_on%28timeout%28Duration%3A%3Afrom_millis%2850%29%2C%20async%20%7B%207%20%7D%29%29%2C%20Ok%287%29%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/15-async-rust/exercises/49-async-api-client.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-attr">#![allow(dead_code, unused_imports, unused_variables)]</span>
+<span class="tok-keyword">use</span> std::collections::<span class="tok-type">HashMap</span>;
+<span class="tok-keyword">use</span> std::future::<span class="tok-type">Future</span>;
+<span class="tok-keyword">use</span> std::pin::{pin, <span class="tok-type">Pin</span>};
+<span class="tok-keyword">use</span> std::sync::atomic::{<span class="tok-type">AtomicUsize</span>, <span class="tok-type">Ordering</span>};
+<span class="tok-keyword">use</span> std::sync::{<span class="tok-type">Arc</span>, <span class="tok-type">Mutex</span>};
+<span class="tok-keyword">use</span> std::task::{<span class="tok-type">Context</span>, <span class="tok-type">Poll</span>, <span class="tok-type">Wake</span>, <span class="tok-type">Waker</span>};
+<span class="tok-keyword">use</span> std::thread::{<span class="tok-keyword">self</span>, <span class="tok-type">Thread</span>};
+<span class="tok-keyword">use</span> std::time::{<span class="tok-type">Duration</span>, <span class="tok-type">Instant</span>};
+
+<span class="tok-comment">// ---------- tiny runtime (see exercise 47) ----------</span>
+
+<span class="tok-keyword">struct</span> <span class="tok-type">ThreadWaker</span>(<span class="tok-type">Thread</span>);
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Wake</span> <span class="tok-keyword">for</span> <span class="tok-type">ThreadWaker</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">wake</span>(<span class="tok-keyword">self</span>: <span class="tok-type">Arc</span>&lt;<span class="tok-keyword">Self</span>&gt;) {
+        <span class="tok-keyword">self</span>.<span class="tok-number">0</span>.<span class="tok-fn">unpark</span>();
+    }
+}
+
+<span class="tok-keyword">fn</span> block_on&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt;(fut: <span class="tok-type">F</span>) -&gt; <span class="tok-type">F</span>::<span class="tok-type">Output</span> {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> fut = <span class="tok-macro">pin!</span>(fut);
+    <span class="tok-keyword">let</span> waker = <span class="tok-type">Waker</span>::<span class="tok-fn">from</span>(<span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">ThreadWaker</span>(thread::<span class="tok-fn">current</span>())));
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> cx = <span class="tok-type">Context</span>::<span class="tok-fn">from_waker</span>(&amp;waker);
+    <span class="tok-keyword">loop</span> {
+        <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Poll</span>::<span class="tok-type">Ready</span>(out) = fut.<span class="tok-fn">as_mut</span>().<span class="tok-fn">poll</span>(&amp;<span class="tok-keyword">mut</span> cx) {
+            <span class="tok-keyword">return</span> out;
+        }
+        thread::<span class="tok-fn">park</span>();
+    }
+}
+
+<span class="tok-attr">#[derive(Default)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">TimerState</span> {
+    completed: <span class="tok-type">bool</span>,
+    waker: <span class="tok-type">Option</span>&lt;<span class="tok-type">Waker</span>&gt;,
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">Sleep</span> {
+    state: <span class="tok-type">Arc</span>&lt;<span class="tok-type">Mutex</span>&lt;<span class="tok-type">TimerState</span>&gt;&gt;,
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">sleep</span>(duration: <span class="tok-type">Duration</span>) -&gt; <span class="tok-type">Sleep</span> {
+    <span class="tok-keyword">let</span> state = <span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">Mutex</span>::<span class="tok-fn">new</span>(<span class="tok-type">TimerState</span>::<span class="tok-fn">default</span>()));
+    <span class="tok-keyword">let</span> thread_state = <span class="tok-type">Arc</span>::<span class="tok-fn">clone</span>(&amp;state);
+    thread::<span class="tok-fn">spawn</span>(<span class="tok-keyword">move</span> || {
+        thread::<span class="tok-fn">sleep</span>(duration);
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> s = thread_state.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>();
+        s.completed = <span class="tok-keyword">true</span>;
+        <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span>(w) = s.waker.<span class="tok-fn">take</span>() {
+            w.<span class="tok-fn">wake</span>();
+        }
+    });
+    <span class="tok-type">Sleep</span> { state }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Future</span> <span class="tok-keyword">for</span> <span class="tok-type">Sleep</span> {
+    <span class="tok-keyword">type</span> <span class="tok-type">Output</span> = ();
+    <span class="tok-keyword">fn</span> <span class="tok-fn">poll</span>(<span class="tok-keyword">self</span>: <span class="tok-type">Pin</span>&lt;&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">Self</span>&gt;, cx: &amp;<span class="tok-keyword">mut</span> <span class="tok-type">Context</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; <span class="tok-type">Poll</span>&lt;()&gt; {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> s = <span class="tok-keyword">self</span>.state.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>();
+        <span class="tok-keyword">if</span> s.completed {
+            <span class="tok-type">Poll</span>::<span class="tok-type">Ready</span>(())
+        } <span class="tok-keyword">else</span> {
+            s.waker = <span class="tok-type">Some</span>(cx.<span class="tok-fn">waker</span>().<span class="tok-fn">clone</span>());
+            <span class="tok-type">Poll</span>::<span class="tok-type">Pending</span>
+        }
+    }
+}
+
+<span class="tok-comment">// ---------- timeout: a two-branch "select" ----------</span>
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Elapsed</span>;
+
+<span class="tok-keyword">struct</span> <span class="tok-type">Timeout</span>&lt;<span class="tok-type">F</span>&gt; {
+    inner: <span class="tok-type">Pin</span>&lt;<span class="tok-type">Box</span>&lt;<span class="tok-type">F</span>&gt;&gt;,
+    deadline: <span class="tok-type">Sleep</span>,
+}
+
+<span class="tok-keyword">fn</span> timeout&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt;(duration: <span class="tok-type">Duration</span>, fut: <span class="tok-type">F</span>) -&gt; <span class="tok-type">Timeout</span>&lt;<span class="tok-type">F</span>&gt; {
+    <span class="tok-type">Timeout</span> {
+        inner: <span class="tok-type">Box</span>::<span class="tok-fn">pin</span>(fut),
+        deadline: <span class="tok-fn">sleep</span>(duration),
+    }
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt; <span class="tok-type">Future</span> <span class="tok-keyword">for</span> <span class="tok-type">Timeout</span>&lt;<span class="tok-type">F</span>&gt; {
+    <span class="tok-keyword">type</span> <span class="tok-type">Output</span> = <span class="tok-type">Result</span>&lt;<span class="tok-type">F</span>::<span class="tok-type">Output</span>, <span class="tok-type">Elapsed</span>&gt;;
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">poll</span>(<span class="tok-keyword">self</span>: <span class="tok-type">Pin</span>&lt;&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">Self</span>&gt;, cx: &amp;<span class="tok-keyword">mut</span> <span class="tok-type">Context</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; <span class="tok-type">Poll</span>&lt;<span class="tok-keyword">Self</span>::<span class="tok-type">Output</span>&gt; {
+        <span class="tok-comment">// TODO: implement — poll `inner` first (Ready =&gt; Ok), then `deadline` (Ready =&gt; Err(Elapsed))</span>
+        <span class="tok-keyword">let</span> _ = cx;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"A two-branch select"</span>)
+    }
+}
+
+<span class="tok-comment">// ---------- fake HTTP ----------</span>
+
+<span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Request</span> {
+    method: &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>,
+    path: <span class="tok-type">String</span>,
+}
+
+<span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Response</span> {
+    status: <span class="tok-type">u16</span>,
+    body: <span class="tok-type">String</span>,
+}
+
+<span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">TransportError</span> {
+    <span class="tok-type">ConnectionReset</span>,
+}
+
+<span class="tok-keyword">type</span> <span class="tok-type">BoxFuture</span>&lt;<span class="tok-lifetime">'a</span>, <span class="tok-type">T</span>&gt; = <span class="tok-type">Pin</span>&lt;<span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">Future</span>&lt;<span class="tok-type">Output</span> = <span class="tok-type">T</span>&gt; + <span class="tok-type">Send</span> + <span class="tok-lifetime">'a</span>&gt;&gt;;
+
+<span class="tok-comment">/// An "async trait": methods return boxed futures, which is what the</span>
+<span class="tok-comment">/// `async-trait` crate generates and what keeps the trait object-safe.</span>
+<span class="tok-keyword">trait</span> <span class="tok-type">Transport</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">send</span>(&amp;<span class="tok-keyword">self</span>, req: <span class="tok-type">Request</span>) -&gt; <span class="tok-type">BoxFuture</span>&lt;<span class="tok-lifetime">'_</span>, <span class="tok-type">Result</span>&lt;<span class="tok-type">Response</span>, <span class="tok-type">TransportError</span>&gt;&gt;;
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">FakeTransport</span> {
+    routes: <span class="tok-type">HashMap</span>&lt;<span class="tok-type">String</span>, (<span class="tok-type">u16</span>, <span class="tok-type">String</span>)&gt;,
+    latency: <span class="tok-type">Duration</span>,
+    failures_left: <span class="tok-type">Mutex</span>&lt;<span class="tok-type">usize</span>&gt;,
+    calls: <span class="tok-type">AtomicUsize</span>,
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">FakeTransport</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(latency: <span class="tok-type">Duration</span>) -&gt; <span class="tok-keyword">Self</span> {
+        <span class="tok-type">FakeTransport</span> {
+            routes: <span class="tok-type">HashMap</span>::<span class="tok-fn">new</span>(),
+            latency,
+            failures_left: <span class="tok-type">Mutex</span>::<span class="tok-fn">new</span>(<span class="tok-number">0</span>),
+            calls: <span class="tok-type">AtomicUsize</span>::<span class="tok-fn">new</span>(<span class="tok-number">0</span>),
+        }
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">route</span>(<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, path: &amp;<span class="tok-type">str</span>, status: <span class="tok-type">u16</span>, body: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-keyword">Self</span> {
+        <span class="tok-keyword">self</span>.routes.<span class="tok-fn">insert</span>(path.<span class="tok-fn">to_string</span>(), (status, body.<span class="tok-fn">to_string</span>()));
+        <span class="tok-keyword">self</span>
+    }
+
+    <span class="tok-comment">/// The first `n` requests fail with `ConnectionReset`.</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">failing_first</span>(<span class="tok-keyword">self</span>, n: <span class="tok-type">usize</span>) -&gt; <span class="tok-keyword">Self</span> {
+        *<span class="tok-keyword">self</span>.failures_left.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>() = n;
+        <span class="tok-keyword">self</span>
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">calls</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">usize</span> {
+        <span class="tok-keyword">self</span>.calls.<span class="tok-fn">load</span>(<span class="tok-type">Ordering</span>::<span class="tok-type">SeqCst</span>)
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Transport</span> <span class="tok-keyword">for</span> <span class="tok-type">FakeTransport</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">send</span>(&amp;<span class="tok-keyword">self</span>, req: <span class="tok-type">Request</span>) -&gt; <span class="tok-type">BoxFuture</span>&lt;<span class="tok-lifetime">'_</span>, <span class="tok-type">Result</span>&lt;<span class="tok-type">Response</span>, <span class="tok-type">TransportError</span>&gt;&gt; {
+        <span class="tok-comment">// TODO: implement — return Box::pin(async move { ... }) that:</span>
+        <span class="tok-comment">//   1. increments `calls`, 2. awaits sleep(self.latency),</span>
+        <span class="tok-comment">//   3. fails with ConnectionReset while failures_left &gt; 0 (decrement it),</span>
+        <span class="tok-comment">//   4. otherwise looks up the route (default 404).</span>
+        <span class="tok-keyword">let</span> _ = req;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Fake network round-trip"</span>)
+    }
+}
+
+<span class="tok-comment">// ---------- client ----------</span>
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">ApiError</span> {
+    <span class="tok-type">Timeout</span>,
+    <span class="tok-type">Transport</span>(<span class="tok-type">TransportError</span>),
+    <span class="tok-type">Status</span>(<span class="tok-type">u16</span>),
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">ApiError</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">is_retryable</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">bool</span> {
+        <span class="tok-keyword">match</span> <span class="tok-keyword">self</span> {
+            <span class="tok-type">ApiError</span>::<span class="tok-type">Timeout</span> | <span class="tok-type">ApiError</span>::<span class="tok-type">Transport</span>(_) =&gt; <span class="tok-keyword">true</span>,
+            <span class="tok-type">ApiError</span>::<span class="tok-type">Status</span>(code) =&gt; *code &gt;= <span class="tok-number">500</span>,
+        }
+    }
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">ApiClient</span>&lt;<span class="tok-type">T</span>: <span class="tok-type">Transport</span>&gt; {
+    transport: <span class="tok-type">T</span>,
+    max_retries: <span class="tok-type">u32</span>,
+    timeout: <span class="tok-type">Duration</span>,
+    backoff: <span class="tok-type">Duration</span>,
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">T</span>: <span class="tok-type">Transport</span>&gt; <span class="tok-type">ApiClient</span>&lt;<span class="tok-type">T</span>&gt; {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(transport: <span class="tok-type">T</span>) -&gt; <span class="tok-keyword">Self</span> {
+        <span class="tok-type">ApiClient</span> {
+            transport,
+            max_retries: <span class="tok-number">2</span>,
+            timeout: <span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">100</span>),
+            backoff: <span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">5</span>),
+        }
+    }
+
+    <span class="tok-keyword">async</span> <span class="tok-keyword">fn</span> <span class="tok-fn">get</span>(&amp;<span class="tok-keyword">self</span>, path: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">String</span>, <span class="tok-type">ApiError</span>&gt; {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-comment">// loop:</span>
+        <span class="tok-comment">//   send a GET Request wrapped in timeout(self.timeout, ...)</span>
+        <span class="tok-comment">//   map: Elapsed -&gt; Timeout, transport error -&gt; Transport, 2xx -&gt; Ok(body), else Status(code)</span>
+        <span class="tok-comment">//   if the error is_retryable() and attempt &lt; max_retries: sleep(backoff * attempt) and retry</span>
+        <span class="tok-keyword">let</span> _ = path;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Request with timeout and retries"</span>)
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> transport = <span class="tok-type">FakeTransport</span>::<span class="tok-fn">new</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">20</span>))
+        .<span class="tok-fn">route</span>(<span class="tok-string">"/users/1"</span>, <span class="tok-number">200</span>, <span class="tok-string">r#"{"id":1,"name":"Ferris"}"#</span>)
+        .<span class="tok-fn">route</span>(<span class="tok-string">"/broken"</span>, <span class="tok-number">503</span>, <span class="tok-string">"unavailable"</span>)
+        .<span class="tok-fn">failing_first</span>(<span class="tok-number">2</span>);
+    <span class="tok-keyword">let</span> client = <span class="tok-type">ApiClient</span>::<span class="tok-fn">new</span>(transport);
+
+    <span class="tok-fn">block_on</span>(<span class="tok-keyword">async</span> {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"GET /users/1 -&gt; {:?}"</span>, client.<span class="tok-fn">get</span>(<span class="tok-string">"/users/1"</span>).<span class="tok-keyword">await</span>);
+        <span class="tok-macro">println!</span>(<span class="tok-string">"calls so far: {}"</span>, client.transport.<span class="tok-fn">calls</span>());
+        <span class="tok-macro">println!</span>(<span class="tok-string">"GET /missing -&gt; {:?}"</span>, client.<span class="tok-fn">get</span>(<span class="tok-string">"/missing"</span>).<span class="tok-keyword">await</span>);
+        <span class="tok-macro">println!</span>(<span class="tok-string">"GET /broken  -&gt; {:?}"</span>, client.<span class="tok-fn">get</span>(<span class="tok-string">"/broken"</span>).<span class="tok-keyword">await</span>);
+    });
+
+    <span class="tok-keyword">let</span> slow = <span class="tok-type">ApiClient</span> {
+        timeout: <span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">30</span>),
+        max_retries: <span class="tok-number">1</span>,
+        ..<span class="tok-type">ApiClient</span>::<span class="tok-fn">new</span>(<span class="tok-type">FakeTransport</span>::<span class="tok-fn">new</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">100</span>)))
+    };
+    <span class="tok-keyword">let</span> start = <span class="tok-type">Instant</span>::<span class="tok-fn">now</span>();
+    <span class="tok-keyword">let</span> res = <span class="tok-fn">block_on</span>(slow.<span class="tok-fn">get</span>(<span class="tok-string">"/anything"</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"slow server -&gt; {res:?} after {:?}"</span>, start.<span class="tok-fn">elapsed</span>());
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">client</span>(t: <span class="tok-type">FakeTransport</span>) -&gt; <span class="tok-type">ApiClient</span>&lt;<span class="tok-type">FakeTransport</span>&gt; {
+        <span class="tok-type">ApiClient</span>::<span class="tok-fn">new</span>(t)
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">successful_request</span>() {
+        <span class="tok-keyword">let</span> c = <span class="tok-fn">client</span>(<span class="tok-type">FakeTransport</span>::<span class="tok-fn">new</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">5</span>)).<span class="tok-fn">route</span>(<span class="tok-string">"/ok"</span>, <span class="tok-number">200</span>, <span class="tok-string">"hi"</span>));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">block_on</span>(c.<span class="tok-fn">get</span>(<span class="tok-string">"/ok"</span>)), <span class="tok-type">Ok</span>(<span class="tok-string">"hi"</span>.<span class="tok-fn">to_string</span>()));
+        <span class="tok-macro">assert_eq!</span>(c.transport.<span class="tok-fn">calls</span>(), <span class="tok-number">1</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">retries_transient_failures</span>() {
+        <span class="tok-keyword">let</span> t = <span class="tok-type">FakeTransport</span>::<span class="tok-fn">new</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">5</span>))
+            .<span class="tok-fn">route</span>(<span class="tok-string">"/ok"</span>, <span class="tok-number">200</span>, <span class="tok-string">"hi"</span>)
+            .<span class="tok-fn">failing_first</span>(<span class="tok-number">2</span>);
+        <span class="tok-keyword">let</span> c = <span class="tok-fn">client</span>(t);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">block_on</span>(c.<span class="tok-fn">get</span>(<span class="tok-string">"/ok"</span>)), <span class="tok-type">Ok</span>(<span class="tok-string">"hi"</span>.<span class="tok-fn">to_string</span>()));
+        <span class="tok-macro">assert_eq!</span>(c.transport.<span class="tok-fn">calls</span>(), <span class="tok-number">3</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">client_errors_are_not_retried</span>() {
+        <span class="tok-keyword">let</span> c = <span class="tok-fn">client</span>(<span class="tok-type">FakeTransport</span>::<span class="tok-fn">new</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">5</span>)));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">block_on</span>(c.<span class="tok-fn">get</span>(<span class="tok-string">"/nope"</span>)), <span class="tok-type">Err</span>(<span class="tok-type">ApiError</span>::<span class="tok-type">Status</span>(<span class="tok-number">404</span>)));
+        <span class="tok-macro">assert_eq!</span>(c.transport.<span class="tok-fn">calls</span>(), <span class="tok-number">1</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">times_out_and_gives_up_after_retries</span>() {
+        <span class="tok-keyword">let</span> c = <span class="tok-type">ApiClient</span> {
+            timeout: <span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">20</span>),
+            max_retries: <span class="tok-number">1</span>,
+            ..<span class="tok-fn">client</span>(<span class="tok-type">FakeTransport</span>::<span class="tok-fn">new</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">100</span>)))
+        };
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">block_on</span>(c.<span class="tok-fn">get</span>(<span class="tok-string">"/slow"</span>)), <span class="tok-type">Err</span>(<span class="tok-type">ApiError</span>::<span class="tok-type">Timeout</span>));
+        <span class="tok-macro">assert_eq!</span>(c.transport.<span class="tok-fn">calls</span>(), <span class="tok-number">2</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">timeout_passes_fast_futures_through</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">block_on</span>(<span class="tok-fn">timeout</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">50</span>), <span class="tok-keyword">async</span> { <span class="tok-number">7</span> })), <span class="tok-type">Ok</span>(<span class="tok-number">7</span>));
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/15-async-rust/49-async-api-client.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Acollections%3A%3AHashMap%3B%0Ause%20std%3A%3Afuture%3A%3AFuture%3B%0Ause%20std%3A%3Apin%3A%3A%7Bpin%2C%20Pin%7D%3B%0Ause%20std%3A%3Async%3A%3Aatomic%3A%3A%7BAtomicUsize%2C%20Ordering%7D%3B%0Ause%20std%3A%3Async%3A%3A%7BArc%2C%20Mutex%7D%3B%0Ause%20std%3A%3Atask%3A%3A%7BContext%2C%20Poll%2C%20Wake%2C%20Waker%7D%3B%0Ause%20std%3A%3Athread%3A%3A%7Bself%2C%20Thread%7D%3B%0Ause%20std%3A%3Atime%3A%3A%7BDuration%2C%20Instant%7D%3B%0A%0A//%20----------%20tiny%20runtime%20%28see%20exercise%2047%29%20----------%0A%0Astruct%20ThreadWaker%28Thread%29%3B%0A%0Aimpl%20Wake%20for%20ThreadWaker%20%7B%0A%20%20%20%20fn%20wake%28self%3A%20Arc%3CSelf%3E%29%20%7B%0A%20%20%20%20%20%20%20%20self.0.unpark%28%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20block_on%3CF%3A%20Future%3E%28fut%3A%20F%29%20-%3E%20F%3A%3AOutput%20%7B%0A%20%20%20%20let%20mut%20fut%20%3D%20pin%21%28fut%29%3B%0A%20%20%20%20let%20waker%20%3D%20Waker%3A%3Afrom%28Arc%3A%3Anew%28ThreadWaker%28thread%3A%3Acurrent%28%29%29%29%29%3B%0A%20%20%20%20let%20mut%20cx%20%3D%20Context%3A%3Afrom_waker%28%26waker%29%3B%0A%20%20%20%20loop%20%7B%0A%20%20%20%20%20%20%20%20if%20let%20Poll%3A%3AReady%28out%29%20%3D%20fut.as_mut%28%29.poll%28%26mut%20cx%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20out%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20thread%3A%3Apark%28%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bderive%28Default%29%5D%0Astruct%20TimerState%20%7B%0A%20%20%20%20completed%3A%20bool%2C%0A%20%20%20%20waker%3A%20Option%3CWaker%3E%2C%0A%7D%0A%0Astruct%20Sleep%20%7B%0A%20%20%20%20state%3A%20Arc%3CMutex%3CTimerState%3E%3E%2C%0A%7D%0A%0Afn%20sleep%28duration%3A%20Duration%29%20-%3E%20Sleep%20%7B%0A%20%20%20%20let%20state%20%3D%20Arc%3A%3Anew%28Mutex%3A%3Anew%28TimerState%3A%3Adefault%28%29%29%29%3B%0A%20%20%20%20let%20thread_state%20%3D%20Arc%3A%3Aclone%28%26state%29%3B%0A%20%20%20%20thread%3A%3Aspawn%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20thread%3A%3Asleep%28duration%29%3B%0A%20%20%20%20%20%20%20%20let%20mut%20s%20%3D%20thread_state.lock%28%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20s.completed%20%3D%20true%3B%0A%20%20%20%20%20%20%20%20if%20let%20Some%28w%29%20%3D%20s.waker.take%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20w.wake%28%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%29%3B%0A%20%20%20%20Sleep%20%7B%20state%20%7D%0A%7D%0A%0Aimpl%20Future%20for%20Sleep%20%7B%0A%20%20%20%20type%20Output%20%3D%20%28%29%3B%0A%20%20%20%20fn%20poll%28self%3A%20Pin%3C%26mut%20Self%3E%2C%20cx%3A%20%26mut%20Context%3C%27_%3E%29%20-%3E%20Poll%3C%28%29%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20s%20%3D%20self.state.lock%28%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20if%20s.completed%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Poll%3A%3AReady%28%28%29%29%0A%20%20%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20s.waker%20%3D%20Some%28cx.waker%28%29.clone%28%29%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20Poll%3A%3APending%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0A//%20----------%20timeout%3A%20a%20two-branch%20%22select%22%20----------%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Astruct%20Elapsed%3B%0A%0Astruct%20Timeout%3CF%3E%20%7B%0A%20%20%20%20inner%3A%20Pin%3CBox%3CF%3E%3E%2C%0A%20%20%20%20deadline%3A%20Sleep%2C%0A%7D%0A%0Afn%20timeout%3CF%3A%20Future%3E%28duration%3A%20Duration%2C%20fut%3A%20F%29%20-%3E%20Timeout%3CF%3E%20%7B%0A%20%20%20%20Timeout%20%7B%0A%20%20%20%20%20%20%20%20inner%3A%20Box%3A%3Apin%28fut%29%2C%0A%20%20%20%20%20%20%20%20deadline%3A%20sleep%28duration%29%2C%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%3CF%3A%20Future%3E%20Future%20for%20Timeout%3CF%3E%20%7B%0A%20%20%20%20type%20Output%20%3D%20Result%3CF%3A%3AOutput%2C%20Elapsed%3E%3B%0A%0A%20%20%20%20fn%20poll%28mut%20self%3A%20Pin%3C%26mut%20Self%3E%2C%20cx%3A%20%26mut%20Context%3C%27_%3E%29%20-%3E%20Poll%3CSelf%3A%3AOutput%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20Poll%20the%20real%20work%20first%20so%20a%20just-finished%20result%20wins%20over%20the%20deadline.%0A%20%20%20%20%20%20%20%20if%20let%20Poll%3A%3AReady%28v%29%20%3D%20self.inner.as_mut%28%29.poll%28cx%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20Poll%3A%3AReady%28Ok%28v%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20match%20Pin%3A%3Anew%28%26mut%20self.deadline%29.poll%28cx%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Poll%3A%3AReady%28%28%29%29%20%3D%3E%20Poll%3A%3AReady%28Err%28Elapsed%29%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Poll%3A%3APending%20%3D%3E%20Poll%3A%3APending%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0A//%20----------%20fake%20HTTP%20----------%0A%0A%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0Astruct%20Request%20%7B%0A%20%20%20%20method%3A%20%26%27static%20str%2C%0A%20%20%20%20path%3A%20String%2C%0A%7D%0A%0A%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0Astruct%20Response%20%7B%0A%20%20%20%20status%3A%20u16%2C%0A%20%20%20%20body%3A%20String%2C%0A%7D%0A%0A%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0Aenum%20TransportError%20%7B%0A%20%20%20%20ConnectionReset%2C%0A%7D%0A%0Atype%20BoxFuture%3C%27a%2C%20T%3E%20%3D%20Pin%3CBox%3Cdyn%20Future%3COutput%20%3D%20T%3E%20%2B%20Send%20%2B%20%27a%3E%3E%3B%0A%0A///%20An%20%22async%20trait%22%3A%20methods%20return%20boxed%20futures%2C%20which%20is%20what%20the%0A///%20%60async-trait%60%20crate%20generates%20and%20what%20keeps%20the%20trait%20object-safe.%0Atrait%20Transport%20%7B%0A%20%20%20%20fn%20send%28%26self%2C%20req%3A%20Request%29%20-%3E%20BoxFuture%3C%27_%2C%20Result%3CResponse%2C%20TransportError%3E%3E%3B%0A%7D%0A%0Astruct%20FakeTransport%20%7B%0A%20%20%20%20routes%3A%20HashMap%3CString%2C%20%28u16%2C%20String%29%3E%2C%0A%20%20%20%20latency%3A%20Duration%2C%0A%20%20%20%20failures_left%3A%20Mutex%3Cusize%3E%2C%0A%20%20%20%20calls%3A%20AtomicUsize%2C%0A%7D%0A%0Aimpl%20FakeTransport%20%7B%0A%20%20%20%20fn%20new%28latency%3A%20Duration%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20FakeTransport%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20routes%3A%20HashMap%3A%3Anew%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20latency%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20failures_left%3A%20Mutex%3A%3Anew%280%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20calls%3A%20AtomicUsize%3A%3Anew%280%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20route%28mut%20self%2C%20path%3A%20%26str%2C%20status%3A%20u16%2C%20body%3A%20%26str%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20self.routes.insert%28path.to_string%28%29%2C%20%28status%2C%20body.to_string%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20self%0A%20%20%20%20%7D%0A%0A%20%20%20%20///%20The%20first%20%60n%60%20requests%20fail%20with%20%60ConnectionReset%60.%0A%20%20%20%20fn%20failing_first%28self%2C%20n%3A%20usize%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20%2Aself.failures_left.lock%28%29.unwrap%28%29%20%3D%20n%3B%0A%20%20%20%20%20%20%20%20self%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20calls%28%26self%29%20-%3E%20usize%20%7B%0A%20%20%20%20%20%20%20%20self.calls.load%28Ordering%3A%3ASeqCst%29%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20Transport%20for%20FakeTransport%20%7B%0A%20%20%20%20fn%20send%28%26self%2C%20req%3A%20Request%29%20-%3E%20BoxFuture%3C%27_%2C%20Result%3CResponse%2C%20TransportError%3E%3E%20%7B%0A%20%20%20%20%20%20%20%20Box%3A%3Apin%28async%20move%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20self.calls.fetch_add%281%2C%20Ordering%3A%3ASeqCst%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20sleep%28self.latency%29.await%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20should_fail%20%3D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20mut%20left%20%3D%20self.failures_left.lock%28%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20fail%20%3D%20%2Aleft%20%3E%200%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%2Aleft%20%3D%20left.saturating_sub%281%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20fail%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20should_fail%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20Err%28TransportError%3A%3AConnectionReset%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20%28status%2C%20body%29%20%3D%20self%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.routes%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.get%28%26req.path%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.cloned%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.unwrap_or%28%28404%2C%20format%21%28%22%7B%7D%20%7B%7D%20not%20found%22%2C%20req.method%2C%20req.path%29%29%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20Ok%28Response%20%7B%20status%2C%20body%20%7D%29%0A%20%20%20%20%20%20%20%20%7D%29%0A%20%20%20%20%7D%0A%7D%0A%0A//%20----------%20client%20----------%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Aenum%20ApiError%20%7B%0A%20%20%20%20Timeout%2C%0A%20%20%20%20Transport%28TransportError%29%2C%0A%20%20%20%20Status%28u16%29%2C%0A%7D%0A%0Aimpl%20ApiError%20%7B%0A%20%20%20%20fn%20is_retryable%28%26self%29%20-%3E%20bool%20%7B%0A%20%20%20%20%20%20%20%20match%20self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20ApiError%3A%3ATimeout%20%7C%20ApiError%3A%3ATransport%28_%29%20%3D%3E%20true%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20ApiError%3A%3AStatus%28code%29%20%3D%3E%20%2Acode%20%3E%3D%20500%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Astruct%20ApiClient%3CT%3A%20Transport%3E%20%7B%0A%20%20%20%20transport%3A%20T%2C%0A%20%20%20%20max_retries%3A%20u32%2C%0A%20%20%20%20timeout%3A%20Duration%2C%0A%20%20%20%20backoff%3A%20Duration%2C%0A%7D%0A%0Aimpl%3CT%3A%20Transport%3E%20ApiClient%3CT%3E%20%7B%0A%20%20%20%20fn%20new%28transport%3A%20T%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20ApiClient%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20transport%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20max_retries%3A%202%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20timeout%3A%20Duration%3A%3Afrom_millis%28100%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20backoff%3A%20Duration%3A%3Afrom_millis%285%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20async%20fn%20get%28%26self%2C%20path%3A%20%26str%29%20-%3E%20Result%3CString%2C%20ApiError%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20attempt%20%3D%200%3B%0A%20%20%20%20%20%20%20%20loop%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20req%20%3D%20Request%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20method%3A%20%22GET%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20path%3A%20path.to_string%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20result%20%3D%20match%20timeout%28self.timeout%2C%20self.transport.send%28req%29%29.await%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Err%28Elapsed%29%20%3D%3E%20Err%28ApiError%3A%3ATimeout%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Ok%28Err%28e%29%29%20%3D%3E%20Err%28ApiError%3A%3ATransport%28e%29%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Ok%28Ok%28resp%29%29%20if%20%28200..300%29.contains%28%26resp.status%29%20%3D%3E%20Ok%28resp.body%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Ok%28Ok%28resp%29%29%20%3D%3E%20Err%28ApiError%3A%3AStatus%28resp.status%29%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20match%20result%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Err%28e%29%20if%20e.is_retryable%28%29%20%26%26%20attempt%20%3C%20self.max_retries%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20attempt%20%2B%3D%201%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20println%21%28%22%20%20attempt%20%7Battempt%7D%20failed%20with%20%7Be%3A%3F%7D%2C%20retrying...%22%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20sleep%28self.backoff%20%2A%20attempt%29.await%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20other%20%3D%3E%20return%20other%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20transport%20%3D%20FakeTransport%3A%3Anew%28Duration%3A%3Afrom_millis%2820%29%29%0A%20%20%20%20%20%20%20%20.route%28%22/users/1%22%2C%20200%2C%20r%23%22%7B%22id%22%3A1%2C%22name%22%3A%22Ferris%22%7D%22%23%29%0A%20%20%20%20%20%20%20%20.route%28%22/broken%22%2C%20503%2C%20%22unavailable%22%29%0A%20%20%20%20%20%20%20%20.failing_first%282%29%3B%0A%20%20%20%20let%20client%20%3D%20ApiClient%3A%3Anew%28transport%29%3B%0A%0A%20%20%20%20block_on%28async%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22GET%20/users/1%20-%3E%20%7B%3A%3F%7D%22%2C%20client.get%28%22/users/1%22%29.await%29%3B%0A%20%20%20%20%20%20%20%20println%21%28%22calls%20so%20far%3A%20%7B%7D%22%2C%20client.transport.calls%28%29%29%3B%0A%20%20%20%20%20%20%20%20println%21%28%22GET%20/missing%20-%3E%20%7B%3A%3F%7D%22%2C%20client.get%28%22/missing%22%29.await%29%3B%0A%20%20%20%20%20%20%20%20println%21%28%22GET%20/broken%20%20-%3E%20%7B%3A%3F%7D%22%2C%20client.get%28%22/broken%22%29.await%29%3B%0A%20%20%20%20%7D%29%3B%0A%0A%20%20%20%20let%20slow%20%3D%20ApiClient%20%7B%0A%20%20%20%20%20%20%20%20timeout%3A%20Duration%3A%3Afrom_millis%2830%29%2C%0A%20%20%20%20%20%20%20%20max_retries%3A%201%2C%0A%20%20%20%20%20%20%20%20..ApiClient%3A%3Anew%28FakeTransport%3A%3Anew%28Duration%3A%3Afrom_millis%28100%29%29%29%0A%20%20%20%20%7D%3B%0A%20%20%20%20let%20start%20%3D%20Instant%3A%3Anow%28%29%3B%0A%20%20%20%20let%20res%20%3D%20block_on%28slow.get%28%22/anything%22%29%29%3B%0A%20%20%20%20println%21%28%22slow%20server%20-%3E%20%7Bres%3A%3F%7D%20after%20%7B%3A%3F%7D%22%2C%20start.elapsed%28%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20fn%20client%28t%3A%20FakeTransport%29%20-%3E%20ApiClient%3CFakeTransport%3E%20%7B%0A%20%20%20%20%20%20%20%20ApiClient%3A%3Anew%28t%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20successful_request%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20c%20%3D%20client%28FakeTransport%3A%3Anew%28Duration%3A%3Afrom_millis%285%29%29.route%28%22/ok%22%2C%20200%2C%20%22hi%22%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28block_on%28c.get%28%22/ok%22%29%29%2C%20Ok%28%22hi%22.to_string%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28c.transport.calls%28%29%2C%201%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20retries_transient_failures%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20t%20%3D%20FakeTransport%3A%3Anew%28Duration%3A%3Afrom_millis%285%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.route%28%22/ok%22%2C%20200%2C%20%22hi%22%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.failing_first%282%29%3B%0A%20%20%20%20%20%20%20%20let%20c%20%3D%20client%28t%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28block_on%28c.get%28%22/ok%22%29%29%2C%20Ok%28%22hi%22.to_string%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28c.transport.calls%28%29%2C%203%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20client_errors_are_not_retried%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20c%20%3D%20client%28FakeTransport%3A%3Anew%28Duration%3A%3Afrom_millis%285%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28block_on%28c.get%28%22/nope%22%29%29%2C%20Err%28ApiError%3A%3AStatus%28404%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28c.transport.calls%28%29%2C%201%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20times_out_and_gives_up_after_retries%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20c%20%3D%20ApiClient%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20timeout%3A%20Duration%3A%3Afrom_millis%2820%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20max_retries%3A%201%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20..client%28FakeTransport%3A%3Anew%28Duration%3A%3Afrom_millis%28100%29%29%29%0A%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28block_on%28c.get%28%22/slow%22%29%29%2C%20Err%28ApiError%3A%3ATimeout%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28c.transport.calls%28%29%2C%202%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20timeout_passes_fast_futures_through%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28block_on%28timeout%28Duration%3A%3Afrom_millis%2850%29%2C%20async%20%7B%207%20%7D%29%29%2C%20Ok%287%29%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/15-async-rust/49-async-api-client.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::collections::<span class="tok-type">HashMap</span>;
+<span class="tok-keyword">use</span> std::future::<span class="tok-type">Future</span>;
+<span class="tok-keyword">use</span> std::pin::{pin, <span class="tok-type">Pin</span>};
+<span class="tok-keyword">use</span> std::sync::atomic::{<span class="tok-type">AtomicUsize</span>, <span class="tok-type">Ordering</span>};
+<span class="tok-keyword">use</span> std::sync::{<span class="tok-type">Arc</span>, <span class="tok-type">Mutex</span>};
+<span class="tok-keyword">use</span> std::task::{<span class="tok-type">Context</span>, <span class="tok-type">Poll</span>, <span class="tok-type">Wake</span>, <span class="tok-type">Waker</span>};
+<span class="tok-keyword">use</span> std::thread::{<span class="tok-keyword">self</span>, <span class="tok-type">Thread</span>};
+<span class="tok-keyword">use</span> std::time::{<span class="tok-type">Duration</span>, <span class="tok-type">Instant</span>};
+
+<span class="tok-comment">// ---------- tiny runtime (see exercise 47) ----------</span>
+
+<span class="tok-keyword">struct</span> <span class="tok-type">ThreadWaker</span>(<span class="tok-type">Thread</span>);
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Wake</span> <span class="tok-keyword">for</span> <span class="tok-type">ThreadWaker</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">wake</span>(<span class="tok-keyword">self</span>: <span class="tok-type">Arc</span>&lt;<span class="tok-keyword">Self</span>&gt;) {
+        <span class="tok-keyword">self</span>.<span class="tok-number">0</span>.<span class="tok-fn">unpark</span>();
+    }
+}
+
+<span class="tok-keyword">fn</span> block_on&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt;(fut: <span class="tok-type">F</span>) -&gt; <span class="tok-type">F</span>::<span class="tok-type">Output</span> {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> fut = <span class="tok-macro">pin!</span>(fut);
+    <span class="tok-keyword">let</span> waker = <span class="tok-type">Waker</span>::<span class="tok-fn">from</span>(<span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">ThreadWaker</span>(thread::<span class="tok-fn">current</span>())));
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> cx = <span class="tok-type">Context</span>::<span class="tok-fn">from_waker</span>(&amp;waker);
+    <span class="tok-keyword">loop</span> {
+        <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Poll</span>::<span class="tok-type">Ready</span>(out) = fut.<span class="tok-fn">as_mut</span>().<span class="tok-fn">poll</span>(&amp;<span class="tok-keyword">mut</span> cx) {
+            <span class="tok-keyword">return</span> out;
+        }
+        thread::<span class="tok-fn">park</span>();
+    }
+}
+
+<span class="tok-attr">#[derive(Default)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">TimerState</span> {
+    completed: <span class="tok-type">bool</span>,
+    waker: <span class="tok-type">Option</span>&lt;<span class="tok-type">Waker</span>&gt;,
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">Sleep</span> {
+    state: <span class="tok-type">Arc</span>&lt;<span class="tok-type">Mutex</span>&lt;<span class="tok-type">TimerState</span>&gt;&gt;,
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">sleep</span>(duration: <span class="tok-type">Duration</span>) -&gt; <span class="tok-type">Sleep</span> {
+    <span class="tok-keyword">let</span> state = <span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">Mutex</span>::<span class="tok-fn">new</span>(<span class="tok-type">TimerState</span>::<span class="tok-fn">default</span>()));
+    <span class="tok-keyword">let</span> thread_state = <span class="tok-type">Arc</span>::<span class="tok-fn">clone</span>(&amp;state);
+    thread::<span class="tok-fn">spawn</span>(<span class="tok-keyword">move</span> || {
+        thread::<span class="tok-fn">sleep</span>(duration);
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> s = thread_state.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>();
+        s.completed = <span class="tok-keyword">true</span>;
+        <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span>(w) = s.waker.<span class="tok-fn">take</span>() {
+            w.<span class="tok-fn">wake</span>();
+        }
+    });
+    <span class="tok-type">Sleep</span> { state }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Future</span> <span class="tok-keyword">for</span> <span class="tok-type">Sleep</span> {
+    <span class="tok-keyword">type</span> <span class="tok-type">Output</span> = ();
+    <span class="tok-keyword">fn</span> <span class="tok-fn">poll</span>(<span class="tok-keyword">self</span>: <span class="tok-type">Pin</span>&lt;&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">Self</span>&gt;, cx: &amp;<span class="tok-keyword">mut</span> <span class="tok-type">Context</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; <span class="tok-type">Poll</span>&lt;()&gt; {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> s = <span class="tok-keyword">self</span>.state.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>();
+        <span class="tok-keyword">if</span> s.completed {
+            <span class="tok-type">Poll</span>::<span class="tok-type">Ready</span>(())
+        } <span class="tok-keyword">else</span> {
+            s.waker = <span class="tok-type">Some</span>(cx.<span class="tok-fn">waker</span>().<span class="tok-fn">clone</span>());
+            <span class="tok-type">Poll</span>::<span class="tok-type">Pending</span>
+        }
+    }
+}
+
+<span class="tok-comment">// ---------- timeout: a two-branch "select" ----------</span>
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Elapsed</span>;
+
+<span class="tok-keyword">struct</span> <span class="tok-type">Timeout</span>&lt;<span class="tok-type">F</span>&gt; {
+    inner: <span class="tok-type">Pin</span>&lt;<span class="tok-type">Box</span>&lt;<span class="tok-type">F</span>&gt;&gt;,
+    deadline: <span class="tok-type">Sleep</span>,
+}
+
+<span class="tok-keyword">fn</span> timeout&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt;(duration: <span class="tok-type">Duration</span>, fut: <span class="tok-type">F</span>) -&gt; <span class="tok-type">Timeout</span>&lt;<span class="tok-type">F</span>&gt; {
+    <span class="tok-type">Timeout</span> {
+        inner: <span class="tok-type">Box</span>::<span class="tok-fn">pin</span>(fut),
+        deadline: <span class="tok-fn">sleep</span>(duration),
+    }
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt; <span class="tok-type">Future</span> <span class="tok-keyword">for</span> <span class="tok-type">Timeout</span>&lt;<span class="tok-type">F</span>&gt; {
+    <span class="tok-keyword">type</span> <span class="tok-type">Output</span> = <span class="tok-type">Result</span>&lt;<span class="tok-type">F</span>::<span class="tok-type">Output</span>, <span class="tok-type">Elapsed</span>&gt;;
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">poll</span>(<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>: <span class="tok-type">Pin</span>&lt;&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">Self</span>&gt;, cx: &amp;<span class="tok-keyword">mut</span> <span class="tok-type">Context</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; <span class="tok-type">Poll</span>&lt;<span class="tok-keyword">Self</span>::<span class="tok-type">Output</span>&gt; {
+        <span class="tok-comment">// Poll the real work first so a just-finished result wins over the deadline.</span>
+        <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Poll</span>::<span class="tok-type">Ready</span>(v) = <span class="tok-keyword">self</span>.inner.<span class="tok-fn">as_mut</span>().<span class="tok-fn">poll</span>(cx) {
+            <span class="tok-keyword">return</span> <span class="tok-type">Poll</span>::<span class="tok-type">Ready</span>(<span class="tok-type">Ok</span>(v));
+        }
+        <span class="tok-keyword">match</span> <span class="tok-type">Pin</span>::<span class="tok-fn">new</span>(&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>.deadline).<span class="tok-fn">poll</span>(cx) {
+            <span class="tok-type">Poll</span>::<span class="tok-type">Ready</span>(()) =&gt; <span class="tok-type">Poll</span>::<span class="tok-type">Ready</span>(<span class="tok-type">Err</span>(<span class="tok-type">Elapsed</span>)),
+            <span class="tok-type">Poll</span>::<span class="tok-type">Pending</span> =&gt; <span class="tok-type">Poll</span>::<span class="tok-type">Pending</span>,
+        }
+    }
+}
+
+<span class="tok-comment">// ---------- fake HTTP ----------</span>
+
+<span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Request</span> {
+    method: &amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>,
+    path: <span class="tok-type">String</span>,
+}
+
+<span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Response</span> {
+    status: <span class="tok-type">u16</span>,
+    body: <span class="tok-type">String</span>,
+}
+
+<span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">TransportError</span> {
+    <span class="tok-type">ConnectionReset</span>,
+}
+
+<span class="tok-keyword">type</span> <span class="tok-type">BoxFuture</span>&lt;<span class="tok-lifetime">'a</span>, <span class="tok-type">T</span>&gt; = <span class="tok-type">Pin</span>&lt;<span class="tok-type">Box</span>&lt;<span class="tok-keyword">dyn</span> <span class="tok-type">Future</span>&lt;<span class="tok-type">Output</span> = <span class="tok-type">T</span>&gt; + <span class="tok-type">Send</span> + <span class="tok-lifetime">'a</span>&gt;&gt;;
+
+<span class="tok-comment">/// An "async trait": methods return boxed futures, which is what the</span>
+<span class="tok-comment">/// `async-trait` crate generates and what keeps the trait object-safe.</span>
+<span class="tok-keyword">trait</span> <span class="tok-type">Transport</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">send</span>(&amp;<span class="tok-keyword">self</span>, req: <span class="tok-type">Request</span>) -&gt; <span class="tok-type">BoxFuture</span>&lt;<span class="tok-lifetime">'_</span>, <span class="tok-type">Result</span>&lt;<span class="tok-type">Response</span>, <span class="tok-type">TransportError</span>&gt;&gt;;
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">FakeTransport</span> {
+    routes: <span class="tok-type">HashMap</span>&lt;<span class="tok-type">String</span>, (<span class="tok-type">u16</span>, <span class="tok-type">String</span>)&gt;,
+    latency: <span class="tok-type">Duration</span>,
+    failures_left: <span class="tok-type">Mutex</span>&lt;<span class="tok-type">usize</span>&gt;,
+    calls: <span class="tok-type">AtomicUsize</span>,
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">FakeTransport</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(latency: <span class="tok-type">Duration</span>) -&gt; <span class="tok-keyword">Self</span> {
+        <span class="tok-type">FakeTransport</span> {
+            routes: <span class="tok-type">HashMap</span>::<span class="tok-fn">new</span>(),
+            latency,
+            failures_left: <span class="tok-type">Mutex</span>::<span class="tok-fn">new</span>(<span class="tok-number">0</span>),
+            calls: <span class="tok-type">AtomicUsize</span>::<span class="tok-fn">new</span>(<span class="tok-number">0</span>),
+        }
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">route</span>(<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>, path: &amp;<span class="tok-type">str</span>, status: <span class="tok-type">u16</span>, body: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-keyword">Self</span> {
+        <span class="tok-keyword">self</span>.routes.<span class="tok-fn">insert</span>(path.<span class="tok-fn">to_string</span>(), (status, body.<span class="tok-fn">to_string</span>()));
+        <span class="tok-keyword">self</span>
+    }
+
+    <span class="tok-comment">/// The first `n` requests fail with `ConnectionReset`.</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">failing_first</span>(<span class="tok-keyword">self</span>, n: <span class="tok-type">usize</span>) -&gt; <span class="tok-keyword">Self</span> {
+        *<span class="tok-keyword">self</span>.failures_left.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>() = n;
+        <span class="tok-keyword">self</span>
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">calls</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">usize</span> {
+        <span class="tok-keyword">self</span>.calls.<span class="tok-fn">load</span>(<span class="tok-type">Ordering</span>::<span class="tok-type">SeqCst</span>)
+    }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Transport</span> <span class="tok-keyword">for</span> <span class="tok-type">FakeTransport</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">send</span>(&amp;<span class="tok-keyword">self</span>, req: <span class="tok-type">Request</span>) -&gt; <span class="tok-type">BoxFuture</span>&lt;<span class="tok-lifetime">'_</span>, <span class="tok-type">Result</span>&lt;<span class="tok-type">Response</span>, <span class="tok-type">TransportError</span>&gt;&gt; {
+        <span class="tok-type">Box</span>::<span class="tok-fn">pin</span>(<span class="tok-keyword">async</span> <span class="tok-keyword">move</span> {
+            <span class="tok-keyword">self</span>.calls.<span class="tok-fn">fetch_add</span>(<span class="tok-number">1</span>, <span class="tok-type">Ordering</span>::<span class="tok-type">SeqCst</span>);
+            <span class="tok-fn">sleep</span>(<span class="tok-keyword">self</span>.latency).<span class="tok-keyword">await</span>;
+            <span class="tok-keyword">let</span> should_fail = {
+                <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> left = <span class="tok-keyword">self</span>.failures_left.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>();
+                <span class="tok-keyword">let</span> fail = *left &gt; <span class="tok-number">0</span>;
+                *left = left.<span class="tok-fn">saturating_sub</span>(<span class="tok-number">1</span>);
+                fail
+            };
+            <span class="tok-keyword">if</span> should_fail {
+                <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-type">TransportError</span>::<span class="tok-type">ConnectionReset</span>);
+            }
+            <span class="tok-keyword">let</span> (status, body) = <span class="tok-keyword">self</span>
+                .routes
+                .<span class="tok-fn">get</span>(&amp;req.path)
+                .<span class="tok-fn">cloned</span>()
+                .<span class="tok-fn">unwrap_or</span>((<span class="tok-number">404</span>, <span class="tok-macro">format!</span>(<span class="tok-string">"{} {} not found"</span>, req.method, req.path)));
+            <span class="tok-type">Ok</span>(<span class="tok-type">Response</span> { status, body })
+        })
+    }
+}
+
+<span class="tok-comment">// ---------- client ----------</span>
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">ApiError</span> {
+    <span class="tok-type">Timeout</span>,
+    <span class="tok-type">Transport</span>(<span class="tok-type">TransportError</span>),
+    <span class="tok-type">Status</span>(<span class="tok-type">u16</span>),
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">ApiError</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">is_retryable</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">bool</span> {
+        <span class="tok-keyword">match</span> <span class="tok-keyword">self</span> {
+            <span class="tok-type">ApiError</span>::<span class="tok-type">Timeout</span> | <span class="tok-type">ApiError</span>::<span class="tok-type">Transport</span>(_) =&gt; <span class="tok-keyword">true</span>,
+            <span class="tok-type">ApiError</span>::<span class="tok-type">Status</span>(code) =&gt; *code &gt;= <span class="tok-number">500</span>,
+        }
+    }
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">ApiClient</span>&lt;<span class="tok-type">T</span>: <span class="tok-type">Transport</span>&gt; {
+    transport: <span class="tok-type">T</span>,
+    max_retries: <span class="tok-type">u32</span>,
+    timeout: <span class="tok-type">Duration</span>,
+    backoff: <span class="tok-type">Duration</span>,
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">T</span>: <span class="tok-type">Transport</span>&gt; <span class="tok-type">ApiClient</span>&lt;<span class="tok-type">T</span>&gt; {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(transport: <span class="tok-type">T</span>) -&gt; <span class="tok-keyword">Self</span> {
+        <span class="tok-type">ApiClient</span> {
+            transport,
+            max_retries: <span class="tok-number">2</span>,
+            timeout: <span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">100</span>),
+            backoff: <span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">5</span>),
+        }
+    }
+
+    <span class="tok-keyword">async</span> <span class="tok-keyword">fn</span> <span class="tok-fn">get</span>(&amp;<span class="tok-keyword">self</span>, path: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">String</span>, <span class="tok-type">ApiError</span>&gt; {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> attempt = <span class="tok-number">0</span>;
+        <span class="tok-keyword">loop</span> {
+            <span class="tok-keyword">let</span> req = <span class="tok-type">Request</span> {
+                method: <span class="tok-string">"GET"</span>,
+                path: path.<span class="tok-fn">to_string</span>(),
+            };
+            <span class="tok-keyword">let</span> result = <span class="tok-keyword">match</span> <span class="tok-fn">timeout</span>(<span class="tok-keyword">self</span>.timeout, <span class="tok-keyword">self</span>.transport.<span class="tok-fn">send</span>(req)).<span class="tok-keyword">await</span> {
+                <span class="tok-type">Err</span>(<span class="tok-type">Elapsed</span>) =&gt; <span class="tok-type">Err</span>(<span class="tok-type">ApiError</span>::<span class="tok-type">Timeout</span>),
+                <span class="tok-type">Ok</span>(<span class="tok-type">Err</span>(e)) =&gt; <span class="tok-type">Err</span>(<span class="tok-type">ApiError</span>::<span class="tok-type">Transport</span>(e)),
+                <span class="tok-type">Ok</span>(<span class="tok-type">Ok</span>(resp)) <span class="tok-keyword">if</span> (<span class="tok-number">200</span>..<span class="tok-number">300</span>).<span class="tok-fn">contains</span>(&amp;resp.status) =&gt; <span class="tok-type">Ok</span>(resp.body),
+                <span class="tok-type">Ok</span>(<span class="tok-type">Ok</span>(resp)) =&gt; <span class="tok-type">Err</span>(<span class="tok-type">ApiError</span>::<span class="tok-type">Status</span>(resp.status)),
+            };
+            <span class="tok-keyword">match</span> result {
+                <span class="tok-type">Err</span>(e) <span class="tok-keyword">if</span> e.<span class="tok-fn">is_retryable</span>() &amp;&amp; attempt &lt; <span class="tok-keyword">self</span>.max_retries =&gt; {
+                    attempt += <span class="tok-number">1</span>;
+                    <span class="tok-macro">println!</span>(<span class="tok-string">"  attempt {attempt} failed with {e:?}, retrying..."</span>);
+                    <span class="tok-fn">sleep</span>(<span class="tok-keyword">self</span>.backoff * attempt).<span class="tok-keyword">await</span>;
+                }
+                other =&gt; <span class="tok-keyword">return</span> other,
+            }
+        }
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> transport = <span class="tok-type">FakeTransport</span>::<span class="tok-fn">new</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">20</span>))
+        .<span class="tok-fn">route</span>(<span class="tok-string">"/users/1"</span>, <span class="tok-number">200</span>, <span class="tok-string">r#"{"id":1,"name":"Ferris"}"#</span>)
+        .<span class="tok-fn">route</span>(<span class="tok-string">"/broken"</span>, <span class="tok-number">503</span>, <span class="tok-string">"unavailable"</span>)
+        .<span class="tok-fn">failing_first</span>(<span class="tok-number">2</span>);
+    <span class="tok-keyword">let</span> client = <span class="tok-type">ApiClient</span>::<span class="tok-fn">new</span>(transport);
+
+    <span class="tok-fn">block_on</span>(<span class="tok-keyword">async</span> {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"GET /users/1 -&gt; {:?}"</span>, client.<span class="tok-fn">get</span>(<span class="tok-string">"/users/1"</span>).<span class="tok-keyword">await</span>);
+        <span class="tok-macro">println!</span>(<span class="tok-string">"calls so far: {}"</span>, client.transport.<span class="tok-fn">calls</span>());
+        <span class="tok-macro">println!</span>(<span class="tok-string">"GET /missing -&gt; {:?}"</span>, client.<span class="tok-fn">get</span>(<span class="tok-string">"/missing"</span>).<span class="tok-keyword">await</span>);
+        <span class="tok-macro">println!</span>(<span class="tok-string">"GET /broken  -&gt; {:?}"</span>, client.<span class="tok-fn">get</span>(<span class="tok-string">"/broken"</span>).<span class="tok-keyword">await</span>);
+    });
+
+    <span class="tok-keyword">let</span> slow = <span class="tok-type">ApiClient</span> {
+        timeout: <span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">30</span>),
+        max_retries: <span class="tok-number">1</span>,
+        ..<span class="tok-type">ApiClient</span>::<span class="tok-fn">new</span>(<span class="tok-type">FakeTransport</span>::<span class="tok-fn">new</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">100</span>)))
+    };
+    <span class="tok-keyword">let</span> start = <span class="tok-type">Instant</span>::<span class="tok-fn">now</span>();
+    <span class="tok-keyword">let</span> res = <span class="tok-fn">block_on</span>(slow.<span class="tok-fn">get</span>(<span class="tok-string">"/anything"</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"slow server -&gt; {res:?} after {:?}"</span>, start.<span class="tok-fn">elapsed</span>());
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">client</span>(t: <span class="tok-type">FakeTransport</span>) -&gt; <span class="tok-type">ApiClient</span>&lt;<span class="tok-type">FakeTransport</span>&gt; {
+        <span class="tok-type">ApiClient</span>::<span class="tok-fn">new</span>(t)
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">successful_request</span>() {
+        <span class="tok-keyword">let</span> c = <span class="tok-fn">client</span>(<span class="tok-type">FakeTransport</span>::<span class="tok-fn">new</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">5</span>)).<span class="tok-fn">route</span>(<span class="tok-string">"/ok"</span>, <span class="tok-number">200</span>, <span class="tok-string">"hi"</span>));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">block_on</span>(c.<span class="tok-fn">get</span>(<span class="tok-string">"/ok"</span>)), <span class="tok-type">Ok</span>(<span class="tok-string">"hi"</span>.<span class="tok-fn">to_string</span>()));
+        <span class="tok-macro">assert_eq!</span>(c.transport.<span class="tok-fn">calls</span>(), <span class="tok-number">1</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">retries_transient_failures</span>() {
+        <span class="tok-keyword">let</span> t = <span class="tok-type">FakeTransport</span>::<span class="tok-fn">new</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">5</span>))
+            .<span class="tok-fn">route</span>(<span class="tok-string">"/ok"</span>, <span class="tok-number">200</span>, <span class="tok-string">"hi"</span>)
+            .<span class="tok-fn">failing_first</span>(<span class="tok-number">2</span>);
+        <span class="tok-keyword">let</span> c = <span class="tok-fn">client</span>(t);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">block_on</span>(c.<span class="tok-fn">get</span>(<span class="tok-string">"/ok"</span>)), <span class="tok-type">Ok</span>(<span class="tok-string">"hi"</span>.<span class="tok-fn">to_string</span>()));
+        <span class="tok-macro">assert_eq!</span>(c.transport.<span class="tok-fn">calls</span>(), <span class="tok-number">3</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">client_errors_are_not_retried</span>() {
+        <span class="tok-keyword">let</span> c = <span class="tok-fn">client</span>(<span class="tok-type">FakeTransport</span>::<span class="tok-fn">new</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">5</span>)));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">block_on</span>(c.<span class="tok-fn">get</span>(<span class="tok-string">"/nope"</span>)), <span class="tok-type">Err</span>(<span class="tok-type">ApiError</span>::<span class="tok-type">Status</span>(<span class="tok-number">404</span>)));
+        <span class="tok-macro">assert_eq!</span>(c.transport.<span class="tok-fn">calls</span>(), <span class="tok-number">1</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">times_out_and_gives_up_after_retries</span>() {
+        <span class="tok-keyword">let</span> c = <span class="tok-type">ApiClient</span> {
+            timeout: <span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">20</span>),
+            max_retries: <span class="tok-number">1</span>,
+            ..<span class="tok-fn">client</span>(<span class="tok-type">FakeTransport</span>::<span class="tok-fn">new</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">100</span>)))
+        };
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">block_on</span>(c.<span class="tok-fn">get</span>(<span class="tok-string">"/slow"</span>)), <span class="tok-type">Err</span>(<span class="tok-type">ApiError</span>::<span class="tok-type">Timeout</span>));
+        <span class="tok-macro">assert_eq!</span>(c.transport.<span class="tok-fn">calls</span>(), <span class="tok-number">2</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">timeout_passes_fast_futures_through</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">block_on</span>(<span class="tok-fn">timeout</span>(<span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">50</span>), <span class="tok-keyword">async</span> { <span class="tok-number">7</span> })), <span class="tok-type">Ok</span>(<span class="tok-number">7</span>));
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 49-async-api-client.rs -o 49-async-api-client &amp;&amp; ./49-async-api-client
+
+# run the unit tests
+rustc --edition 2021 --test 49-async-api-client.rs -o 49-async-api-client-tests &amp;&amp; ./49-async-api-client-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/48-concurrent-requests.html"><small>← Previous</small>48 · Concurrent Requests</a><a class="pager-link next" href="../exercises/50-declarative-macros.html"><small>Next →</small>50 · Declarative Macros</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

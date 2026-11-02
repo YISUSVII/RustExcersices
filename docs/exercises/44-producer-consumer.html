@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>44 · Producer / Consumer · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Pass messages from multiple producer threads to a consumer using `std::sync::mpsc` channels, both unbounded and bounded.">
+<meta property="og:title" content="44 · Producer / Consumer · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Pass messages from multiple producer threads to a consumer using `std::sync::mpsc` channels, both unbounded and bounded.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/14-concurrency.html">Level 14 — Concurrency</a><span>/</span><span>Exercise 44</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 44 · Level 14 — Concurrency</div>
+  <h1>Producer / Consumer</h1>
+  <p class="lead">Pass messages from multiple producer threads to a consumer using <code>std::sync::mpsc</code> channels, both unbounded and bounded.</p>
+  <div class="meta"><span class="badge diff-intermediate">Intermediate</span><span class="chip">`mpsc::channel`</span><span class="chip">`mpsc::sync_channel`</span><span class="chip">cloning `Sender`</span><span class="chip">channel closing semantics</span><span class="chip">backpressure</span><span class="chip">`thread::scope`</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="44"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<ol><li>Define <code>struct Message { producer: usize, seq: usize, value: u64 }</code>.</li><li>Implement <code>fn run_pipeline(producers: usize, items_per_producer: usize) -&gt; Vec&lt;Message&gt;</code>: - create one channel, clone the <code>Sender</code> for each producer thread; - each producer sends <code>items_per_producer</code> messages with <code>seq</code> = <code>0..items_per_producer</code> and <code>value = producer * 1000 + seq</code>; - the calling thread consumes until the channel closes and returns all messages.</li><li>Implement <code>fn bounded_sum(producers: usize, items_per_producer: u64, bound: usize) -&gt; u64</code> using <code>mpsc::sync_channel(bound)</code>. A dedicated consumer thread sums all received values; each producer sends <code>1..=items_per_producer</code>.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<ul><li><code>run_pipeline(5, 20).len()</code> → <code>100</code>.</li><li>Messages from the <em>same</em> producer arrive in order (<code>seq</code> 0, 1, 2, …), although producers interleave.</li><li><code>bounded_sum(3, 10, 1)</code> → <code>165</code>.</li></ul>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li>The receiver iterator only ends when <strong>every</strong> <code>Sender</code> is dropped — including the original one. Forgetting <code>drop(tx)</code> makes the consumer hang forever.</li><li><code>sync_channel(bound)</code> blocks <code>send</code> when the buffer is full, which naturally slows fast producers (backpressure).</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Add a second stage: a "transformer" thread that receives <code>Message</code>s, doubles <code>value</code>, and forwards them to a final consumer through another channel (a 3-stage pipeline).</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">14-concurrency/exercises/44-producer-consumer.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=%23%21%5Ballow%28dead_code%29%5D%0A%23%5Ballow%28unused_imports%29%5D%0Ause%20std%3A%3Async%3A%3Ampsc%3B%0A%23%5Ballow%28unused_imports%29%5D%0Ause%20std%3A%3Athread%3B%0A%0A%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0Astruct%20Message%20%7B%0A%20%20%20%20producer%3A%20usize%2C%0A%20%20%20%20seq%3A%20usize%2C%0A%20%20%20%20value%3A%20u64%2C%0A%7D%0A%0Afn%20run_pipeline%28producers%3A%20usize%2C%20items_per_producer%3A%20usize%29%20-%3E%20Vec%3CMessage%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20%28producers%2C%20items_per_producer%29%3B%0A%20%20%20%20todo%21%28%22Create%20a%20channel%2C%20clone%20tx%20per%20producer%2C%20drop%20the%20original%20tx%2C%20collect%20rx%22%29%0A%7D%0A%0Afn%20bounded_sum%28producers%3A%20usize%2C%20items_per_producer%3A%20u64%2C%20bound%3A%20usize%29%20-%3E%20u64%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20%28producers%2C%20items_per_producer%2C%20bound%29%3B%0A%20%20%20%20todo%21%28%22Use%20mpsc%3A%3Async_channel%28bound%29%20and%20a%20consumer%20thread%20that%20sums%20rx.iter%28%29%22%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20messages%20%3D%20run_pipeline%283%2C%204%29%3B%0A%20%20%20%20for%20m%20in%20%26messages%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22producer%20%7B%7D%20-%3E%20seq%20%7B%7D%20value%20%7B%7D%22%2C%20m.producer%2C%20m.seq%2C%20m.value%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%22received%20%7B%7D%20messages%22%2C%20messages.len%28%29%29%3B%0A%0A%20%20%20%20println%21%28%22bounded%20sum%20%3D%20%7B%7D%22%2C%20bounded_sum%284%2C%20100%2C%202%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20receives_every_message%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20msgs%20%3D%20run_pipeline%285%2C%2020%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28msgs.len%28%29%2C%20100%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20per_producer_order_is_preserved%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20msgs%20%3D%20run_pipeline%284%2C%2050%29%3B%0A%20%20%20%20%20%20%20%20for%20p%20in%200..4%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20seqs%3A%20Vec%3Cusize%3E%20%3D%20msgs.iter%28%29.filter%28%7Cm%7C%20m.producer%20%3D%3D%20p%29.map%28%7Cm%7C%20m.seq%29.collect%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20assert_eq%21%28seqs%2C%20%280..50%29.collect%3A%3A%3CVec%3C_%3E%3E%28%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20bounded_channel_sums_correctly%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bounded_sum%283%2C%2010%2C%201%29%2C%203%20%2A%2055%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bounded_sum%280%2C%2010%2C%201%29%2C%200%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/14-concurrency/exercises/44-producer-consumer.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-attr">#![allow(dead_code)]</span>
+<span class="tok-attr">#[allow(unused_imports)]</span>
+<span class="tok-keyword">use</span> std::sync::mpsc;
+<span class="tok-attr">#[allow(unused_imports)]</span>
+<span class="tok-keyword">use</span> std::thread;
+
+<span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Message</span> {
+    producer: <span class="tok-type">usize</span>,
+    seq: <span class="tok-type">usize</span>,
+    value: <span class="tok-type">u64</span>,
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">run_pipeline</span>(producers: <span class="tok-type">usize</span>, items_per_producer: <span class="tok-type">usize</span>) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">Message</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = (producers, items_per_producer);
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Create a channel, clone tx per producer, drop the original tx, collect rx"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">bounded_sum</span>(producers: <span class="tok-type">usize</span>, items_per_producer: <span class="tok-type">u64</span>, bound: <span class="tok-type">usize</span>) -&gt; <span class="tok-type">u64</span> {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = (producers, items_per_producer, bound);
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Use mpsc::sync_channel(bound) and a consumer thread that sums rx.iter()"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> messages = <span class="tok-fn">run_pipeline</span>(<span class="tok-number">3</span>, <span class="tok-number">4</span>);
+    <span class="tok-keyword">for</span> m <span class="tok-keyword">in</span> &amp;messages {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"producer {} -&gt; seq {} value {}"</span>, m.producer, m.seq, m.value);
+    }
+    <span class="tok-macro">println!</span>(<span class="tok-string">"received {} messages"</span>, messages.<span class="tok-fn">len</span>());
+
+    <span class="tok-macro">println!</span>(<span class="tok-string">"bounded sum = {}"</span>, <span class="tok-fn">bounded_sum</span>(<span class="tok-number">4</span>, <span class="tok-number">100</span>, <span class="tok-number">2</span>));
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">receives_every_message</span>() {
+        <span class="tok-keyword">let</span> msgs = <span class="tok-fn">run_pipeline</span>(<span class="tok-number">5</span>, <span class="tok-number">20</span>);
+        <span class="tok-macro">assert_eq!</span>(msgs.<span class="tok-fn">len</span>(), <span class="tok-number">100</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">per_producer_order_is_preserved</span>() {
+        <span class="tok-keyword">let</span> msgs = <span class="tok-fn">run_pipeline</span>(<span class="tok-number">4</span>, <span class="tok-number">50</span>);
+        <span class="tok-keyword">for</span> p <span class="tok-keyword">in</span> <span class="tok-number">0</span>..<span class="tok-number">4</span> {
+            <span class="tok-keyword">let</span> seqs: <span class="tok-type">Vec</span>&lt;<span class="tok-type">usize</span>&gt; = msgs.<span class="tok-fn">iter</span>().<span class="tok-fn">filter</span>(|m| m.producer == p).<span class="tok-fn">map</span>(|m| m.seq).<span class="tok-fn">collect</span>();
+            <span class="tok-macro">assert_eq!</span>(seqs, (<span class="tok-number">0</span>..<span class="tok-number">50</span>).collect::&lt;<span class="tok-type">Vec</span>&lt;_&gt;&gt;());
+        }
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">bounded_channel_sums_correctly</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">bounded_sum</span>(<span class="tok-number">3</span>, <span class="tok-number">10</span>, <span class="tok-number">1</span>), <span class="tok-number">3</span> * <span class="tok-number">55</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">bounded_sum</span>(<span class="tok-number">0</span>, <span class="tok-number">10</span>, <span class="tok-number">1</span>), <span class="tok-number">0</span>);
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/14-concurrency/44-producer-consumer.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Async%3A%3Ampsc%3B%0Ause%20std%3A%3Athread%3B%0A%0A%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0Astruct%20Message%20%7B%0A%20%20%20%20producer%3A%20usize%2C%0A%20%20%20%20seq%3A%20usize%2C%0A%20%20%20%20value%3A%20u64%2C%0A%7D%0A%0A///%20Spawns%20%60producers%60%20threads%2C%20each%20sending%20%60items_per_producer%60%20messages%0A///%20over%20a%20single%20channel.%20The%20calling%20thread%20is%20the%20consumer.%0Afn%20run_pipeline%28producers%3A%20usize%2C%20items_per_producer%3A%20usize%29%20-%3E%20Vec%3CMessage%3E%20%7B%0A%20%20%20%20let%20%28tx%2C%20rx%29%20%3D%20mpsc%3A%3Achannel%28%29%3B%0A%0A%20%20%20%20for%20id%20in%200..producers%20%7B%0A%20%20%20%20%20%20%20%20let%20tx%20%3D%20tx.clone%28%29%3B%0A%20%20%20%20%20%20%20%20thread%3A%3Aspawn%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20for%20seq%20in%200..items_per_producer%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20msg%20%3D%20Message%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20producer%3A%20id%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20seq%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20value%3A%20%28id%20%2A%201000%20%2B%20seq%29%20as%20u64%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20tx.send%28msg%29.is_err%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20break%3B%20//%20consumer%20hung%20up%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20//%20Drop%20the%20original%20sender%20so%20the%20receiver%20loop%20ends%20once%20all%20producers%20finish.%0A%20%20%20%20drop%28tx%29%3B%0A%0A%20%20%20%20rx.into_iter%28%29.collect%28%29%0A%7D%0A%0A///%20Bounded%20pipeline%3A%20producers%20block%20when%20the%20buffer%20%28capacity%20%60bound%60%29%20is%20full.%0A///%20Returns%20the%20sum%20of%20all%20values%20computed%20by%20a%20dedicated%20consumer%20thread.%0Afn%20bounded_sum%28producers%3A%20usize%2C%20items_per_producer%3A%20u64%2C%20bound%3A%20usize%29%20-%3E%20u64%20%7B%0A%20%20%20%20let%20%28tx%2C%20rx%29%20%3D%20mpsc%3A%3Async_channel%3A%3A%3Cu64%3E%28bound%29%3B%0A%20%20%20%20let%20consumer%20%3D%20thread%3A%3Aspawn%28move%20%7C%7C%20rx.iter%28%29.sum%3A%3A%3Cu64%3E%28%29%29%3B%0A%0A%20%20%20%20thread%3A%3Ascope%28%7Cs%7C%20%7B%0A%20%20%20%20%20%20%20%20for%20_%20in%200..producers%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20tx%20%3D%20tx.clone%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20s.spawn%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20for%20v%20in%201..%3Ditems_per_producer%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20tx.send%28v%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%29%3B%0A%20%20%20%20drop%28tx%29%3B%0A%20%20%20%20consumer.join%28%29.unwrap%28%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20messages%20%3D%20run_pipeline%283%2C%204%29%3B%0A%20%20%20%20for%20m%20in%20%26messages%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22producer%20%7B%7D%20-%3E%20seq%20%7B%7D%20value%20%7B%7D%22%2C%20m.producer%2C%20m.seq%2C%20m.value%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%22received%20%7B%7D%20messages%22%2C%20messages.len%28%29%29%3B%0A%0A%20%20%20%20println%21%28%22bounded%20sum%20%3D%20%7B%7D%22%2C%20bounded_sum%284%2C%20100%2C%202%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20receives_every_message%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20msgs%20%3D%20run_pipeline%285%2C%2020%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28msgs.len%28%29%2C%20100%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20per_producer_order_is_preserved%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20msgs%20%3D%20run_pipeline%284%2C%2050%29%3B%0A%20%20%20%20%20%20%20%20for%20p%20in%200..4%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20seqs%3A%20Vec%3Cusize%3E%20%3D%20msgs.iter%28%29.filter%28%7Cm%7C%20m.producer%20%3D%3D%20p%29.map%28%7Cm%7C%20m.seq%29.collect%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20assert_eq%21%28seqs%2C%20%280..50%29.collect%3A%3A%3CVec%3C_%3E%3E%28%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20bounded_channel_sums_correctly%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bounded_sum%283%2C%2010%2C%201%29%2C%203%20%2A%2055%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bounded_sum%280%2C%2010%2C%201%29%2C%200%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/14-concurrency/44-producer-consumer.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::sync::mpsc;
+<span class="tok-keyword">use</span> std::thread;
+
+<span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Message</span> {
+    producer: <span class="tok-type">usize</span>,
+    seq: <span class="tok-type">usize</span>,
+    value: <span class="tok-type">u64</span>,
+}
+
+<span class="tok-comment">/// Spawns `producers` threads, each sending `items_per_producer` messages</span>
+<span class="tok-comment">/// over a single channel. The calling thread is the consumer.</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">run_pipeline</span>(producers: <span class="tok-type">usize</span>, items_per_producer: <span class="tok-type">usize</span>) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">Message</span>&gt; {
+    <span class="tok-keyword">let</span> (tx, rx) = mpsc::<span class="tok-fn">channel</span>();
+
+    <span class="tok-keyword">for</span> id <span class="tok-keyword">in</span> <span class="tok-number">0</span>..producers {
+        <span class="tok-keyword">let</span> tx = tx.<span class="tok-fn">clone</span>();
+        thread::<span class="tok-fn">spawn</span>(<span class="tok-keyword">move</span> || {
+            <span class="tok-keyword">for</span> seq <span class="tok-keyword">in</span> <span class="tok-number">0</span>..items_per_producer {
+                <span class="tok-keyword">let</span> msg = <span class="tok-type">Message</span> {
+                    producer: id,
+                    seq,
+                    value: (id * <span class="tok-number">1000</span> + seq) <span class="tok-keyword">as</span> <span class="tok-type">u64</span>,
+                };
+                <span class="tok-keyword">if</span> tx.<span class="tok-fn">send</span>(msg).<span class="tok-fn">is_err</span>() {
+                    <span class="tok-keyword">break</span>; <span class="tok-comment">// consumer hung up</span>
+                }
+            }
+        });
+    }
+    <span class="tok-comment">// Drop the original sender so the receiver loop ends once all producers finish.</span>
+    <span class="tok-fn">drop</span>(tx);
+
+    rx.<span class="tok-fn">into_iter</span>().<span class="tok-fn">collect</span>()
+}
+
+<span class="tok-comment">/// Bounded pipeline: producers block when the buffer (capacity `bound`) is full.</span>
+<span class="tok-comment">/// Returns the sum of all values computed by a dedicated consumer thread.</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">bounded_sum</span>(producers: <span class="tok-type">usize</span>, items_per_producer: <span class="tok-type">u64</span>, bound: <span class="tok-type">usize</span>) -&gt; <span class="tok-type">u64</span> {
+    <span class="tok-keyword">let</span> (tx, rx) = mpsc::sync_channel::&lt;<span class="tok-type">u64</span>&gt;(bound);
+    <span class="tok-keyword">let</span> consumer = thread::<span class="tok-fn">spawn</span>(<span class="tok-keyword">move</span> || rx.<span class="tok-fn">iter</span>().sum::&lt;<span class="tok-type">u64</span>&gt;());
+
+    thread::<span class="tok-fn">scope</span>(|s| {
+        <span class="tok-keyword">for</span> _ <span class="tok-keyword">in</span> <span class="tok-number">0</span>..producers {
+            <span class="tok-keyword">let</span> tx = tx.<span class="tok-fn">clone</span>();
+            s.<span class="tok-fn">spawn</span>(<span class="tok-keyword">move</span> || {
+                <span class="tok-keyword">for</span> v <span class="tok-keyword">in</span> <span class="tok-number">1</span>..=items_per_producer {
+                    tx.<span class="tok-fn">send</span>(v).<span class="tok-fn">unwrap</span>();
+                }
+            });
+        }
+    });
+    <span class="tok-fn">drop</span>(tx);
+    consumer.<span class="tok-fn">join</span>().<span class="tok-fn">unwrap</span>()
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> messages = <span class="tok-fn">run_pipeline</span>(<span class="tok-number">3</span>, <span class="tok-number">4</span>);
+    <span class="tok-keyword">for</span> m <span class="tok-keyword">in</span> &amp;messages {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"producer {} -&gt; seq {} value {}"</span>, m.producer, m.seq, m.value);
+    }
+    <span class="tok-macro">println!</span>(<span class="tok-string">"received {} messages"</span>, messages.<span class="tok-fn">len</span>());
+
+    <span class="tok-macro">println!</span>(<span class="tok-string">"bounded sum = {}"</span>, <span class="tok-fn">bounded_sum</span>(<span class="tok-number">4</span>, <span class="tok-number">100</span>, <span class="tok-number">2</span>));
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">receives_every_message</span>() {
+        <span class="tok-keyword">let</span> msgs = <span class="tok-fn">run_pipeline</span>(<span class="tok-number">5</span>, <span class="tok-number">20</span>);
+        <span class="tok-macro">assert_eq!</span>(msgs.<span class="tok-fn">len</span>(), <span class="tok-number">100</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">per_producer_order_is_preserved</span>() {
+        <span class="tok-keyword">let</span> msgs = <span class="tok-fn">run_pipeline</span>(<span class="tok-number">4</span>, <span class="tok-number">50</span>);
+        <span class="tok-keyword">for</span> p <span class="tok-keyword">in</span> <span class="tok-number">0</span>..<span class="tok-number">4</span> {
+            <span class="tok-keyword">let</span> seqs: <span class="tok-type">Vec</span>&lt;<span class="tok-type">usize</span>&gt; = msgs.<span class="tok-fn">iter</span>().<span class="tok-fn">filter</span>(|m| m.producer == p).<span class="tok-fn">map</span>(|m| m.seq).<span class="tok-fn">collect</span>();
+            <span class="tok-macro">assert_eq!</span>(seqs, (<span class="tok-number">0</span>..<span class="tok-number">50</span>).collect::&lt;<span class="tok-type">Vec</span>&lt;_&gt;&gt;());
+        }
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">bounded_channel_sums_correctly</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">bounded_sum</span>(<span class="tok-number">3</span>, <span class="tok-number">10</span>, <span class="tok-number">1</span>), <span class="tok-number">3</span> * <span class="tok-number">55</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">bounded_sum</span>(<span class="tok-number">0</span>, <span class="tok-number">10</span>, <span class="tok-number">1</span>), <span class="tok-number">0</span>);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 44-producer-consumer.rs -o 44-producer-consumer &amp;&amp; ./44-producer-consumer
+
+# run the unit tests
+rustc --edition 2021 --test 44-producer-consumer.rs -o 44-producer-consumer-tests &amp;&amp; ./44-producer-consumer-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/43-parallel-counter.html"><small>← Previous</small>43 · Parallel Counter</a><a class="pager-link next" href="../exercises/45-worker-pool.html"><small>Next →</small>45 · Worker Pool</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -16,7 +16,9 @@ use math::add;
 Incorrect module paths, missing `pub`, circular structure confusion.
 
 ## Exercises
-Build a small multi-module project and split logic by responsibility.
+- [37 — Multi-Module Project](exercises/37-multi-module-project.md)
+
+See `exercises/` for starters and `../solutions/11-modules-crates/` for reference solutions.
 
 ## Hints
 Start with a library crate, then add a binary crate.

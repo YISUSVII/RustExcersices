@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>33 · Data Transforms · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Replace manual loops with iterator chains to transform, combine and summarize data.">
+<meta property="og:title" content="33 · Data Transforms · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Replace manual loops with iterator chains to transform, combine and summarize data.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/10-iterators-closures.html">Level 10 — Closures and Iterators</a><span>/</span><span>Exercise 33</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 33 · Level 10 — Closures and Iterators</div>
+  <h1>Data Transforms</h1>
+  <p class="lead">Replace manual loops with iterator chains to transform, combine and summarize data.</p>
+  <div class="meta"><span class="badge diff-intermediate">Intermediate</span><span class="chip">`iter` vs `into_iter`</span><span class="chip">`map`</span><span class="chip">`filter`</span><span class="chip">`filter_map`</span><span class="chip">`zip`</span><span class="chip">`enumerate`</span><span class="chip">`fold`</span><span class="chip">`collect` into different collections</span><span class="chip">closures capturing variables</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="33"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<p>Implement each function using iterator adaptors (no <code>for</code> loops):</p>
+<ol><li><code>squares_of_evens(nums: &amp;[i32]) -&gt; Vec&lt;i32&gt;</code> — keep even numbers and square them.</li><li><code>parse_numbers(inputs: &amp;[&amp;str]) -&gt; Vec&lt;i32&gt;</code> — parse each string (after trimming), silently skipping invalid ones.</li><li><code>try_parse_all(inputs: &amp;[&amp;str]) -&gt; Result&lt;Vec&lt;i32&gt;, String&gt;</code> — like above but fail on the first invalid input with <code>"invalid number: '&lt;input&gt;'"</code>.</li><li><code>dot_product(a: &amp;[f64], b: &amp;[f64]) -&gt; Option&lt;f64&gt;</code> — <code>None</code> if lengths differ.</li><li><code>running_total(nums: &amp;[i32]) -&gt; Vec&lt;i32&gt;</code> — prefix sums, e.g. <code>[1, 2, 3]</code> → <code>[1, 3, 6]</code>.</li><li><code>index_of_max(nums: &amp;[i32]) -&gt; Option&lt;usize&gt;</code> — index of the first maximum.</li><li><code>scale_by(nums: &amp;[i32], factor: i32) -&gt; Vec&lt;i32&gt;</code> — the closure must capture <code>factor</code>.</li><li><code>make_adder(n: i32) -&gt; impl Fn(i32) -&gt; i32</code> — return a closure that captures <code>n</code> with <code>move</code>.</li><li><code>char_frequencies(text: &amp;str) -&gt; BTreeMap&lt;char, usize&gt;</code> — count alphabetic chars (lowercased) using <code>fold</code>.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<ul><li><code>squares_of_evens(&amp;[1, 2, 3, 4])</code> =&gt; <code>[4, 16]</code></li><li><code>parse_numbers(&amp;["1", " 2 ", "x", "3"])</code> =&gt; <code>[1, 2, 3]</code></li><li><code>try_parse_all(&amp;["1", "x"])</code> =&gt; <code>Err("invalid number: 'x'")</code></li><li><code>dot_product(&amp;[1.0, 2.0], &amp;[3.0, 4.0])</code> =&gt; <code>Some(11.0)</code></li><li><code>running_total(&amp;[1, 2, 3])</code> =&gt; <code>[1, 3, 6]</code></li><li><code>index_of_max(&amp;[3, 9, 2, 9])</code> =&gt; <code>Some(1)</code></li><li><code>make_adder(10)(5)</code> =&gt; <code>15</code></li><li><code>char_frequencies("Hello")</code> =&gt; <code>{'e': 1, 'h': 1, 'l': 2, 'o': 1}</code></li></ul>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li><code>collect::&lt;Result&lt;Vec&lt;_&gt;, _&gt;&gt;()</code> stops at the first <code>Err</code>.</li><li><code>scan</code> is great for running totals.</li><li><code>enumerate</code> + <code>fold</code> (or <code>max_by</code> with reversed index comparison) can find the first max index.</li><li><code>*map.entry(c).or_insert(0) += 1;</code> inside a <code>fold</code> closure that owns the map.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Write <code>compose&lt;A, B, C&gt;(f: impl Fn(A) -&gt; B, g: impl Fn(B) -&gt; C) -&gt; impl Fn(A) -&gt; C</code> and use it to build a pipeline.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">10-iterators-closures/exercises/33-data-transforms.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Acollections%3A%3ABTreeMap%3B%0A%0Afn%20squares_of_evens%28nums%3A%20%26%5Bi32%5D%29%20-%3E%20Vec%3Ci32%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%20with%20filter%20%2B%20map%20%2B%20collect%0A%20%20%20%20let%20_%20%3D%20nums%3B%0A%20%20%20%20todo%21%28%22Keep%20evens%2C%20square%20them%22%29%0A%7D%0A%0Afn%20parse_numbers%28inputs%3A%20%26%5B%26str%5D%29%20-%3E%20Vec%3Ci32%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%20with%20filter_map%0A%20%20%20%20let%20_%20%3D%20inputs%3B%0A%20%20%20%20todo%21%28%22Trim%2C%20parse%2C%20skip%20failures%22%29%0A%7D%0A%0Afn%20try_parse_all%28inputs%3A%20%26%5B%26str%5D%29%20-%3E%20Result%3CVec%3Ci32%3E%2C%20String%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%20by%20collecting%20into%20Result%3CVec%3C_%3E%2C%20_%3E%0A%20%20%20%20let%20_%20%3D%20inputs%3B%0A%20%20%20%20todo%21%28%22Fail%20with%20%5C%22invalid%20number%3A%20%27%3Cinput%3E%27%5C%22%20on%20the%20first%20bad%20input%22%29%0A%7D%0A%0Afn%20dot_product%28a%3A%20%26%5Bf64%5D%2C%20b%3A%20%26%5Bf64%5D%29%20-%3E%20Option%3Cf64%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%20with%20zip%0A%20%20%20%20let%20_%20%3D%20%28a%2C%20b%29%3B%0A%20%20%20%20todo%21%28%22None%20if%20lengths%20differ%2C%20otherwise%20sum%20of%20a%5Bi%5D%20%2A%20b%5Bi%5D%22%29%0A%7D%0A%0Afn%20running_total%28nums%3A%20%26%5Bi32%5D%29%20-%3E%20Vec%3Ci32%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%20with%20scan%0A%20%20%20%20let%20_%20%3D%20nums%3B%0A%20%20%20%20todo%21%28%22Prefix%20sums%22%29%0A%7D%0A%0Afn%20index_of_max%28nums%3A%20%26%5Bi32%5D%29%20-%3E%20Option%3Cusize%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%20with%20enumerate%0A%20%20%20%20let%20_%20%3D%20nums%3B%0A%20%20%20%20todo%21%28%22Index%20of%20the%20first%20maximum%20value%22%29%0A%7D%0A%0Afn%20scale_by%28nums%3A%20%26%5Bi32%5D%2C%20factor%3A%20i32%29%20-%3E%20Vec%3Ci32%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%3B%20the%20closure%20should%20capture%20%60factor%60%0A%20%20%20%20let%20_%20%3D%20%28nums%2C%20factor%29%3B%0A%20%20%20%20todo%21%28%22Multiply%20every%20number%20by%20factor%22%29%0A%7D%0A%0Afn%20make_adder%28n%3A%20i32%29%20-%3E%20impl%20Fn%28i32%29%20-%3E%20i32%20%7B%0A%20%20%20%20//%20TODO%3A%20return%20a%20%60move%60%20closure%20that%20adds%20n%0A%20%20%20%20move%20%7Cx%7C%20%7B%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20%28x%2C%20n%29%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22x%20%2B%20n%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20char_frequencies%28text%3A%20%26str%29%20-%3E%20BTreeMap%3Cchar%2C%20usize%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%20with%20fold%0A%20%20%20%20let%20_%20%3D%20text%3B%0A%20%20%20%20todo%21%28%22Count%20lowercase%20alphabetic%20characters%22%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20println%21%28%22squares_of_evens%3A%20%7B%3A%3F%7D%22%2C%20squares_of_evens%28%26%5B1%2C%202%2C%203%2C%204%5D%29%29%3B%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22parse_numbers%3A%20%7B%3A%3F%7D%22%2C%0A%20%20%20%20%20%20%20%20parse_numbers%28%26%5B%221%22%2C%20%22%202%20%22%2C%20%22x%22%2C%20%223%22%5D%29%0A%20%20%20%20%29%3B%0A%20%20%20%20println%21%28%22try_parse_all%20ok%3A%20%7B%3A%3F%7D%22%2C%20try_parse_all%28%26%5B%221%22%2C%20%222%22%5D%29%29%3B%0A%20%20%20%20println%21%28%22try_parse_all%20err%3A%20%7B%3A%3F%7D%22%2C%20try_parse_all%28%26%5B%221%22%2C%20%22x%22%5D%29%29%3B%0A%20%20%20%20println%21%28%22dot_product%3A%20%7B%3A%3F%7D%22%2C%20dot_product%28%26%5B1.0%2C%202.0%5D%2C%20%26%5B3.0%2C%204.0%5D%29%29%3B%0A%20%20%20%20println%21%28%22running_total%3A%20%7B%3A%3F%7D%22%2C%20running_total%28%26%5B1%2C%202%2C%203%5D%29%29%3B%0A%20%20%20%20println%21%28%22index_of_max%3A%20%7B%3A%3F%7D%22%2C%20index_of_max%28%26%5B3%2C%209%2C%202%2C%209%5D%29%29%3B%0A%20%20%20%20println%21%28%22scale_by%203%3A%20%7B%3A%3F%7D%22%2C%20scale_by%28%26%5B1%2C%202%2C%203%5D%2C%203%29%29%3B%0A%0A%20%20%20%20let%20add_ten%20%3D%20make_adder%2810%29%3B%0A%20%20%20%20println%21%28%22make_adder%2810%29%285%29%3A%20%7B%7D%22%2C%20add_ten%285%29%29%3B%0A%20%20%20%20println%21%28%22char_frequencies%3A%20%7B%3A%3F%7D%22%2C%20char_frequencies%28%22Hello%22%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20filtering_and_parsing%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28squares_of_evens%28%26%5B1%2C%202%2C%203%2C%204%5D%29%2C%20vec%21%5B4%2C%2016%5D%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28parse_numbers%28%26%5B%221%22%2C%20%22%202%20%22%2C%20%22x%22%2C%20%223%22%5D%29%2C%20vec%21%5B1%2C%202%2C%203%5D%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20try_parse_all%28%26%5B%221%22%2C%20%22x%22%5D%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28%22invalid%20number%3A%20%27x%27%22.into%28%29%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20numeric_combinators%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28dot_product%28%26%5B1.0%2C%202.0%5D%2C%20%26%5B3.0%2C%204.0%5D%29%2C%20Some%2811.0%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28dot_product%28%26%5B1.0%5D%2C%20%26%5B1.0%2C%202.0%5D%29%2C%20None%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28running_total%28%26%5B1%2C%202%2C%203%5D%29%2C%20vec%21%5B1%2C%203%2C%206%5D%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28index_of_max%28%26%5B3%2C%209%2C%202%2C%209%5D%29%2C%20Some%281%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28index_of_max%28%26%5B%5D%29%2C%20None%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20closures_capture_environment%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28scale_by%28%26%5B1%2C%20-2%5D%2C%203%29%2C%20vec%21%5B3%2C%20-6%5D%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28make_adder%2810%29%285%29%2C%2015%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20frequencies_are_case_insensitive%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20f%20%3D%20char_frequencies%28%22Hello%2C%20hi%21%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28f.get%28%26%27h%27%29%2C%20Some%28%262%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28f.get%28%26%27l%27%29%2C%20Some%28%262%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28f.get%28%26%27%2C%27%29%2C%20None%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/10-iterators-closures/exercises/33-data-transforms.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::collections::<span class="tok-type">BTreeMap</span>;
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">squares_of_evens</span>(nums: &amp;[<span class="tok-type">i32</span>]) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">i32</span>&gt; {
+    <span class="tok-comment">// TODO: implement with filter + map + collect</span>
+    <span class="tok-keyword">let</span> _ = nums;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Keep evens, square them"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">parse_numbers</span>(inputs: &amp;[&amp;<span class="tok-type">str</span>]) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">i32</span>&gt; {
+    <span class="tok-comment">// TODO: implement with filter_map</span>
+    <span class="tok-keyword">let</span> _ = inputs;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Trim, parse, skip failures"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">try_parse_all</span>(inputs: &amp;[&amp;<span class="tok-type">str</span>]) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">Vec</span>&lt;<span class="tok-type">i32</span>&gt;, <span class="tok-type">String</span>&gt; {
+    <span class="tok-comment">// TODO: implement by collecting into Result&lt;Vec&lt;_&gt;, _&gt;</span>
+    <span class="tok-keyword">let</span> _ = inputs;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Fail with \"invalid number: '&lt;input&gt;'\" on the first bad input"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">dot_product</span>(a: &amp;[<span class="tok-type">f64</span>], b: &amp;[<span class="tok-type">f64</span>]) -&gt; <span class="tok-type">Option</span>&lt;<span class="tok-type">f64</span>&gt; {
+    <span class="tok-comment">// TODO: implement with zip</span>
+    <span class="tok-keyword">let</span> _ = (a, b);
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"None if lengths differ, otherwise sum of a[i] * b[i]"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">running_total</span>(nums: &amp;[<span class="tok-type">i32</span>]) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">i32</span>&gt; {
+    <span class="tok-comment">// TODO: implement with scan</span>
+    <span class="tok-keyword">let</span> _ = nums;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Prefix sums"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">index_of_max</span>(nums: &amp;[<span class="tok-type">i32</span>]) -&gt; <span class="tok-type">Option</span>&lt;<span class="tok-type">usize</span>&gt; {
+    <span class="tok-comment">// TODO: implement with enumerate</span>
+    <span class="tok-keyword">let</span> _ = nums;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Index of the first maximum value"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">scale_by</span>(nums: &amp;[<span class="tok-type">i32</span>], factor: <span class="tok-type">i32</span>) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">i32</span>&gt; {
+    <span class="tok-comment">// TODO: implement; the closure should capture `factor`</span>
+    <span class="tok-keyword">let</span> _ = (nums, factor);
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Multiply every number by factor"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">make_adder</span>(n: <span class="tok-type">i32</span>) -&gt; <span class="tok-keyword">impl</span> <span class="tok-type">Fn</span>(<span class="tok-type">i32</span>) -&gt; <span class="tok-type">i32</span> {
+    <span class="tok-comment">// TODO: return a `move` closure that adds n</span>
+    <span class="tok-keyword">move</span> |x| {
+        <span class="tok-keyword">let</span> _ = (x, n);
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"x + n"</span>)
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">char_frequencies</span>(text: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">BTreeMap</span>&lt;<span class="tok-type">char</span>, <span class="tok-type">usize</span>&gt; {
+    <span class="tok-comment">// TODO: implement with fold</span>
+    <span class="tok-keyword">let</span> _ = text;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Count lowercase alphabetic characters"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-macro">println!</span>(<span class="tok-string">"squares_of_evens: {:?}"</span>, <span class="tok-fn">squares_of_evens</span>(&amp;[<span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span>]));
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"parse_numbers: {:?}"</span>,
+        <span class="tok-fn">parse_numbers</span>(&amp;[<span class="tok-string">"1"</span>, <span class="tok-string">" 2 "</span>, <span class="tok-string">"x"</span>, <span class="tok-string">"3"</span>])
+    );
+    <span class="tok-macro">println!</span>(<span class="tok-string">"try_parse_all ok: {:?}"</span>, <span class="tok-fn">try_parse_all</span>(&amp;[<span class="tok-string">"1"</span>, <span class="tok-string">"2"</span>]));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"try_parse_all err: {:?}"</span>, <span class="tok-fn">try_parse_all</span>(&amp;[<span class="tok-string">"1"</span>, <span class="tok-string">"x"</span>]));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"dot_product: {:?}"</span>, <span class="tok-fn">dot_product</span>(&amp;[<span class="tok-number">1.0</span>, <span class="tok-number">2.0</span>], &amp;[<span class="tok-number">3.0</span>, <span class="tok-number">4.0</span>]));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"running_total: {:?}"</span>, <span class="tok-fn">running_total</span>(&amp;[<span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>]));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"index_of_max: {:?}"</span>, <span class="tok-fn">index_of_max</span>(&amp;[<span class="tok-number">3</span>, <span class="tok-number">9</span>, <span class="tok-number">2</span>, <span class="tok-number">9</span>]));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"scale_by 3: {:?}"</span>, <span class="tok-fn">scale_by</span>(&amp;[<span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>], <span class="tok-number">3</span>));
+
+    <span class="tok-keyword">let</span> add_ten = <span class="tok-fn">make_adder</span>(<span class="tok-number">10</span>);
+    <span class="tok-macro">println!</span>(<span class="tok-string">"make_adder(10)(5): {}"</span>, <span class="tok-fn">add_ten</span>(<span class="tok-number">5</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"char_frequencies: {:?}"</span>, <span class="tok-fn">char_frequencies</span>(<span class="tok-string">"Hello"</span>));
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">filtering_and_parsing</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">squares_of_evens</span>(&amp;[<span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span>]), <span class="tok-macro">vec!</span>[<span class="tok-number">4</span>, <span class="tok-number">16</span>]);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">parse_numbers</span>(&amp;[<span class="tok-string">"1"</span>, <span class="tok-string">" 2 "</span>, <span class="tok-string">"x"</span>, <span class="tok-string">"3"</span>]), <span class="tok-macro">vec!</span>[<span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>]);
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">try_parse_all</span>(&amp;[<span class="tok-string">"1"</span>, <span class="tok-string">"x"</span>]),
+            <span class="tok-type">Err</span>(<span class="tok-string">"invalid number: 'x'"</span>.<span class="tok-fn">into</span>())
+        );
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">numeric_combinators</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">dot_product</span>(&amp;[<span class="tok-number">1.0</span>, <span class="tok-number">2.0</span>], &amp;[<span class="tok-number">3.0</span>, <span class="tok-number">4.0</span>]), <span class="tok-type">Some</span>(<span class="tok-number">11.0</span>));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">dot_product</span>(&amp;[<span class="tok-number">1.0</span>], &amp;[<span class="tok-number">1.0</span>, <span class="tok-number">2.0</span>]), <span class="tok-type">None</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">running_total</span>(&amp;[<span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>]), <span class="tok-macro">vec!</span>[<span class="tok-number">1</span>, <span class="tok-number">3</span>, <span class="tok-number">6</span>]);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">index_of_max</span>(&amp;[<span class="tok-number">3</span>, <span class="tok-number">9</span>, <span class="tok-number">2</span>, <span class="tok-number">9</span>]), <span class="tok-type">Some</span>(<span class="tok-number">1</span>));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">index_of_max</span>(&amp;[]), <span class="tok-type">None</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">closures_capture_environment</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">scale_by</span>(&amp;[<span class="tok-number">1</span>, -<span class="tok-number">2</span>], <span class="tok-number">3</span>), <span class="tok-macro">vec!</span>[<span class="tok-number">3</span>, -<span class="tok-number">6</span>]);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">make_adder</span>(<span class="tok-number">10</span>)(<span class="tok-number">5</span>), <span class="tok-number">15</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">frequencies_are_case_insensitive</span>() {
+        <span class="tok-keyword">let</span> f = <span class="tok-fn">char_frequencies</span>(<span class="tok-string">"Hello, hi!"</span>);
+        <span class="tok-macro">assert_eq!</span>(f.<span class="tok-fn">get</span>(&amp;<span class="tok-string">'h'</span>), <span class="tok-type">Some</span>(&amp;<span class="tok-number">2</span>));
+        <span class="tok-macro">assert_eq!</span>(f.<span class="tok-fn">get</span>(&amp;<span class="tok-string">'l'</span>), <span class="tok-type">Some</span>(&amp;<span class="tok-number">2</span>));
+        <span class="tok-macro">assert_eq!</span>(f.<span class="tok-fn">get</span>(&amp;<span class="tok-string">','</span>), <span class="tok-type">None</span>);
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/10-iterators-closures/33-data-transforms.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Acollections%3A%3ABTreeMap%3B%0A%0Afn%20squares_of_evens%28nums%3A%20%26%5Bi32%5D%29%20-%3E%20Vec%3Ci32%3E%20%7B%0A%20%20%20%20nums.iter%28%29%0A%20%20%20%20%20%20%20%20.filter%28%7C%26%26n%7C%20n%20%25%202%20%3D%3D%200%29%0A%20%20%20%20%20%20%20%20.map%28%7C%26n%7C%20n%20%2A%20n%29%0A%20%20%20%20%20%20%20%20.collect%28%29%0A%7D%0A%0Afn%20parse_numbers%28inputs%3A%20%26%5B%26str%5D%29%20-%3E%20Vec%3Ci32%3E%20%7B%0A%20%20%20%20inputs%0A%20%20%20%20%20%20%20%20.iter%28%29%0A%20%20%20%20%20%20%20%20.filter_map%28%7Cs%7C%20s.trim%28%29.parse%28%29.ok%28%29%29%0A%20%20%20%20%20%20%20%20.collect%28%29%0A%7D%0A%0Afn%20try_parse_all%28inputs%3A%20%26%5B%26str%5D%29%20-%3E%20Result%3CVec%3Ci32%3E%2C%20String%3E%20%7B%0A%20%20%20%20inputs%0A%20%20%20%20%20%20%20%20.iter%28%29%0A%20%20%20%20%20%20%20%20.map%28%7Cs%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20s.trim%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.parse%3A%3A%3Ci32%3E%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.map_err%28%7C_%7C%20format%21%28%22invalid%20number%3A%20%27%7Bs%7D%27%22%29%29%0A%20%20%20%20%20%20%20%20%7D%29%0A%20%20%20%20%20%20%20%20.collect%28%29%0A%7D%0A%0Afn%20dot_product%28a%3A%20%26%5Bf64%5D%2C%20b%3A%20%26%5Bf64%5D%29%20-%3E%20Option%3Cf64%3E%20%7B%0A%20%20%20%20%28a.len%28%29%20%3D%3D%20b.len%28%29%29.then%28%7C%7C%20a.iter%28%29.zip%28b%29.map%28%7C%28x%2C%20y%29%7C%20x%20%2A%20y%29.sum%28%29%29%0A%7D%0A%0Afn%20running_total%28nums%3A%20%26%5Bi32%5D%29%20-%3E%20Vec%3Ci32%3E%20%7B%0A%20%20%20%20nums.iter%28%29%0A%20%20%20%20%20%20%20%20.scan%280%2C%20%7Cacc%2C%20%26n%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%2Aacc%20%2B%3D%20n%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20Some%28%2Aacc%29%0A%20%20%20%20%20%20%20%20%7D%29%0A%20%20%20%20%20%20%20%20.collect%28%29%0A%7D%0A%0Afn%20index_of_max%28nums%3A%20%26%5Bi32%5D%29%20-%3E%20Option%3Cusize%3E%20%7B%0A%20%20%20%20nums.iter%28%29%0A%20%20%20%20%20%20%20%20.enumerate%28%29%0A%20%20%20%20%20%20%20%20.fold%28None%2C%20%7Cbest%3A%20Option%3C%28usize%2C%20i32%29%3E%2C%20%28i%2C%20%26n%29%7C%20match%20best%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Some%28%28_%2C%20b%29%29%20if%20b%20%3E%3D%20n%20%3D%3E%20best%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20_%20%3D%3E%20Some%28%28i%2C%20n%29%29%2C%0A%20%20%20%20%20%20%20%20%7D%29%0A%20%20%20%20%20%20%20%20.map%28%7C%28i%2C%20_%29%7C%20i%29%0A%7D%0A%0Afn%20scale_by%28nums%3A%20%26%5Bi32%5D%2C%20factor%3A%20i32%29%20-%3E%20Vec%3Ci32%3E%20%7B%0A%20%20%20%20nums.iter%28%29.map%28%7Cn%7C%20n%20%2A%20factor%29.collect%28%29%0A%7D%0A%0Afn%20make_adder%28n%3A%20i32%29%20-%3E%20impl%20Fn%28i32%29%20-%3E%20i32%20%7B%0A%20%20%20%20move%20%7Cx%7C%20x%20%2B%20n%0A%7D%0A%0Afn%20char_frequencies%28text%3A%20%26str%29%20-%3E%20BTreeMap%3Cchar%2C%20usize%3E%20%7B%0A%20%20%20%20text.chars%28%29%0A%20%20%20%20%20%20%20%20.filter%28%7Cc%7C%20c.is_alphabetic%28%29%29%0A%20%20%20%20%20%20%20%20.flat_map%28char%3A%3Ato_lowercase%29%0A%20%20%20%20%20%20%20%20.fold%28BTreeMap%3A%3Anew%28%29%2C%20%7Cmut%20map%2C%20c%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%2Amap.entry%28c%29.or_insert%280%29%20%2B%3D%201%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20map%0A%20%20%20%20%20%20%20%20%7D%29%0A%7D%0A%0Afn%20compose%3CA%2C%20B%2C%20C%3E%28f%3A%20impl%20Fn%28A%29%20-%3E%20B%2C%20g%3A%20impl%20Fn%28B%29%20-%3E%20C%29%20-%3E%20impl%20Fn%28A%29%20-%3E%20C%20%7B%0A%20%20%20%20move%20%7Cx%7C%20g%28f%28x%29%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20println%21%28%22squares_of_evens%3A%20%7B%3A%3F%7D%22%2C%20squares_of_evens%28%26%5B1%2C%202%2C%203%2C%204%5D%29%29%3B%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22parse_numbers%3A%20%7B%3A%3F%7D%22%2C%0A%20%20%20%20%20%20%20%20parse_numbers%28%26%5B%221%22%2C%20%22%202%20%22%2C%20%22x%22%2C%20%223%22%5D%29%0A%20%20%20%20%29%3B%0A%20%20%20%20println%21%28%22try_parse_all%20ok%3A%20%7B%3A%3F%7D%22%2C%20try_parse_all%28%26%5B%221%22%2C%20%222%22%5D%29%29%3B%0A%20%20%20%20println%21%28%22try_parse_all%20err%3A%20%7B%3A%3F%7D%22%2C%20try_parse_all%28%26%5B%221%22%2C%20%22x%22%5D%29%29%3B%0A%20%20%20%20println%21%28%22dot_product%3A%20%7B%3A%3F%7D%22%2C%20dot_product%28%26%5B1.0%2C%202.0%5D%2C%20%26%5B3.0%2C%204.0%5D%29%29%3B%0A%20%20%20%20println%21%28%22dot_product%20mismatch%3A%20%7B%3A%3F%7D%22%2C%20dot_product%28%26%5B1.0%5D%2C%20%26%5B%5D%29%29%3B%0A%20%20%20%20println%21%28%22running_total%3A%20%7B%3A%3F%7D%22%2C%20running_total%28%26%5B1%2C%202%2C%203%5D%29%29%3B%0A%20%20%20%20println%21%28%22index_of_max%3A%20%7B%3A%3F%7D%22%2C%20index_of_max%28%26%5B3%2C%209%2C%202%2C%209%5D%29%29%3B%0A%20%20%20%20println%21%28%22scale_by%203%3A%20%7B%3A%3F%7D%22%2C%20scale_by%28%26%5B1%2C%202%2C%203%5D%2C%203%29%29%3B%0A%0A%20%20%20%20let%20add_ten%20%3D%20make_adder%2810%29%3B%0A%20%20%20%20println%21%28%22make_adder%2810%29%285%29%3A%20%7B%7D%22%2C%20add_ten%285%29%29%3B%0A%20%20%20%20println%21%28%22char_frequencies%3A%20%7B%3A%3F%7D%22%2C%20char_frequencies%28%22Hello%22%29%29%3B%0A%0A%20%20%20%20let%20pipeline%20%3D%20compose%28make_adder%281%29%2C%20%7Cx%7C%20x%20%2A%202%29%3B%0A%20%20%20%20println%21%28%22compose%28%2B1%2C%20%2A2%29%284%29%3A%20%7B%7D%22%2C%20pipeline%284%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20filtering_and_parsing%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28squares_of_evens%28%26%5B1%2C%202%2C%203%2C%204%5D%29%2C%20vec%21%5B4%2C%2016%5D%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28parse_numbers%28%26%5B%221%22%2C%20%22%202%20%22%2C%20%22x%22%2C%20%223%22%5D%29%2C%20vec%21%5B1%2C%202%2C%203%5D%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20try_parse_all%28%26%5B%221%22%2C%20%22x%22%5D%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28%22invalid%20number%3A%20%27x%27%22.into%28%29%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20numeric_combinators%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28dot_product%28%26%5B1.0%2C%202.0%5D%2C%20%26%5B3.0%2C%204.0%5D%29%2C%20Some%2811.0%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28dot_product%28%26%5B1.0%5D%2C%20%26%5B1.0%2C%202.0%5D%29%2C%20None%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28running_total%28%26%5B1%2C%202%2C%203%5D%29%2C%20vec%21%5B1%2C%203%2C%206%5D%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28index_of_max%28%26%5B3%2C%209%2C%202%2C%209%5D%29%2C%20Some%281%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28index_of_max%28%26%5B%5D%29%2C%20None%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20closures_capture_environment%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28scale_by%28%26%5B1%2C%20-2%5D%2C%203%29%2C%20vec%21%5B3%2C%20-6%5D%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28make_adder%2810%29%285%29%2C%2015%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28compose%28make_adder%281%29%2C%20%7Cx%7C%20x%20%2A%202%29%284%29%2C%2010%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20frequencies_are_case_insensitive%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20f%20%3D%20char_frequencies%28%22Hello%2C%20hi%21%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28f.get%28%26%27h%27%29%2C%20Some%28%262%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28f.get%28%26%27l%27%29%2C%20Some%28%262%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28f.get%28%26%27%2C%27%29%2C%20None%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/10-iterators-closures/33-data-transforms.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::collections::<span class="tok-type">BTreeMap</span>;
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">squares_of_evens</span>(nums: &amp;[<span class="tok-type">i32</span>]) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">i32</span>&gt; {
+    nums.<span class="tok-fn">iter</span>()
+        .<span class="tok-fn">filter</span>(|&amp;&amp;n| n % <span class="tok-number">2</span> == <span class="tok-number">0</span>)
+        .<span class="tok-fn">map</span>(|&amp;n| n * n)
+        .<span class="tok-fn">collect</span>()
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">parse_numbers</span>(inputs: &amp;[&amp;<span class="tok-type">str</span>]) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">i32</span>&gt; {
+    inputs
+        .<span class="tok-fn">iter</span>()
+        .<span class="tok-fn">filter_map</span>(|s| s.<span class="tok-fn">trim</span>().<span class="tok-fn">parse</span>().<span class="tok-fn">ok</span>())
+        .<span class="tok-fn">collect</span>()
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">try_parse_all</span>(inputs: &amp;[&amp;<span class="tok-type">str</span>]) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-type">Vec</span>&lt;<span class="tok-type">i32</span>&gt;, <span class="tok-type">String</span>&gt; {
+    inputs
+        .<span class="tok-fn">iter</span>()
+        .<span class="tok-fn">map</span>(|s| {
+            s.<span class="tok-fn">trim</span>()
+                .parse::&lt;<span class="tok-type">i32</span>&gt;()
+                .<span class="tok-fn">map_err</span>(|_| <span class="tok-macro">format!</span>(<span class="tok-string">"invalid number: '{s}'"</span>))
+        })
+        .<span class="tok-fn">collect</span>()
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">dot_product</span>(a: &amp;[<span class="tok-type">f64</span>], b: &amp;[<span class="tok-type">f64</span>]) -&gt; <span class="tok-type">Option</span>&lt;<span class="tok-type">f64</span>&gt; {
+    (a.<span class="tok-fn">len</span>() == b.<span class="tok-fn">len</span>()).<span class="tok-fn">then</span>(|| a.<span class="tok-fn">iter</span>().<span class="tok-fn">zip</span>(b).<span class="tok-fn">map</span>(|(x, y)| x * y).<span class="tok-fn">sum</span>())
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">running_total</span>(nums: &amp;[<span class="tok-type">i32</span>]) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">i32</span>&gt; {
+    nums.<span class="tok-fn">iter</span>()
+        .<span class="tok-fn">scan</span>(<span class="tok-number">0</span>, |acc, &amp;n| {
+            *acc += n;
+            <span class="tok-type">Some</span>(*acc)
+        })
+        .<span class="tok-fn">collect</span>()
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">index_of_max</span>(nums: &amp;[<span class="tok-type">i32</span>]) -&gt; <span class="tok-type">Option</span>&lt;<span class="tok-type">usize</span>&gt; {
+    nums.<span class="tok-fn">iter</span>()
+        .<span class="tok-fn">enumerate</span>()
+        .<span class="tok-fn">fold</span>(<span class="tok-type">None</span>, |best: <span class="tok-type">Option</span>&lt;(<span class="tok-type">usize</span>, <span class="tok-type">i32</span>)&gt;, (i, &amp;n)| <span class="tok-keyword">match</span> best {
+            <span class="tok-type">Some</span>((_, b)) <span class="tok-keyword">if</span> b &gt;= n =&gt; best,
+            _ =&gt; <span class="tok-type">Some</span>((i, n)),
+        })
+        .<span class="tok-fn">map</span>(|(i, _)| i)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">scale_by</span>(nums: &amp;[<span class="tok-type">i32</span>], factor: <span class="tok-type">i32</span>) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">i32</span>&gt; {
+    nums.<span class="tok-fn">iter</span>().<span class="tok-fn">map</span>(|n| n * factor).<span class="tok-fn">collect</span>()
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">make_adder</span>(n: <span class="tok-type">i32</span>) -&gt; <span class="tok-keyword">impl</span> <span class="tok-type">Fn</span>(<span class="tok-type">i32</span>) -&gt; <span class="tok-type">i32</span> {
+    <span class="tok-keyword">move</span> |x| x + n
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">char_frequencies</span>(text: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">BTreeMap</span>&lt;<span class="tok-type">char</span>, <span class="tok-type">usize</span>&gt; {
+    text.<span class="tok-fn">chars</span>()
+        .<span class="tok-fn">filter</span>(|c| c.<span class="tok-fn">is_alphabetic</span>())
+        .<span class="tok-fn">flat_map</span>(<span class="tok-type">char</span>::to_lowercase)
+        .<span class="tok-fn">fold</span>(<span class="tok-type">BTreeMap</span>::<span class="tok-fn">new</span>(), |<span class="tok-keyword">mut</span> map, c| {
+            *map.<span class="tok-fn">entry</span>(c).<span class="tok-fn">or_insert</span>(<span class="tok-number">0</span>) += <span class="tok-number">1</span>;
+            map
+        })
+}
+
+<span class="tok-keyword">fn</span> compose&lt;<span class="tok-type">A</span>, <span class="tok-type">B</span>, <span class="tok-type">C</span>&gt;(f: <span class="tok-keyword">impl</span> <span class="tok-type">Fn</span>(<span class="tok-type">A</span>) -&gt; <span class="tok-type">B</span>, g: <span class="tok-keyword">impl</span> <span class="tok-type">Fn</span>(<span class="tok-type">B</span>) -&gt; <span class="tok-type">C</span>) -&gt; <span class="tok-keyword">impl</span> <span class="tok-type">Fn</span>(<span class="tok-type">A</span>) -&gt; <span class="tok-type">C</span> {
+    <span class="tok-keyword">move</span> |x| <span class="tok-fn">g</span>(<span class="tok-fn">f</span>(x))
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-macro">println!</span>(<span class="tok-string">"squares_of_evens: {:?}"</span>, <span class="tok-fn">squares_of_evens</span>(&amp;[<span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span>]));
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"parse_numbers: {:?}"</span>,
+        <span class="tok-fn">parse_numbers</span>(&amp;[<span class="tok-string">"1"</span>, <span class="tok-string">" 2 "</span>, <span class="tok-string">"x"</span>, <span class="tok-string">"3"</span>])
+    );
+    <span class="tok-macro">println!</span>(<span class="tok-string">"try_parse_all ok: {:?}"</span>, <span class="tok-fn">try_parse_all</span>(&amp;[<span class="tok-string">"1"</span>, <span class="tok-string">"2"</span>]));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"try_parse_all err: {:?}"</span>, <span class="tok-fn">try_parse_all</span>(&amp;[<span class="tok-string">"1"</span>, <span class="tok-string">"x"</span>]));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"dot_product: {:?}"</span>, <span class="tok-fn">dot_product</span>(&amp;[<span class="tok-number">1.0</span>, <span class="tok-number">2.0</span>], &amp;[<span class="tok-number">3.0</span>, <span class="tok-number">4.0</span>]));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"dot_product mismatch: {:?}"</span>, <span class="tok-fn">dot_product</span>(&amp;[<span class="tok-number">1.0</span>], &amp;[]));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"running_total: {:?}"</span>, <span class="tok-fn">running_total</span>(&amp;[<span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>]));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"index_of_max: {:?}"</span>, <span class="tok-fn">index_of_max</span>(&amp;[<span class="tok-number">3</span>, <span class="tok-number">9</span>, <span class="tok-number">2</span>, <span class="tok-number">9</span>]));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"scale_by 3: {:?}"</span>, <span class="tok-fn">scale_by</span>(&amp;[<span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>], <span class="tok-number">3</span>));
+
+    <span class="tok-keyword">let</span> add_ten = <span class="tok-fn">make_adder</span>(<span class="tok-number">10</span>);
+    <span class="tok-macro">println!</span>(<span class="tok-string">"make_adder(10)(5): {}"</span>, <span class="tok-fn">add_ten</span>(<span class="tok-number">5</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"char_frequencies: {:?}"</span>, <span class="tok-fn">char_frequencies</span>(<span class="tok-string">"Hello"</span>));
+
+    <span class="tok-keyword">let</span> pipeline = <span class="tok-fn">compose</span>(<span class="tok-fn">make_adder</span>(<span class="tok-number">1</span>), |x| x * <span class="tok-number">2</span>);
+    <span class="tok-macro">println!</span>(<span class="tok-string">"compose(+1, *2)(4): {}"</span>, <span class="tok-fn">pipeline</span>(<span class="tok-number">4</span>));
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">filtering_and_parsing</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">squares_of_evens</span>(&amp;[<span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span>]), <span class="tok-macro">vec!</span>[<span class="tok-number">4</span>, <span class="tok-number">16</span>]);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">parse_numbers</span>(&amp;[<span class="tok-string">"1"</span>, <span class="tok-string">" 2 "</span>, <span class="tok-string">"x"</span>, <span class="tok-string">"3"</span>]), <span class="tok-macro">vec!</span>[<span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>]);
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">try_parse_all</span>(&amp;[<span class="tok-string">"1"</span>, <span class="tok-string">"x"</span>]),
+            <span class="tok-type">Err</span>(<span class="tok-string">"invalid number: 'x'"</span>.<span class="tok-fn">into</span>())
+        );
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">numeric_combinators</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">dot_product</span>(&amp;[<span class="tok-number">1.0</span>, <span class="tok-number">2.0</span>], &amp;[<span class="tok-number">3.0</span>, <span class="tok-number">4.0</span>]), <span class="tok-type">Some</span>(<span class="tok-number">11.0</span>));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">dot_product</span>(&amp;[<span class="tok-number">1.0</span>], &amp;[<span class="tok-number">1.0</span>, <span class="tok-number">2.0</span>]), <span class="tok-type">None</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">running_total</span>(&amp;[<span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>]), <span class="tok-macro">vec!</span>[<span class="tok-number">1</span>, <span class="tok-number">3</span>, <span class="tok-number">6</span>]);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">index_of_max</span>(&amp;[<span class="tok-number">3</span>, <span class="tok-number">9</span>, <span class="tok-number">2</span>, <span class="tok-number">9</span>]), <span class="tok-type">Some</span>(<span class="tok-number">1</span>));
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">index_of_max</span>(&amp;[]), <span class="tok-type">None</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">closures_capture_environment</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">scale_by</span>(&amp;[<span class="tok-number">1</span>, -<span class="tok-number">2</span>], <span class="tok-number">3</span>), <span class="tok-macro">vec!</span>[<span class="tok-number">3</span>, -<span class="tok-number">6</span>]);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">make_adder</span>(<span class="tok-number">10</span>)(<span class="tok-number">5</span>), <span class="tok-number">15</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">compose</span>(<span class="tok-fn">make_adder</span>(<span class="tok-number">1</span>), |x| x * <span class="tok-number">2</span>)(<span class="tok-number">4</span>), <span class="tok-number">10</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">frequencies_are_case_insensitive</span>() {
+        <span class="tok-keyword">let</span> f = <span class="tok-fn">char_frequencies</span>(<span class="tok-string">"Hello, hi!"</span>);
+        <span class="tok-macro">assert_eq!</span>(f.<span class="tok-fn">get</span>(&amp;<span class="tok-string">'h'</span>), <span class="tok-type">Some</span>(&amp;<span class="tok-number">2</span>));
+        <span class="tok-macro">assert_eq!</span>(f.<span class="tok-fn">get</span>(&amp;<span class="tok-string">'l'</span>), <span class="tok-type">Some</span>(&amp;<span class="tok-number">2</span>));
+        <span class="tok-macro">assert_eq!</span>(f.<span class="tok-fn">get</span>(&amp;<span class="tok-string">','</span>), <span class="tok-type">None</span>);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 33-data-transforms.rs -o 33-data-transforms &amp;&amp; ./33-data-transforms
+
+# run the unit tests
+rustc --edition 2021 --test 33-data-transforms.rs -o 33-data-transforms-tests &amp;&amp; ./33-data-transforms-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/32-reference-returning-apis.html"><small>← Previous</small>32 · Reference-Returning APIs</a><a class="pager-link next" href="../exercises/34-user-filtering.html"><small>Next →</small>34 · User Filtering</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

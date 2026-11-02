@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>51 · Repetition Macros · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Use macro repetitions to generate whole items: an enum with `Display`/`FromStr`, a config struct with defaults and getters, and a family of test functions.">
+<meta property="og:title" content="51 · Repetition Macros · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Use macro repetitions to generate whole items: an enum with `Display`/`FromStr`, a config struct with defaults and getters, and a family of test functions.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/16-macros.html">Level 16 — Macros</a><span>/</span><span>Exercise 51</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 51 · Level 16 — Macros</div>
+  <h1>Repetition Macros</h1>
+  <p class="lead">Use macro repetitions to generate whole items: an enum with <code>Display</code>/<code>FromStr</code>, a config struct with defaults and getters, and a family of test functions.</p>
+  <div class="meta"><span class="badge diff-advanced">Advanced</span><span class="chip">`ident`</span><span class="chip">`ty`</span><span class="chip">`literal`</span><span class="chip">`path`</span><span class="chip">`expr` fragments</span><span class="chip">item-generating macros</span><span class="chip">nested repetitions</span><span class="chip">`stringify!`</span><span class="chip">code generation for tests</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="51"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<ol><li><code>string_enum! { Name { Variant =&gt; "text", ... } }</code> must generate: - <code>enum Name { Variant, ... }</code> deriving <code>Debug, Clone, Copy, PartialEq, Eq</code> - <code>const ALL: &amp;'static [Name]</code> listing every variant - <code>impl fmt::Display</code> printing each variant's text - <code>impl FromStr</code> (<code>Err = String</code>) parsing the text back (unknown → <code>Err</code>)</li><li><code>config_struct! { Name { field: Type = default_expr, ... } }</code> must generate: - the struct, <code>impl Default</code> using the default expressions - one getter per field: <code>fn field(&amp;self) -&gt; &amp;Type</code> - <code>fn field_names() -&gt; &amp;'static [&amp;'static str]</code></li><li><code>test_cases! { func; case_name: (input, expected), ... }</code> must generate one <code>#[test] fn case_name()</code> per case asserting <code>func(input) == expected</code>.</li><li>Use them for <code>Color { Red, Green, Blue }</code>, <code>ServerConfig { host, port, workers }</code>, and <code>parse_color</code> tests.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<ul><li><code>Color::ALL.len()</code> → <code>3</code>; <code>Color::Green.to_string()</code> → <code>"green"</code>; <code>"pink".parse::&lt;Color&gt;()</code> → <code>Err("unknown Color: \"pink\"")</code>.</li><li><code>ServerConfig::default().port()</code> → <code>&amp;8080</code>; <code>ServerConfig::field_names()</code> → <code>["host", "port", "workers"]</code>.</li><li><code>cargo test</code>/<code>rustc --test</code> lists <code>parses_red</code>, <code>parses_blue</code>, <code>rejects_unknown</code>, <code>is_case_sensitive</code> as separate tests.</li></ul>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li>A macro can expand to several items at once — just write them one after another in the transcriber.</li><li>Getter names can reuse the field identifiers: <code>$( fn $field(&amp;self) -&gt; &amp;$ty { &amp;self.$field } )+</code>.</li><li><code>stringify!($field)</code> turns an identifier into a <code>&amp;'static str</code> literal.</li><li>In <code>FromStr</code>, literal patterns work in <code>match</code>: <code>$($text =&gt; Ok($name::$variant),)+</code>.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Add per-field validation to <code>config_struct!</code> (e.g. <code>port: u16 = 8080 =&gt; |p| *p &gt; 0</code>) generating a <code>fn validate(&amp;self) -&gt; Result&lt;(), String&gt;</code>, and add a <code>with_&lt;field&gt;</code> builder method per field (hint: identifier concatenation needs the <code>paste</code> crate — or a different design!).</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">16-macros/exercises/51-repetition-macros.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=%23%21%5Ballow%28dead_code%2C%20unused_imports%29%5D%0Ause%20std%3A%3Afmt%3B%0Ause%20std%3A%3Astr%3A%3AFromStr%3B%0A%0A///%20Generates%20a%20fieldless%20enum%20with%20%60Display%60%2C%20%60FromStr%60%2C%20and%20an%20%60ALL%60%20constant.%0Amacro_rules%21%20string_enum%20%7B%0A%20%20%20%20%28%24name%3Aident%20%7B%20%24%28%24variant%3Aident%20%3D%3E%20%24text%3Aliteral%29%2C%2B%20%24%28%2C%29%3F%20%7D%29%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%23%5Bderive%28Debug%2C%20Clone%2C%20Copy%2C%20PartialEq%2C%20Eq%29%5D%0A%20%20%20%20%20%20%20%20enum%20%24name%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%24%28%24variant%29%2C%2B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20%24name%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20list%20every%20variant%3A%20%26%5B%24%28%24name%3A%3A%24variant%29%2C%2B%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20const%20ALL%3A%20%26%27static%20%5B%24name%5D%20%3D%20%26%5B%5D%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20fmt%3A%3ADisplay%20for%20%24name%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20fn%20fmt%28%26self%2C%20f%3A%20%26mut%20fmt%3A%3AFormatter%3C%27_%3E%29%20-%3E%20fmt%3A%3AResult%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20match%20each%20variant%20to%20its%20%24text%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20_%20%3D%20f%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%22one%20match%20arm%20per%20variant%22%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20FromStr%20for%20%24name%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20type%20Err%20%3D%20String%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20fn%20from_str%28s%3A%20%26str%29%20-%3E%20Result%3CSelf%2C%20Self%3A%3AErr%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20match%20each%20%24text%20back%20to%20its%20variant%3B%20unknown%20%3D%3E%20Err%28..%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20_%20%3D%20s%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%22Generate%20one%20match%20arm%20per%20variant%22%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%3B%0A%7D%0A%0A///%20Generates%20a%20struct%20with%20a%20%60Default%60%20impl%20%28from%20the%20given%20defaults%29%2C%0A///%20a%20getter%20per%20field%2C%20and%20a%20%60field_names%28%29%60%20list.%0Amacro_rules%21%20config_struct%20%7B%0A%20%20%20%20%28%24name%3Aident%20%7B%20%24%28%24field%3Aident%20%3A%20%24ty%3Aty%20%3D%20%24default%3Aexpr%29%2C%2B%20%24%28%2C%29%3F%20%7D%29%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0A%20%20%20%20%20%20%20%20struct%20%24name%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%24%28%24field%3A%20%24ty%29%2C%2B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20Default%20for%20%24name%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20fn%20default%28%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20build%20the%20struct%20from%20the%20%24default%20expressions%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%22build%20the%20struct%20from%20the%20defaults%22%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20%24name%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%24%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20fn%20%24field%28%26self%29%20-%3E%20%26%24ty%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20return%20a%20reference%20to%20the%20field%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20todo%21%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%29%2B%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20fn%20field_names%28%29%20-%3E%20%26%27static%20%5B%26%27static%20str%5D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20TODO%3A%20use%20stringify%21%28%24field%29%20for%20each%20field%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%26%5B%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%3B%0A%7D%0A%0A///%20Generates%20one%20%60%23%5Btest%5D%60%20function%20per%20case%3A%20%60name%3A%20%28input%2C%20expected%29%60.%0A%23%5Ballow%28unused_macros%29%5D%0Amacro_rules%21%20test_cases%20%7B%0A%20%20%20%20%28%24func%3Apath%3B%20%24%28%24name%3Aident%20%3A%20%28%24input%3Aexpr%2C%20%24expected%3Aexpr%29%29%2C%2B%20%24%28%2C%29%3F%29%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20for%20each%20case%20generate%3A%0A%20%20%20%20%20%20%20%20//%20%23%5Btest%5D%20fn%20%24name%28%29%20%7B%20assert_eq%21%28%24func%28%24input%29%2C%20%24expected%29%3B%20%7D%0A%20%20%20%20%7D%3B%0A%7D%0A%0Astring_enum%21%20%7B%0A%20%20%20%20Color%20%7B%0A%20%20%20%20%20%20%20%20Red%20%3D%3E%20%22red%22%2C%0A%20%20%20%20%20%20%20%20Green%20%3D%3E%20%22green%22%2C%0A%20%20%20%20%20%20%20%20Blue%20%3D%3E%20%22blue%22%2C%0A%20%20%20%20%7D%0A%7D%0A%0Aconfig_struct%21%20%7B%0A%20%20%20%20ServerConfig%20%7B%0A%20%20%20%20%20%20%20%20host%3A%20String%20%3D%20String%3A%3Afrom%28%22localhost%22%29%2C%0A%20%20%20%20%20%20%20%20port%3A%20u16%20%3D%208080%2C%0A%20%20%20%20%20%20%20%20workers%3A%20usize%20%3D%204%2C%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20parse_color%28s%3A%20%26str%29%20-%3E%20Option%3CColor%3E%20%7B%0A%20%20%20%20s.parse%28%29.ok%28%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20for%20c%20in%20Color%3A%3AALL%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%7Bc%3A%3F%7D%20displays%20as%20%7Bc%7D%22%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%22parse%20%5C%22green%5C%22%20-%3E%20%7B%3A%3F%7D%22%2C%20parse_color%28%22green%22%29%29%3B%0A%20%20%20%20println%21%28%22parse%20%5C%22pink%5C%22%20%20-%3E%20%7B%3A%3F%7D%22%2C%20%22pink%22.parse%3A%3A%3CColor%3E%28%29%29%3B%0A%0A%20%20%20%20let%20cfg%20%3D%20ServerConfig%3A%3Adefault%28%29%3B%0A%20%20%20%20println%21%28%22fields%3A%20%7B%3A%3F%7D%22%2C%20ServerConfig%3A%3Afield_names%28%29%29%3B%0A%20%20%20%20println%21%28%22host%20%3D%20%7B%7D%2C%20port%20%3D%20%7B%7D%2C%20workers%20%3D%20%7B%7D%22%2C%20cfg.host%28%29%2C%20cfg.port%28%29%2C%20cfg.workers%28%29%29%3B%0A%0A%20%20%20%20let%20custom%20%3D%20ServerConfig%20%7B%0A%20%20%20%20%20%20%20%20port%3A%203000%2C%0A%20%20%20%20%20%20%20%20..ServerConfig%3A%3Adefault%28%29%0A%20%20%20%20%7D%3B%0A%20%20%20%20println%21%28%22custom%20%3D%20%7Bcustom%3A%3F%7D%22%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20enum_round_trips%28%29%20%7B%0A%20%20%20%20%20%20%20%20for%20c%20in%20Color%3A%3AALL%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20assert_eq%21%28c.to_string%28%29.parse%3A%3A%3CColor%3E%28%29%2C%20Ok%28%2Ac%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20assert_eq%21%28Color%3A%3AALL.len%28%29%2C%203%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%22purple%22.parse%3A%3A%3CColor%3E%28%29.is_err%28%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20config_defaults_and_getters%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20cfg%20%3D%20ServerConfig%3A%3Adefault%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28cfg.host%28%29%2C%20%22localhost%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%2Acfg.port%28%29%2C%208080%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28ServerConfig%3A%3Afield_names%28%29%2C%20%5B%22host%22%2C%20%22port%22%2C%20%22workers%22%5D%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20test_cases%21%20%7B%20parse_color%3B%0A%20%20%20%20%20%20%20%20parses_red%3A%20%28%22red%22%2C%20Some%28Color%3A%3ARed%29%29%2C%0A%20%20%20%20%20%20%20%20parses_blue%3A%20%28%22blue%22%2C%20Some%28Color%3A%3ABlue%29%29%2C%0A%20%20%20%20%20%20%20%20rejects_unknown%3A%20%28%22teal%22%2C%20None%29%2C%0A%20%20%20%20%20%20%20%20is_case_sensitive%3A%20%28%22Red%22%2C%20None%29%2C%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/16-macros/exercises/51-repetition-macros.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-attr">#![allow(dead_code, unused_imports)]</span>
+<span class="tok-keyword">use</span> std::fmt;
+<span class="tok-keyword">use</span> std::<span class="tok-type">str</span>::<span class="tok-type">FromStr</span>;
+
+<span class="tok-comment">/// Generates a fieldless enum with `Display`, `FromStr`, and an `ALL` constant.</span>
+<span class="tok-macro">macro_rules!</span> string_enum {
+    ($name:ident { $($variant:ident =&gt; $text:literal),+ $(,)? }) =&gt; {
+        <span class="tok-attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]</span>
+        <span class="tok-keyword">enum</span> $name {
+            $($variant),+
+        }
+
+        <span class="tok-keyword">impl</span> $name {
+            <span class="tok-comment">// TODO: list every variant: &amp;[$($name::$variant),+]</span>
+            <span class="tok-keyword">const</span> <span class="tok-type">ALL</span>: &amp;<span class="tok-lifetime">'static</span> [$name] = &amp;[];
+        }
+
+        <span class="tok-keyword">impl</span> fmt::<span class="tok-type">Display</span> <span class="tok-keyword">for</span> $name {
+            <span class="tok-keyword">fn</span> <span class="tok-fn">fmt</span>(&amp;<span class="tok-keyword">self</span>, f: &amp;<span class="tok-keyword">mut</span> fmt::<span class="tok-type">Formatter</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; fmt::<span class="tok-type">Result</span> {
+                <span class="tok-comment">// TODO: match each variant to its $text</span>
+                <span class="tok-keyword">let</span> _ = f;
+                <span class="tok-macro">todo!</span>(<span class="tok-string">"one match arm per variant"</span>)
+            }
+        }
+
+        <span class="tok-keyword">impl</span> <span class="tok-type">FromStr</span> <span class="tok-keyword">for</span> $name {
+            <span class="tok-keyword">type</span> <span class="tok-type">Err</span> = <span class="tok-type">String</span>;
+            <span class="tok-keyword">fn</span> <span class="tok-fn">from_str</span>(s: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-keyword">Self</span>, <span class="tok-keyword">Self</span>::<span class="tok-type">Err</span>&gt; {
+                <span class="tok-comment">// TODO: match each $text back to its variant; unknown =&gt; Err(..)</span>
+                <span class="tok-keyword">let</span> _ = s;
+                <span class="tok-macro">todo!</span>(<span class="tok-string">"Generate one match arm per variant"</span>)
+            }
+        }
+    };
+}
+
+<span class="tok-comment">/// Generates a struct with a `Default` impl (from the given defaults),</span>
+<span class="tok-comment">/// a getter per field, and a `field_names()` list.</span>
+<span class="tok-macro">macro_rules!</span> config_struct {
+    ($name:ident { $($field:ident : $ty:ty = $default:expr),+ $(,)? }) =&gt; {
+        <span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+        <span class="tok-keyword">struct</span> $name {
+            $($field: $ty),+
+        }
+
+        <span class="tok-keyword">impl</span> <span class="tok-type">Default</span> <span class="tok-keyword">for</span> $name {
+            <span class="tok-keyword">fn</span> <span class="tok-fn">default</span>() -&gt; <span class="tok-keyword">Self</span> {
+                <span class="tok-comment">// TODO: build the struct from the $default expressions</span>
+                <span class="tok-macro">todo!</span>(<span class="tok-string">"build the struct from the defaults"</span>)
+            }
+        }
+
+        <span class="tok-keyword">impl</span> $name {
+            $(
+                <span class="tok-keyword">fn</span> $<span class="tok-fn">field</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;$ty {
+                    <span class="tok-comment">// TODO: return a reference to the field</span>
+                    <span class="tok-macro">todo!</span>()
+                }
+            )+
+
+            <span class="tok-keyword">fn</span> <span class="tok-fn">field_names</span>() -&gt; &amp;<span class="tok-lifetime">'static</span> [&amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>] {
+                <span class="tok-comment">// TODO: use stringify!($field) for each field</span>
+                &amp;[]
+            }
+        }
+    };
+}
+
+<span class="tok-comment">/// Generates one `#[test]` function per case: `name: (input, expected)`.</span>
+<span class="tok-attr">#[allow(unused_macros)]</span>
+<span class="tok-macro">macro_rules!</span> test_cases {
+    ($func:path; $($name:ident : ($input:expr, $expected:expr)),+ $(,)?) =&gt; {
+        <span class="tok-comment">// TODO: for each case generate:</span>
+        <span class="tok-comment">// #[test] fn $name() { assert_eq!($func($input), $expected); }</span>
+    };
+}
+
+<span class="tok-macro">string_enum!</span> {
+    <span class="tok-type">Color</span> {
+        <span class="tok-type">Red</span> =&gt; <span class="tok-string">"red"</span>,
+        <span class="tok-type">Green</span> =&gt; <span class="tok-string">"green"</span>,
+        <span class="tok-type">Blue</span> =&gt; <span class="tok-string">"blue"</span>,
+    }
+}
+
+<span class="tok-macro">config_struct!</span> {
+    <span class="tok-type">ServerConfig</span> {
+        host: <span class="tok-type">String</span> = <span class="tok-type">String</span>::<span class="tok-fn">from</span>(<span class="tok-string">"localhost"</span>),
+        port: <span class="tok-type">u16</span> = <span class="tok-number">8080</span>,
+        workers: <span class="tok-type">usize</span> = <span class="tok-number">4</span>,
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">parse_color</span>(s: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Option</span>&lt;<span class="tok-type">Color</span>&gt; {
+    s.<span class="tok-fn">parse</span>().<span class="tok-fn">ok</span>()
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">for</span> c <span class="tok-keyword">in</span> <span class="tok-type">Color</span>::<span class="tok-type">ALL</span> {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"{c:?} displays as {c}"</span>);
+    }
+    <span class="tok-macro">println!</span>(<span class="tok-string">"parse \"green\" -&gt; {:?}"</span>, <span class="tok-fn">parse_color</span>(<span class="tok-string">"green"</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"parse \"pink\"  -&gt; {:?}"</span>, <span class="tok-string">"pink"</span>.parse::&lt;<span class="tok-type">Color</span>&gt;());
+
+    <span class="tok-keyword">let</span> cfg = <span class="tok-type">ServerConfig</span>::<span class="tok-fn">default</span>();
+    <span class="tok-macro">println!</span>(<span class="tok-string">"fields: {:?}"</span>, <span class="tok-type">ServerConfig</span>::<span class="tok-fn">field_names</span>());
+    <span class="tok-macro">println!</span>(<span class="tok-string">"host = {}, port = {}, workers = {}"</span>, cfg.<span class="tok-fn">host</span>(), cfg.<span class="tok-fn">port</span>(), cfg.<span class="tok-fn">workers</span>());
+
+    <span class="tok-keyword">let</span> custom = <span class="tok-type">ServerConfig</span> {
+        port: <span class="tok-number">3000</span>,
+        ..<span class="tok-type">ServerConfig</span>::<span class="tok-fn">default</span>()
+    };
+    <span class="tok-macro">println!</span>(<span class="tok-string">"custom = {custom:?}"</span>);
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">enum_round_trips</span>() {
+        <span class="tok-keyword">for</span> c <span class="tok-keyword">in</span> <span class="tok-type">Color</span>::<span class="tok-type">ALL</span> {
+            <span class="tok-macro">assert_eq!</span>(c.<span class="tok-fn">to_string</span>().parse::&lt;<span class="tok-type">Color</span>&gt;(), <span class="tok-type">Ok</span>(*c));
+        }
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-type">Color</span>::<span class="tok-type">ALL</span>.<span class="tok-fn">len</span>(), <span class="tok-number">3</span>);
+        <span class="tok-macro">assert!</span>(<span class="tok-string">"purple"</span>.parse::&lt;<span class="tok-type">Color</span>&gt;().<span class="tok-fn">is_err</span>());
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">config_defaults_and_getters</span>() {
+        <span class="tok-keyword">let</span> cfg = <span class="tok-type">ServerConfig</span>::<span class="tok-fn">default</span>();
+        <span class="tok-macro">assert_eq!</span>(cfg.<span class="tok-fn">host</span>(), <span class="tok-string">"localhost"</span>);
+        <span class="tok-macro">assert_eq!</span>(*cfg.<span class="tok-fn">port</span>(), <span class="tok-number">8080</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-type">ServerConfig</span>::<span class="tok-fn">field_names</span>(), [<span class="tok-string">"host"</span>, <span class="tok-string">"port"</span>, <span class="tok-string">"workers"</span>]);
+    }
+
+    <span class="tok-macro">test_cases!</span> { parse_color;
+        parses_red: (<span class="tok-string">"red"</span>, <span class="tok-type">Some</span>(<span class="tok-type">Color</span>::<span class="tok-type">Red</span>)),
+        parses_blue: (<span class="tok-string">"blue"</span>, <span class="tok-type">Some</span>(<span class="tok-type">Color</span>::<span class="tok-type">Blue</span>)),
+        rejects_unknown: (<span class="tok-string">"teal"</span>, <span class="tok-type">None</span>),
+        is_case_sensitive: (<span class="tok-string">"Red"</span>, <span class="tok-type">None</span>),
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/16-macros/51-repetition-macros.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Afmt%3B%0Ause%20std%3A%3Astr%3A%3AFromStr%3B%0A%0A///%20Generates%20a%20fieldless%20enum%20with%20%60Display%60%2C%20%60FromStr%60%2C%20and%20an%20%60ALL%60%20constant.%0A///%0A///%20%60%60%60ignore%0A///%20string_enum%21%20%7B%20Color%20%7B%20Red%20%3D%3E%20%22red%22%2C%20Green%20%3D%3E%20%22green%22%20%7D%20%7D%0A///%20%60%60%60%0Amacro_rules%21%20string_enum%20%7B%0A%20%20%20%20%28%24name%3Aident%20%7B%20%24%28%24variant%3Aident%20%3D%3E%20%24text%3Aliteral%29%2C%2B%20%24%28%2C%29%3F%20%7D%29%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%23%5Bderive%28Debug%2C%20Clone%2C%20Copy%2C%20PartialEq%2C%20Eq%29%5D%0A%20%20%20%20%20%20%20%20enum%20%24name%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%24%28%24variant%29%2C%2B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20%24name%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20const%20ALL%3A%20%26%27static%20%5B%24name%5D%20%3D%20%26%5B%24%28%24name%3A%3A%24variant%29%2C%2B%5D%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20fmt%3A%3ADisplay%20for%20%24name%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20fn%20fmt%28%26self%2C%20f%3A%20%26mut%20fmt%3A%3AFormatter%3C%27_%3E%29%20-%3E%20fmt%3A%3AResult%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20s%20%3D%20match%20self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%24%28%24name%3A%3A%24variant%20%3D%3E%20%24text%29%2C%2B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20f.write_str%28s%29%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20FromStr%20for%20%24name%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20type%20Err%20%3D%20String%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20fn%20from_str%28s%3A%20%26str%29%20-%3E%20Result%3CSelf%2C%20Self%3A%3AErr%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20match%20s%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%24%28%24text%20%3D%3E%20Ok%28%24name%3A%3A%24variant%29%2C%29%2B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20other%20%3D%3E%20Err%28format%21%28%22unknown%20%7B%7D%3A%20%7Bother%3A%3F%7D%22%2C%20stringify%21%28%24name%29%29%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%3B%0A%7D%0A%0A///%20Generates%20a%20struct%20with%20a%20%60Default%60%20impl%20%28from%20the%20given%20defaults%29%2C%0A///%20a%20getter%20per%20field%2C%20and%20a%20%60field_names%28%29%60%20list.%0Amacro_rules%21%20config_struct%20%7B%0A%20%20%20%20%28%24name%3Aident%20%7B%20%24%28%24field%3Aident%20%3A%20%24ty%3Aty%20%3D%20%24default%3Aexpr%29%2C%2B%20%24%28%2C%29%3F%20%7D%29%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%23%5Bderive%28Debug%2C%20Clone%2C%20PartialEq%29%5D%0A%20%20%20%20%20%20%20%20struct%20%24name%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%24%28%24field%3A%20%24ty%29%2C%2B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20Default%20for%20%24name%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20fn%20default%28%29%20-%3E%20Self%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%24name%20%7B%20%24%28%24field%3A%20%24default%29%2C%2B%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20impl%20%24name%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%24%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20fn%20%24field%28%26self%29%20-%3E%20%26%24ty%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%26self.%24field%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%29%2B%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20fn%20field_names%28%29%20-%3E%20%26%27static%20%5B%26%27static%20str%5D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%26%5B%24%28stringify%21%28%24field%29%29%2C%2B%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%3B%0A%7D%0A%0A///%20Generates%20one%20%60%23%5Btest%5D%60%20function%20per%20case%3A%20%60name%3A%20%28input%2C%20expected%29%60.%0A%23%5Ballow%28unused_macros%29%5D%0Amacro_rules%21%20test_cases%20%7B%0A%20%20%20%20%28%24func%3Apath%3B%20%24%28%24name%3Aident%20%3A%20%28%24input%3Aexpr%2C%20%24expected%3Aexpr%29%29%2C%2B%20%24%28%2C%29%3F%29%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%24%28%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%5Btest%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20fn%20%24name%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20assert_eq%21%28%24func%28%24input%29%2C%20%24expected%2C%20%22case%20%7B%7D%22%2C%20stringify%21%28%24name%29%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%29%2B%0A%20%20%20%20%7D%3B%0A%7D%0A%0Astring_enum%21%20%7B%0A%20%20%20%20Color%20%7B%0A%20%20%20%20%20%20%20%20Red%20%3D%3E%20%22red%22%2C%0A%20%20%20%20%20%20%20%20Green%20%3D%3E%20%22green%22%2C%0A%20%20%20%20%20%20%20%20Blue%20%3D%3E%20%22blue%22%2C%0A%20%20%20%20%7D%0A%7D%0A%0Aconfig_struct%21%20%7B%0A%20%20%20%20ServerConfig%20%7B%0A%20%20%20%20%20%20%20%20host%3A%20String%20%3D%20String%3A%3Afrom%28%22localhost%22%29%2C%0A%20%20%20%20%20%20%20%20port%3A%20u16%20%3D%208080%2C%0A%20%20%20%20%20%20%20%20workers%3A%20usize%20%3D%204%2C%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20parse_color%28s%3A%20%26str%29%20-%3E%20Option%3CColor%3E%20%7B%0A%20%20%20%20s.parse%28%29.ok%28%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20for%20c%20in%20Color%3A%3AALL%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%7Bc%3A%3F%7D%20displays%20as%20%7Bc%7D%22%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%22parse%20%5C%22green%5C%22%20-%3E%20%7B%3A%3F%7D%22%2C%20parse_color%28%22green%22%29%29%3B%0A%20%20%20%20println%21%28%22parse%20%5C%22pink%5C%22%20%20-%3E%20%7B%3A%3F%7D%22%2C%20%22pink%22.parse%3A%3A%3CColor%3E%28%29%29%3B%0A%0A%20%20%20%20let%20cfg%20%3D%20ServerConfig%3A%3Adefault%28%29%3B%0A%20%20%20%20println%21%28%22fields%3A%20%7B%3A%3F%7D%22%2C%20ServerConfig%3A%3Afield_names%28%29%29%3B%0A%20%20%20%20println%21%28%22host%20%3D%20%7B%7D%2C%20port%20%3D%20%7B%7D%2C%20workers%20%3D%20%7B%7D%22%2C%20cfg.host%28%29%2C%20cfg.port%28%29%2C%20cfg.workers%28%29%29%3B%0A%0A%20%20%20%20let%20custom%20%3D%20ServerConfig%20%7B%0A%20%20%20%20%20%20%20%20port%3A%203000%2C%0A%20%20%20%20%20%20%20%20..ServerConfig%3A%3Adefault%28%29%0A%20%20%20%20%7D%3B%0A%20%20%20%20println%21%28%22custom%20%3D%20%7Bcustom%3A%3F%7D%22%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20enum_round_trips%28%29%20%7B%0A%20%20%20%20%20%20%20%20for%20c%20in%20Color%3A%3AALL%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20assert_eq%21%28c.to_string%28%29.parse%3A%3A%3CColor%3E%28%29%2C%20Ok%28%2Ac%29%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20assert_eq%21%28Color%3A%3AALL.len%28%29%2C%203%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%22purple%22.parse%3A%3A%3CColor%3E%28%29.is_err%28%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20config_defaults_and_getters%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20cfg%20%3D%20ServerConfig%3A%3Adefault%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28cfg.host%28%29%2C%20%22localhost%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%2Acfg.port%28%29%2C%208080%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28ServerConfig%3A%3Afield_names%28%29%2C%20%5B%22host%22%2C%20%22port%22%2C%20%22workers%22%5D%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20test_cases%21%20%7B%20parse_color%3B%0A%20%20%20%20%20%20%20%20parses_red%3A%20%28%22red%22%2C%20Some%28Color%3A%3ARed%29%29%2C%0A%20%20%20%20%20%20%20%20parses_blue%3A%20%28%22blue%22%2C%20Some%28Color%3A%3ABlue%29%29%2C%0A%20%20%20%20%20%20%20%20rejects_unknown%3A%20%28%22teal%22%2C%20None%29%2C%0A%20%20%20%20%20%20%20%20is_case_sensitive%3A%20%28%22Red%22%2C%20None%29%2C%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/16-macros/51-repetition-macros.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::fmt;
+<span class="tok-keyword">use</span> std::<span class="tok-type">str</span>::<span class="tok-type">FromStr</span>;
+
+<span class="tok-comment">/// Generates a fieldless enum with `Display`, `FromStr`, and an `ALL` constant.</span>
+<span class="tok-comment">///</span>
+<span class="tok-comment">/// ```ignore</span>
+<span class="tok-comment">/// string_enum! { Color { Red =&gt; "red", Green =&gt; "green" } }</span>
+<span class="tok-comment">/// ```</span>
+<span class="tok-macro">macro_rules!</span> string_enum {
+    ($name:ident { $($variant:ident =&gt; $text:literal),+ $(,)? }) =&gt; {
+        <span class="tok-attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]</span>
+        <span class="tok-keyword">enum</span> $name {
+            $($variant),+
+        }
+
+        <span class="tok-keyword">impl</span> $name {
+            <span class="tok-keyword">const</span> <span class="tok-type">ALL</span>: &amp;<span class="tok-lifetime">'static</span> [$name] = &amp;[$($name::$variant),+];
+        }
+
+        <span class="tok-keyword">impl</span> fmt::<span class="tok-type">Display</span> <span class="tok-keyword">for</span> $name {
+            <span class="tok-keyword">fn</span> <span class="tok-fn">fmt</span>(&amp;<span class="tok-keyword">self</span>, f: &amp;<span class="tok-keyword">mut</span> fmt::<span class="tok-type">Formatter</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; fmt::<span class="tok-type">Result</span> {
+                <span class="tok-keyword">let</span> s = <span class="tok-keyword">match</span> <span class="tok-keyword">self</span> {
+                    $($name::$variant =&gt; $text),+
+                };
+                f.<span class="tok-fn">write_str</span>(s)
+            }
+        }
+
+        <span class="tok-keyword">impl</span> <span class="tok-type">FromStr</span> <span class="tok-keyword">for</span> $name {
+            <span class="tok-keyword">type</span> <span class="tok-type">Err</span> = <span class="tok-type">String</span>;
+            <span class="tok-keyword">fn</span> <span class="tok-fn">from_str</span>(s: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Result</span>&lt;<span class="tok-keyword">Self</span>, <span class="tok-keyword">Self</span>::<span class="tok-type">Err</span>&gt; {
+                <span class="tok-keyword">match</span> s {
+                    $($text =&gt; <span class="tok-type">Ok</span>($name::$variant),)+
+                    other =&gt; <span class="tok-type">Err</span>(<span class="tok-macro">format!</span>(<span class="tok-string">"unknown {}: {other:?}"</span>, <span class="tok-macro">stringify!</span>($name))),
+                }
+            }
+        }
+    };
+}
+
+<span class="tok-comment">/// Generates a struct with a `Default` impl (from the given defaults),</span>
+<span class="tok-comment">/// a getter per field, and a `field_names()` list.</span>
+<span class="tok-macro">macro_rules!</span> config_struct {
+    ($name:ident { $($field:ident : $ty:ty = $default:expr),+ $(,)? }) =&gt; {
+        <span class="tok-attr">#[derive(Debug, Clone, PartialEq)]</span>
+        <span class="tok-keyword">struct</span> $name {
+            $($field: $ty),+
+        }
+
+        <span class="tok-keyword">impl</span> <span class="tok-type">Default</span> <span class="tok-keyword">for</span> $name {
+            <span class="tok-keyword">fn</span> <span class="tok-fn">default</span>() -&gt; <span class="tok-keyword">Self</span> {
+                $name { $($field: $default),+ }
+            }
+        }
+
+        <span class="tok-keyword">impl</span> $name {
+            $(
+                <span class="tok-keyword">fn</span> $<span class="tok-fn">field</span>(&amp;<span class="tok-keyword">self</span>) -&gt; &amp;$ty {
+                    &amp;<span class="tok-keyword">self</span>.$field
+                }
+            )+
+
+            <span class="tok-keyword">fn</span> <span class="tok-fn">field_names</span>() -&gt; &amp;<span class="tok-lifetime">'static</span> [&amp;<span class="tok-lifetime">'static</span> <span class="tok-type">str</span>] {
+                &amp;[$(<span class="tok-macro">stringify!</span>($field)),+]
+            }
+        }
+    };
+}
+
+<span class="tok-comment">/// Generates one `#[test]` function per case: `name: (input, expected)`.</span>
+<span class="tok-attr">#[allow(unused_macros)]</span>
+<span class="tok-macro">macro_rules!</span> test_cases {
+    ($func:path; $($name:ident : ($input:expr, $expected:expr)),+ $(,)?) =&gt; {
+        $(
+            <span class="tok-attr">#[test]</span>
+            <span class="tok-keyword">fn</span> $<span class="tok-fn">name</span>() {
+                <span class="tok-macro">assert_eq!</span>($<span class="tok-fn">func</span>($input), $expected, <span class="tok-string">"case {}"</span>, <span class="tok-macro">stringify!</span>($name));
+            }
+        )+
+    };
+}
+
+<span class="tok-macro">string_enum!</span> {
+    <span class="tok-type">Color</span> {
+        <span class="tok-type">Red</span> =&gt; <span class="tok-string">"red"</span>,
+        <span class="tok-type">Green</span> =&gt; <span class="tok-string">"green"</span>,
+        <span class="tok-type">Blue</span> =&gt; <span class="tok-string">"blue"</span>,
+    }
+}
+
+<span class="tok-macro">config_struct!</span> {
+    <span class="tok-type">ServerConfig</span> {
+        host: <span class="tok-type">String</span> = <span class="tok-type">String</span>::<span class="tok-fn">from</span>(<span class="tok-string">"localhost"</span>),
+        port: <span class="tok-type">u16</span> = <span class="tok-number">8080</span>,
+        workers: <span class="tok-type">usize</span> = <span class="tok-number">4</span>,
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">parse_color</span>(s: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">Option</span>&lt;<span class="tok-type">Color</span>&gt; {
+    s.<span class="tok-fn">parse</span>().<span class="tok-fn">ok</span>()
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">for</span> c <span class="tok-keyword">in</span> <span class="tok-type">Color</span>::<span class="tok-type">ALL</span> {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"{c:?} displays as {c}"</span>);
+    }
+    <span class="tok-macro">println!</span>(<span class="tok-string">"parse \"green\" -&gt; {:?}"</span>, <span class="tok-fn">parse_color</span>(<span class="tok-string">"green"</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"parse \"pink\"  -&gt; {:?}"</span>, <span class="tok-string">"pink"</span>.parse::&lt;<span class="tok-type">Color</span>&gt;());
+
+    <span class="tok-keyword">let</span> cfg = <span class="tok-type">ServerConfig</span>::<span class="tok-fn">default</span>();
+    <span class="tok-macro">println!</span>(<span class="tok-string">"fields: {:?}"</span>, <span class="tok-type">ServerConfig</span>::<span class="tok-fn">field_names</span>());
+    <span class="tok-macro">println!</span>(<span class="tok-string">"host = {}, port = {}, workers = {}"</span>, cfg.<span class="tok-fn">host</span>(), cfg.<span class="tok-fn">port</span>(), cfg.<span class="tok-fn">workers</span>());
+
+    <span class="tok-keyword">let</span> custom = <span class="tok-type">ServerConfig</span> {
+        port: <span class="tok-number">3000</span>,
+        ..<span class="tok-type">ServerConfig</span>::<span class="tok-fn">default</span>()
+    };
+    <span class="tok-macro">println!</span>(<span class="tok-string">"custom = {custom:?}"</span>);
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">enum_round_trips</span>() {
+        <span class="tok-keyword">for</span> c <span class="tok-keyword">in</span> <span class="tok-type">Color</span>::<span class="tok-type">ALL</span> {
+            <span class="tok-macro">assert_eq!</span>(c.<span class="tok-fn">to_string</span>().parse::&lt;<span class="tok-type">Color</span>&gt;(), <span class="tok-type">Ok</span>(*c));
+        }
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-type">Color</span>::<span class="tok-type">ALL</span>.<span class="tok-fn">len</span>(), <span class="tok-number">3</span>);
+        <span class="tok-macro">assert!</span>(<span class="tok-string">"purple"</span>.parse::&lt;<span class="tok-type">Color</span>&gt;().<span class="tok-fn">is_err</span>());
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">config_defaults_and_getters</span>() {
+        <span class="tok-keyword">let</span> cfg = <span class="tok-type">ServerConfig</span>::<span class="tok-fn">default</span>();
+        <span class="tok-macro">assert_eq!</span>(cfg.<span class="tok-fn">host</span>(), <span class="tok-string">"localhost"</span>);
+        <span class="tok-macro">assert_eq!</span>(*cfg.<span class="tok-fn">port</span>(), <span class="tok-number">8080</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-type">ServerConfig</span>::<span class="tok-fn">field_names</span>(), [<span class="tok-string">"host"</span>, <span class="tok-string">"port"</span>, <span class="tok-string">"workers"</span>]);
+    }
+
+    <span class="tok-macro">test_cases!</span> { parse_color;
+        parses_red: (<span class="tok-string">"red"</span>, <span class="tok-type">Some</span>(<span class="tok-type">Color</span>::<span class="tok-type">Red</span>)),
+        parses_blue: (<span class="tok-string">"blue"</span>, <span class="tok-type">Some</span>(<span class="tok-type">Color</span>::<span class="tok-type">Blue</span>)),
+        rejects_unknown: (<span class="tok-string">"teal"</span>, <span class="tok-type">None</span>),
+        is_case_sensitive: (<span class="tok-string">"Red"</span>, <span class="tok-type">None</span>),
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 51-repetition-macros.rs -o 51-repetition-macros &amp;&amp; ./51-repetition-macros
+
+# run the unit tests
+rustc --edition 2021 --test 51-repetition-macros.rs -o 51-repetition-macros-tests &amp;&amp; ./51-repetition-macros-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/50-declarative-macros.html"><small>← Previous</small>50 · Declarative Macros</a><span class="pager-link disabled"></span></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

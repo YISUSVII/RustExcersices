@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>46 · Shared State Simulation · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Simulate concurrent bank transfers without data races or deadlocks, and recover from a poisoned mutex.">
+<meta property="og:title" content="46 · Shared State Simulation · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Simulate concurrent bank transfers without data races or deadlocks, and recover from a poisoned mutex.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/14-concurrency.html">Level 14 — Concurrency</a><span>/</span><span>Exercise 46</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 46 · Level 14 — Concurrency</div>
+  <h1>Shared State Simulation</h1>
+  <p class="lead">Simulate concurrent bank transfers without data races or deadlocks, and recover from a poisoned mutex.</p>
+  <div class="meta"><span class="badge diff-ninja">Ninja</span><span class="chip">`Mutex&lt;T&gt;`</span><span class="chip">`RwLock&lt;T&gt;`</span><span class="chip">lock ordering</span><span class="chip">deadlock avoidance</span><span class="chip">`PoisonError::into_inner`</span><span class="chip">`thread::scope`</span><span class="chip">`Arc&lt;T&gt;`</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="46"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<ol><li>Define:
+<pre class="code" data-lang="rust"><code><span class="tok-keyword">enum</span> <span class="tok-type">TransferError</span> { <span class="tok-type">SameAccount</span>, <span class="tok-type">UnknownAccount</span>(<span class="tok-type">usize</span>), <span class="tok-type">InsufficientFunds</span> { account: <span class="tok-type">usize</span>, balance: <span class="tok-type">i64</span> } }
+<span class="tok-keyword">struct</span> <span class="tok-type">Bank</span> { accounts: <span class="tok-type">Vec</span>&lt;<span class="tok-type">Mutex</span>&lt;<span class="tok-type">i64</span>&gt;&gt;, log: <span class="tok-type">RwLock</span>&lt;<span class="tok-type">Vec</span>&lt;<span class="tok-type">String</span>&gt;&gt; }</code></pre></li><li>Implement <code>fn lock_recover&lt;T&gt;(m: &amp;Mutex&lt;T&gt;) -&gt; MutexGuard&lt;'_, T&gt;</code> that returns the guard even if the mutex is poisoned.</li><li>Implement on <code>Bank</code>: - <code>fn new(balances: &amp;[i64]) -&gt; Bank</code> - <code>fn transfer(&amp;self, from: usize, to: usize, amount: i64) -&gt; Result&lt;(), TransferError&gt;</code> — <strong>always lock the lower index first</strong>, then append <code>"{from} -&gt; {to}: {amount}"</code> to <code>log</code> (write lock). - <code>fn balance(&amp;self, idx: usize) -&gt; i64</code> - <code>fn total(&amp;self) -&gt; i64</code> — lock all accounts (in order) for a consistent snapshot. - <code>fn log_len(&amp;self) -&gt; usize</code> (read lock).</li><li>Implement <code>fn simulate(bank: &amp;Bank, threads: usize, rounds: usize)</code> that uses <code>thread::scope</code> to run many transfers in both directions across accounts, plus an "auditor" thread reading the log.</li><li>In <code>main</code>, demonstrate poisoning: a thread panics while holding a lock; show <code>is_poisoned()</code> and recover the value with <code>lock_recover</code>.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<ul><li>After <code>simulate(&amp;bank, 8, 1_000)</code> on 4 accounts of 1000, <code>bank.total()</code> is still <code>4000</code> and the program never hangs.</li><li><code>transfer(0, 0, 1)</code> → <code>Err(SameAccount)</code>; overdrafts → <code>Err(InsufficientFunds { .. })</code>.</li><li>A poisoned account mutex is still usable through <code>lock_recover</code>.</li></ul>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li>Deadlock: thread 1 locks A then waits for B while thread 2 locks B then waits for A. A global lock order (by index) makes that impossible.</li><li><code>m.lock().unwrap_or_else(PoisonError::into_inner)</code> recovers the guard from a poisoned lock.</li><li><code>RwLock</code> allows many simultaneous readers or one writer — good for an audit log read far more often than written.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Replace per-account <code>Mutex&lt;i64&gt;</code> with <code>AtomicI64</code> and implement <code>transfer</code> with <code>compare_exchange</code> loops. Which invariants become harder to guarantee (hint: <code>total()</code> snapshots)?</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">14-concurrency/exercises/46-shared-state-simulation.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=%23%21%5Ballow%28dead_code%29%5D%0A%23%5Ballow%28unused_imports%29%5D%0Ause%20std%3A%3Async%3A%3A%7BArc%2C%20Mutex%2C%20MutexGuard%2C%20PoisonError%2C%20RwLock%7D%3B%0Ause%20std%3A%3Athread%3B%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Aenum%20TransferError%20%7B%0A%20%20%20%20SameAccount%2C%0A%20%20%20%20UnknownAccount%28usize%29%2C%0A%20%20%20%20InsufficientFunds%20%7B%20account%3A%20usize%2C%20balance%3A%20i64%20%7D%2C%0A%7D%0A%0Astruct%20Bank%20%7B%0A%20%20%20%20accounts%3A%20Vec%3CMutex%3Ci64%3E%3E%2C%0A%20%20%20%20log%3A%20RwLock%3CVec%3CString%3E%3E%2C%0A%7D%0A%0Afn%20lock_recover%3CT%3E%28m%3A%20%26Mutex%3CT%3E%29%20-%3E%20MutexGuard%3C%27_%2C%20T%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20m%3B%0A%20%20%20%20todo%21%28%22m.lock%28%29.unwrap_or_else%28PoisonError%3A%3Ainto_inner%29%22%29%0A%7D%0A%0Aimpl%20Bank%20%7B%0A%20%20%20%20fn%20new%28balances%3A%20%26%5Bi64%5D%29%20-%3E%20Bank%20%7B%0A%20%20%20%20%20%20%20%20Bank%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20accounts%3A%20balances.iter%28%29.map%28%7C%26b%7C%20Mutex%3A%3Anew%28b%29%29.collect%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20log%3A%20RwLock%3A%3Anew%28Vec%3A%3Anew%28%29%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20transfer%28%26self%2C%20from%3A%20usize%2C%20to%3A%20usize%2C%20amount%3A%20i64%29%20-%3E%20Result%3C%28%29%2C%20TransferError%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%20%E2%80%94%20validate%2C%20lock%20lower%20index%20first%2C%20move%20money%2C%20log%20it%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20%28from%2C%20to%2C%20amount%29%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Lock%20accounts%20in%20index%20order%20to%20avoid%20deadlock%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20balance%28%26self%2C%20idx%3A%20usize%29%20-%3E%20i64%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20idx%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Read%20one%20account%20via%20lock_recover%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20total%28%26self%29%20-%3E%20i64%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20todo%21%28%22Lock%20every%20account%20in%20order%2C%20then%20sum%22%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20log_len%28%26self%29%20-%3E%20usize%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20todo%21%28%22Take%20a%20read%20lock%20on%20self.log%22%29%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20simulate%28bank%3A%20%26Bank%2C%20threads%3A%20usize%2C%20rounds%3A%20usize%29%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%20%E2%80%94%20use%20thread%3A%3Ascope%20to%20run%20transfers%20in%20both%20directions%0A%20%20%20%20let%20_%20%3D%20%28bank%2C%20threads%2C%20rounds%29%3B%0A%20%20%20%20todo%21%28%22Spawn%20scoped%20worker%20threads%20plus%20an%20auditor%20thread%22%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20bank%20%3D%20Bank%3A%3Anew%28%26%5B1_000%2C%201_000%2C%201_000%2C%201_000%5D%29%3B%0A%20%20%20%20let%20before%20%3D%20bank.total%28%29%3B%0A%20%20%20%20simulate%28%26bank%2C%208%2C%201_000%29%3B%0A%20%20%20%20println%21%28%22total%20before%20%3D%20%7Bbefore%7D%2C%20after%20%3D%20%7B%7D%22%2C%20bank.total%28%29%29%3B%0A%20%20%20%20println%21%28%22transfers%20logged%20%3D%20%7B%7D%22%2C%20bank.log_len%28%29%29%3B%0A%20%20%20%20for%20i%20in%200..4%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22account%20%7Bi%7D%3A%20%7B%7D%22%2C%20bank.balance%28i%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%22%7B%3A%3F%7D%22%2C%20bank.transfer%280%2C%200%2C%201%29%29%3B%0A%20%20%20%20println%21%28%22%7B%3A%3F%7D%22%2C%20bank.transfer%280%2C%201%2C%201_000_000%29%29%3B%0A%0A%20%20%20%20let%20shared%20%3D%20Arc%3A%3Anew%28Mutex%3A%3Anew%2842%29%29%3B%0A%20%20%20%20let%20s2%20%3D%20Arc%3A%3Aclone%28%26shared%29%3B%0A%20%20%20%20let%20_%20%3D%20thread%3A%3Aspawn%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20let%20_guard%20%3D%20s2.lock%28%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20panic%21%28%22simulated%20crash%20while%20holding%20the%20lock%22%29%3B%0A%20%20%20%20%7D%29%0A%20%20%20%20.join%28%29%3B%0A%20%20%20%20println%21%28%22poisoned%20%3D%20%7B%7D%22%2C%20shared.is_poisoned%28%29%29%3B%0A%20%20%20%20println%21%28%22recovered%20value%20%3D%20%7B%7D%22%2C%20%2Alock_recover%28%26shared%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20money_is_conserved_under_concurrency%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20bank%20%3D%20Bank%3A%3Anew%28%26%5B500%2C%20500%2C%20500%5D%29%3B%0A%20%20%20%20%20%20%20%20simulate%28%26bank%2C%206%2C%202_000%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.total%28%29%2C%201_500%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%280..3%29.all%28%7Ci%7C%20bank.balance%28i%29%20%3E%3D%200%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20transfer_errors%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20bank%20%3D%20Bank%3A%3Anew%28%26%5B10%2C%200%5D%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.transfer%280%2C%200%2C%201%29%2C%20Err%28TransferError%3A%3ASameAccount%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.transfer%280%2C%209%2C%201%29%2C%20Err%28TransferError%3A%3AUnknownAccount%289%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20bank.transfer%281%2C%200%2C%205%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28TransferError%3A%3AInsufficientFunds%20%7B%20account%3A%201%2C%20balance%3A%200%20%7D%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.transfer%280%2C%201%2C%2010%29%2C%20Ok%28%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%28bank.balance%280%29%2C%20bank.balance%281%29%29%2C%20%280%2C%2010%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.log_len%28%29%2C%201%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20recovers_from_poisoned_mutex%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20bank%20%3D%20Arc%3A%3Anew%28Bank%3A%3Anew%28%26%5B100%2C%20100%5D%29%29%3B%0A%20%20%20%20%20%20%20%20let%20b%20%3D%20Arc%3A%3Aclone%28%26bank%29%3B%0A%20%20%20%20%20%20%20%20let%20result%20%3D%20thread%3A%3Aspawn%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20_g%20%3D%20b.accounts%5B0%5D.lock%28%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20panic%21%28%22boom%22%29%3B%0A%20%20%20%20%20%20%20%20%7D%29%0A%20%20%20%20%20%20%20%20.join%28%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28result.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28bank.accounts%5B0%5D.is_poisoned%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.transfer%280%2C%201%2C%2050%29%2C%20Ok%28%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.total%28%29%2C%20200%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/14-concurrency/exercises/46-shared-state-simulation.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-attr">#![allow(dead_code)]</span>
+<span class="tok-attr">#[allow(unused_imports)]</span>
+<span class="tok-keyword">use</span> std::sync::{<span class="tok-type">Arc</span>, <span class="tok-type">Mutex</span>, <span class="tok-type">MutexGuard</span>, <span class="tok-type">PoisonError</span>, <span class="tok-type">RwLock</span>};
+<span class="tok-keyword">use</span> std::thread;
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">TransferError</span> {
+    <span class="tok-type">SameAccount</span>,
+    <span class="tok-type">UnknownAccount</span>(<span class="tok-type">usize</span>),
+    <span class="tok-type">InsufficientFunds</span> { account: <span class="tok-type">usize</span>, balance: <span class="tok-type">i64</span> },
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">Bank</span> {
+    accounts: <span class="tok-type">Vec</span>&lt;<span class="tok-type">Mutex</span>&lt;<span class="tok-type">i64</span>&gt;&gt;,
+    log: <span class="tok-type">RwLock</span>&lt;<span class="tok-type">Vec</span>&lt;<span class="tok-type">String</span>&gt;&gt;,
+}
+
+<span class="tok-keyword">fn</span> lock_recover&lt;<span class="tok-type">T</span>&gt;(m: &amp;<span class="tok-type">Mutex</span>&lt;<span class="tok-type">T</span>&gt;) -&gt; <span class="tok-type">MutexGuard</span>&lt;<span class="tok-lifetime">'_</span>, <span class="tok-type">T</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = m;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"m.lock().unwrap_or_else(PoisonError::into_inner)"</span>)
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Bank</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(balances: &amp;[<span class="tok-type">i64</span>]) -&gt; <span class="tok-type">Bank</span> {
+        <span class="tok-type">Bank</span> {
+            accounts: balances.<span class="tok-fn">iter</span>().<span class="tok-fn">map</span>(|&amp;b| <span class="tok-type">Mutex</span>::<span class="tok-fn">new</span>(b)).<span class="tok-fn">collect</span>(),
+            log: <span class="tok-type">RwLock</span>::<span class="tok-fn">new</span>(<span class="tok-type">Vec</span>::<span class="tok-fn">new</span>()),
+        }
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">transfer</span>(&amp;<span class="tok-keyword">self</span>, from: <span class="tok-type">usize</span>, to: <span class="tok-type">usize</span>, amount: <span class="tok-type">i64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">TransferError</span>&gt; {
+        <span class="tok-comment">// TODO: implement — validate, lock lower index first, move money, log it</span>
+        <span class="tok-keyword">let</span> _ = (from, to, amount);
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Lock accounts in index order to avoid deadlock"</span>)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">balance</span>(&amp;<span class="tok-keyword">self</span>, idx: <span class="tok-type">usize</span>) -&gt; <span class="tok-type">i64</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-keyword">let</span> _ = idx;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Read one account via lock_recover"</span>)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">total</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">i64</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Lock every account in order, then sum"</span>)
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">log_len</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">usize</span> {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Take a read lock on self.log"</span>)
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">simulate</span>(bank: &amp;<span class="tok-type">Bank</span>, threads: <span class="tok-type">usize</span>, rounds: <span class="tok-type">usize</span>) {
+    <span class="tok-comment">// TODO: implement — use thread::scope to run transfers in both directions</span>
+    <span class="tok-keyword">let</span> _ = (bank, threads, rounds);
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Spawn scoped worker threads plus an auditor thread"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> bank = <span class="tok-type">Bank</span>::<span class="tok-fn">new</span>(&amp;[<span class="tok-number">1_000</span>, <span class="tok-number">1_000</span>, <span class="tok-number">1_000</span>, <span class="tok-number">1_000</span>]);
+    <span class="tok-keyword">let</span> before = bank.<span class="tok-fn">total</span>();
+    <span class="tok-fn">simulate</span>(&amp;bank, <span class="tok-number">8</span>, <span class="tok-number">1_000</span>);
+    <span class="tok-macro">println!</span>(<span class="tok-string">"total before = {before}, after = {}"</span>, bank.<span class="tok-fn">total</span>());
+    <span class="tok-macro">println!</span>(<span class="tok-string">"transfers logged = {}"</span>, bank.<span class="tok-fn">log_len</span>());
+    <span class="tok-keyword">for</span> i <span class="tok-keyword">in</span> <span class="tok-number">0</span>..<span class="tok-number">4</span> {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"account {i}: {}"</span>, bank.<span class="tok-fn">balance</span>(i));
+    }
+    <span class="tok-macro">println!</span>(<span class="tok-string">"{:?}"</span>, bank.<span class="tok-fn">transfer</span>(<span class="tok-number">0</span>, <span class="tok-number">0</span>, <span class="tok-number">1</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"{:?}"</span>, bank.<span class="tok-fn">transfer</span>(<span class="tok-number">0</span>, <span class="tok-number">1</span>, <span class="tok-number">1_000_000</span>));
+
+    <span class="tok-keyword">let</span> shared = <span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">Mutex</span>::<span class="tok-fn">new</span>(<span class="tok-number">42</span>));
+    <span class="tok-keyword">let</span> s2 = <span class="tok-type">Arc</span>::<span class="tok-fn">clone</span>(&amp;shared);
+    <span class="tok-keyword">let</span> _ = thread::<span class="tok-fn">spawn</span>(<span class="tok-keyword">move</span> || {
+        <span class="tok-keyword">let</span> _guard = s2.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>();
+        <span class="tok-macro">panic!</span>(<span class="tok-string">"simulated crash while holding the lock"</span>);
+    })
+    .<span class="tok-fn">join</span>();
+    <span class="tok-macro">println!</span>(<span class="tok-string">"poisoned = {}"</span>, shared.<span class="tok-fn">is_poisoned</span>());
+    <span class="tok-macro">println!</span>(<span class="tok-string">"recovered value = {}"</span>, *<span class="tok-fn">lock_recover</span>(&amp;shared));
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">money_is_conserved_under_concurrency</span>() {
+        <span class="tok-keyword">let</span> bank = <span class="tok-type">Bank</span>::<span class="tok-fn">new</span>(&amp;[<span class="tok-number">500</span>, <span class="tok-number">500</span>, <span class="tok-number">500</span>]);
+        <span class="tok-fn">simulate</span>(&amp;bank, <span class="tok-number">6</span>, <span class="tok-number">2_000</span>);
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">total</span>(), <span class="tok-number">1_500</span>);
+        <span class="tok-macro">assert!</span>((<span class="tok-number">0</span>..<span class="tok-number">3</span>).<span class="tok-fn">all</span>(|i| bank.<span class="tok-fn">balance</span>(i) &gt;= <span class="tok-number">0</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">transfer_errors</span>() {
+        <span class="tok-keyword">let</span> bank = <span class="tok-type">Bank</span>::<span class="tok-fn">new</span>(&amp;[<span class="tok-number">10</span>, <span class="tok-number">0</span>]);
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">transfer</span>(<span class="tok-number">0</span>, <span class="tok-number">0</span>, <span class="tok-number">1</span>), <span class="tok-type">Err</span>(<span class="tok-type">TransferError</span>::<span class="tok-type">SameAccount</span>));
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">transfer</span>(<span class="tok-number">0</span>, <span class="tok-number">9</span>, <span class="tok-number">1</span>), <span class="tok-type">Err</span>(<span class="tok-type">TransferError</span>::<span class="tok-type">UnknownAccount</span>(<span class="tok-number">9</span>)));
+        <span class="tok-macro">assert_eq!</span>(
+            bank.<span class="tok-fn">transfer</span>(<span class="tok-number">1</span>, <span class="tok-number">0</span>, <span class="tok-number">5</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">TransferError</span>::<span class="tok-type">InsufficientFunds</span> { account: <span class="tok-number">1</span>, balance: <span class="tok-number">0</span> })
+        );
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">transfer</span>(<span class="tok-number">0</span>, <span class="tok-number">1</span>, <span class="tok-number">10</span>), <span class="tok-type">Ok</span>(()));
+        <span class="tok-macro">assert_eq!</span>((bank.<span class="tok-fn">balance</span>(<span class="tok-number">0</span>), bank.<span class="tok-fn">balance</span>(<span class="tok-number">1</span>)), (<span class="tok-number">0</span>, <span class="tok-number">10</span>));
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">log_len</span>(), <span class="tok-number">1</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">recovers_from_poisoned_mutex</span>() {
+        <span class="tok-keyword">let</span> bank = <span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">Bank</span>::<span class="tok-fn">new</span>(&amp;[<span class="tok-number">100</span>, <span class="tok-number">100</span>]));
+        <span class="tok-keyword">let</span> b = <span class="tok-type">Arc</span>::<span class="tok-fn">clone</span>(&amp;bank);
+        <span class="tok-keyword">let</span> result = thread::<span class="tok-fn">spawn</span>(<span class="tok-keyword">move</span> || {
+            <span class="tok-keyword">let</span> _g = b.accounts[<span class="tok-number">0</span>].<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>();
+            <span class="tok-macro">panic!</span>(<span class="tok-string">"boom"</span>);
+        })
+        .<span class="tok-fn">join</span>();
+        <span class="tok-macro">assert!</span>(result.<span class="tok-fn">is_err</span>());
+        <span class="tok-macro">assert!</span>(bank.accounts[<span class="tok-number">0</span>].<span class="tok-fn">is_poisoned</span>());
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">transfer</span>(<span class="tok-number">0</span>, <span class="tok-number">1</span>, <span class="tok-number">50</span>), <span class="tok-type">Ok</span>(()));
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">total</span>(), <span class="tok-number">200</span>);
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/14-concurrency/46-shared-state-simulation.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Async%3A%3A%7BArc%2C%20Mutex%2C%20MutexGuard%2C%20PoisonError%2C%20RwLock%7D%3B%0Ause%20std%3A%3Athread%3B%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Aenum%20TransferError%20%7B%0A%20%20%20%20SameAccount%2C%0A%20%20%20%20UnknownAccount%28usize%29%2C%0A%20%20%20%20InsufficientFunds%20%7B%20account%3A%20usize%2C%20balance%3A%20i64%20%7D%2C%0A%7D%0A%0Astruct%20Bank%20%7B%0A%20%20%20%20accounts%3A%20Vec%3CMutex%3Ci64%3E%3E%2C%0A%20%20%20%20///%20Many%20readers%20%28auditors%29%2C%20occasional%20writer%20%28transfers%29.%0A%20%20%20%20log%3A%20RwLock%3CVec%3CString%3E%3E%2C%0A%7D%0A%0A///%20Locks%20a%20mutex%2C%20recovering%20the%20data%20even%20if%20another%20thread%20panicked%20while%20holding%20it.%0Afn%20lock_recover%3CT%3E%28m%3A%20%26Mutex%3CT%3E%29%20-%3E%20MutexGuard%3C%27_%2C%20T%3E%20%7B%0A%20%20%20%20m.lock%28%29.unwrap_or_else%28PoisonError%3A%3Ainto_inner%29%0A%7D%0A%0Aimpl%20Bank%20%7B%0A%20%20%20%20fn%20new%28balances%3A%20%26%5Bi64%5D%29%20-%3E%20Bank%20%7B%0A%20%20%20%20%20%20%20%20Bank%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20accounts%3A%20balances.iter%28%29.map%28%7C%26b%7C%20Mutex%3A%3Anew%28b%29%29.collect%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20log%3A%20RwLock%3A%3Anew%28Vec%3A%3Anew%28%29%29%2C%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20///%20Moves%20%60amount%60%20from%20%60from%60%20to%20%60to%60.%20Always%20locks%20the%20lower%20index%20first%20so%20two%0A%20%20%20%20///%20opposite%20transfers%20%28A%E2%86%92B%20and%20B%E2%86%92A%29%20can%20never%20deadlock.%0A%20%20%20%20fn%20transfer%28%26self%2C%20from%3A%20usize%2C%20to%3A%20usize%2C%20amount%3A%20i64%29%20-%3E%20Result%3C%28%29%2C%20TransferError%3E%20%7B%0A%20%20%20%20%20%20%20%20if%20from%20%3D%3D%20to%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20Err%28TransferError%3A%3ASameAccount%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20for%20idx%20in%20%5Bfrom%2C%20to%5D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20idx%20%3E%3D%20self.accounts.len%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20Err%28TransferError%3A%3AUnknownAccount%28idx%29%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20let%20%28first%2C%20second%29%20%3D%20if%20from%20%3C%20to%20%7B%20%28from%2C%20to%29%20%7D%20else%20%7B%20%28to%2C%20from%29%20%7D%3B%0A%20%20%20%20%20%20%20%20let%20mut%20g1%20%3D%20lock_recover%28%26self.accounts%5Bfirst%5D%29%3B%0A%20%20%20%20%20%20%20%20let%20mut%20g2%20%3D%20lock_recover%28%26self.accounts%5Bsecond%5D%29%3B%0A%20%20%20%20%20%20%20%20let%20%28src%2C%20dst%29%20%3D%20if%20from%20%3C%20to%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%26mut%20%2Ag1%2C%20%26mut%20%2Ag2%29%0A%20%20%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%28%26mut%20%2Ag2%2C%20%26mut%20%2Ag1%29%0A%20%20%20%20%20%20%20%20%7D%3B%0A%0A%20%20%20%20%20%20%20%20if%20%2Asrc%20%3C%20amount%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20Err%28TransferError%3A%3AInsufficientFunds%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20account%3A%20from%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20balance%3A%20%2Asrc%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%2Asrc%20-%3D%20amount%3B%0A%20%20%20%20%20%20%20%20%2Adst%20%2B%3D%20amount%3B%0A%20%20%20%20%20%20%20%20drop%28%28g1%2C%20g2%29%29%3B%0A%0A%20%20%20%20%20%20%20%20self.log%0A%20%20%20%20%20%20%20%20%20%20%20%20.write%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.unwrap_or_else%28PoisonError%3A%3Ainto_inner%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.push%28format%21%28%22%7Bfrom%7D%20-%3E%20%7Bto%7D%3A%20%7Bamount%7D%22%29%29%3B%0A%20%20%20%20%20%20%20%20Ok%28%28%29%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20balance%28%26self%2C%20idx%3A%20usize%29%20-%3E%20i64%20%7B%0A%20%20%20%20%20%20%20%20%2Alock_recover%28%26self.accounts%5Bidx%5D%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20///%20Total%20money%20in%20the%20bank.%20Locks%20all%20accounts%20in%20index%20order%20for%20a%20consistent%20snapshot.%0A%20%20%20%20fn%20total%28%26self%29%20-%3E%20i64%20%7B%0A%20%20%20%20%20%20%20%20let%20guards%3A%20Vec%3C_%3E%20%3D%20self.accounts.iter%28%29.map%28lock_recover%29.collect%28%29%3B%0A%20%20%20%20%20%20%20%20guards.iter%28%29.map%28%7Cg%7C%20%2A%2Ag%29.sum%28%29%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20log_len%28%26self%29%20-%3E%20usize%20%7B%0A%20%20%20%20%20%20%20%20self.log.read%28%29.unwrap_or_else%28PoisonError%3A%3Ainto_inner%29.len%28%29%0A%20%20%20%20%7D%0A%7D%0A%0A///%20Runs%20%60rounds%60%20transfers%20per%20thread%20across%20all%20account%20pairs%20in%20both%20directions.%0Afn%20simulate%28bank%3A%20%26Bank%2C%20threads%3A%20usize%2C%20rounds%3A%20usize%29%20%7B%0A%20%20%20%20let%20n%20%3D%20bank.accounts.len%28%29%3B%0A%20%20%20%20thread%3A%3Ascope%28%7Cs%7C%20%7B%0A%20%20%20%20%20%20%20%20for%20t%20in%200..threads%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20s.spawn%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20for%20r%20in%200..rounds%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20from%20%3D%20%28t%20%2B%20r%29%20%25%20n%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20to%20%3D%20%28t%20%2B%20r%20%2A%203%20%2B%201%29%20%25%20n%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20_%20%3D%20bank.transfer%28from%2C%20to%2C%201%20%2B%20%28r%20%25%205%29%20as%20i64%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20//%20An%20auditor%20reading%20concurrently%20through%20the%20RwLock.%0A%20%20%20%20%20%20%20%20s.spawn%28%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20for%20_%20in%200..10%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20_%20%3D%20bank.log_len%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%29%3B%0A%20%20%20%20%7D%29%3B%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20bank%20%3D%20Bank%3A%3Anew%28%26%5B1_000%2C%201_000%2C%201_000%2C%201_000%5D%29%3B%0A%20%20%20%20let%20before%20%3D%20bank.total%28%29%3B%0A%20%20%20%20simulate%28%26bank%2C%208%2C%201_000%29%3B%0A%20%20%20%20println%21%28%22total%20before%20%3D%20%7Bbefore%7D%2C%20after%20%3D%20%7B%7D%22%2C%20bank.total%28%29%29%3B%0A%20%20%20%20println%21%28%22transfers%20logged%20%3D%20%7B%7D%22%2C%20bank.log_len%28%29%29%3B%0A%20%20%20%20for%20i%20in%200..4%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22account%20%7Bi%7D%3A%20%7B%7D%22%2C%20bank.balance%28i%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%22%7B%3A%3F%7D%22%2C%20bank.transfer%280%2C%200%2C%201%29%29%3B%0A%20%20%20%20println%21%28%22%7B%3A%3F%7D%22%2C%20bank.transfer%280%2C%201%2C%201_000_000%29%29%3B%0A%0A%20%20%20%20//%20Poisoning%20demo%3A%20a%20thread%20panics%20while%20holding%20the%20lock.%0A%20%20%20%20let%20shared%20%3D%20Arc%3A%3Anew%28Mutex%3A%3Anew%2842%29%29%3B%0A%20%20%20%20let%20s2%20%3D%20Arc%3A%3Aclone%28%26shared%29%3B%0A%20%20%20%20let%20_%20%3D%20thread%3A%3Aspawn%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20let%20_guard%20%3D%20s2.lock%28%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20panic%21%28%22simulated%20crash%20while%20holding%20the%20lock%22%29%3B%0A%20%20%20%20%7D%29%0A%20%20%20%20.join%28%29%3B%0A%20%20%20%20println%21%28%22poisoned%20%3D%20%7B%7D%22%2C%20shared.is_poisoned%28%29%29%3B%0A%20%20%20%20println%21%28%22recovered%20value%20%3D%20%7B%7D%22%2C%20%2Alock_recover%28%26shared%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20money_is_conserved_under_concurrency%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20bank%20%3D%20Bank%3A%3Anew%28%26%5B500%2C%20500%2C%20500%5D%29%3B%0A%20%20%20%20%20%20%20%20simulate%28%26bank%2C%206%2C%202_000%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.total%28%29%2C%201_500%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%280..3%29.all%28%7Ci%7C%20bank.balance%28i%29%20%3E%3D%200%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20transfer_errors%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20bank%20%3D%20Bank%3A%3Anew%28%26%5B10%2C%200%5D%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.transfer%280%2C%200%2C%201%29%2C%20Err%28TransferError%3A%3ASameAccount%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.transfer%280%2C%209%2C%201%29%2C%20Err%28TransferError%3A%3AUnknownAccount%289%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20bank.transfer%281%2C%200%2C%205%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20Err%28TransferError%3A%3AInsufficientFunds%20%7B%20account%3A%201%2C%20balance%3A%200%20%7D%29%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.transfer%280%2C%201%2C%2010%29%2C%20Ok%28%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%28bank.balance%280%29%2C%20bank.balance%281%29%29%2C%20%280%2C%2010%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.log_len%28%29%2C%201%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20recovers_from_poisoned_mutex%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20bank%20%3D%20Arc%3A%3Anew%28Bank%3A%3Anew%28%26%5B100%2C%20100%5D%29%29%3B%0A%20%20%20%20%20%20%20%20let%20b%20%3D%20Arc%3A%3Aclone%28%26bank%29%3B%0A%20%20%20%20%20%20%20%20let%20result%20%3D%20thread%3A%3Aspawn%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20_g%20%3D%20b.accounts%5B0%5D.lock%28%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20panic%21%28%22boom%22%29%3B%0A%20%20%20%20%20%20%20%20%7D%29%0A%20%20%20%20%20%20%20%20.join%28%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28result.is_err%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28bank.accounts%5B0%5D.is_poisoned%28%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.transfer%280%2C%201%2C%2050%29%2C%20Ok%28%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28bank.total%28%29%2C%20200%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/14-concurrency/46-shared-state-simulation.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::sync::{<span class="tok-type">Arc</span>, <span class="tok-type">Mutex</span>, <span class="tok-type">MutexGuard</span>, <span class="tok-type">PoisonError</span>, <span class="tok-type">RwLock</span>};
+<span class="tok-keyword">use</span> std::thread;
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">TransferError</span> {
+    <span class="tok-type">SameAccount</span>,
+    <span class="tok-type">UnknownAccount</span>(<span class="tok-type">usize</span>),
+    <span class="tok-type">InsufficientFunds</span> { account: <span class="tok-type">usize</span>, balance: <span class="tok-type">i64</span> },
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">Bank</span> {
+    accounts: <span class="tok-type">Vec</span>&lt;<span class="tok-type">Mutex</span>&lt;<span class="tok-type">i64</span>&gt;&gt;,
+    <span class="tok-comment">/// Many readers (auditors), occasional writer (transfers).</span>
+    log: <span class="tok-type">RwLock</span>&lt;<span class="tok-type">Vec</span>&lt;<span class="tok-type">String</span>&gt;&gt;,
+}
+
+<span class="tok-comment">/// Locks a mutex, recovering the data even if another thread panicked while holding it.</span>
+<span class="tok-keyword">fn</span> lock_recover&lt;<span class="tok-type">T</span>&gt;(m: &amp;<span class="tok-type">Mutex</span>&lt;<span class="tok-type">T</span>&gt;) -&gt; <span class="tok-type">MutexGuard</span>&lt;<span class="tok-lifetime">'_</span>, <span class="tok-type">T</span>&gt; {
+    m.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap_or_else</span>(<span class="tok-type">PoisonError</span>::into_inner)
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Bank</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">new</span>(balances: &amp;[<span class="tok-type">i64</span>]) -&gt; <span class="tok-type">Bank</span> {
+        <span class="tok-type">Bank</span> {
+            accounts: balances.<span class="tok-fn">iter</span>().<span class="tok-fn">map</span>(|&amp;b| <span class="tok-type">Mutex</span>::<span class="tok-fn">new</span>(b)).<span class="tok-fn">collect</span>(),
+            log: <span class="tok-type">RwLock</span>::<span class="tok-fn">new</span>(<span class="tok-type">Vec</span>::<span class="tok-fn">new</span>()),
+        }
+    }
+
+    <span class="tok-comment">/// Moves `amount` from `from` to `to`. Always locks the lower index first so two</span>
+    <span class="tok-comment">/// opposite transfers (A→B and B→A) can never deadlock.</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">transfer</span>(&amp;<span class="tok-keyword">self</span>, from: <span class="tok-type">usize</span>, to: <span class="tok-type">usize</span>, amount: <span class="tok-type">i64</span>) -&gt; <span class="tok-type">Result</span>&lt;(), <span class="tok-type">TransferError</span>&gt; {
+        <span class="tok-keyword">if</span> from == to {
+            <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-type">TransferError</span>::<span class="tok-type">SameAccount</span>);
+        }
+        <span class="tok-keyword">for</span> idx <span class="tok-keyword">in</span> [from, to] {
+            <span class="tok-keyword">if</span> idx &gt;= <span class="tok-keyword">self</span>.accounts.<span class="tok-fn">len</span>() {
+                <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-type">TransferError</span>::<span class="tok-type">UnknownAccount</span>(idx));
+            }
+        }
+
+        <span class="tok-keyword">let</span> (first, second) = <span class="tok-keyword">if</span> from &lt; to { (from, to) } <span class="tok-keyword">else</span> { (to, from) };
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> g1 = <span class="tok-fn">lock_recover</span>(&amp;<span class="tok-keyword">self</span>.accounts[first]);
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> g2 = <span class="tok-fn">lock_recover</span>(&amp;<span class="tok-keyword">self</span>.accounts[second]);
+        <span class="tok-keyword">let</span> (src, dst) = <span class="tok-keyword">if</span> from &lt; to {
+            (&amp;<span class="tok-keyword">mut</span> *g1, &amp;<span class="tok-keyword">mut</span> *g2)
+        } <span class="tok-keyword">else</span> {
+            (&amp;<span class="tok-keyword">mut</span> *g2, &amp;<span class="tok-keyword">mut</span> *g1)
+        };
+
+        <span class="tok-keyword">if</span> *src &lt; amount {
+            <span class="tok-keyword">return</span> <span class="tok-type">Err</span>(<span class="tok-type">TransferError</span>::<span class="tok-type">InsufficientFunds</span> {
+                account: from,
+                balance: *src,
+            });
+        }
+        *src -= amount;
+        *dst += amount;
+        <span class="tok-fn">drop</span>((g1, g2));
+
+        <span class="tok-keyword">self</span>.log
+            .<span class="tok-fn">write</span>()
+            .<span class="tok-fn">unwrap_or_else</span>(<span class="tok-type">PoisonError</span>::into_inner)
+            .<span class="tok-fn">push</span>(<span class="tok-macro">format!</span>(<span class="tok-string">"{from} -&gt; {to}: {amount}"</span>));
+        <span class="tok-type">Ok</span>(())
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">balance</span>(&amp;<span class="tok-keyword">self</span>, idx: <span class="tok-type">usize</span>) -&gt; <span class="tok-type">i64</span> {
+        *<span class="tok-fn">lock_recover</span>(&amp;<span class="tok-keyword">self</span>.accounts[idx])
+    }
+
+    <span class="tok-comment">/// Total money in the bank. Locks all accounts in index order for a consistent snapshot.</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">total</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">i64</span> {
+        <span class="tok-keyword">let</span> guards: <span class="tok-type">Vec</span>&lt;_&gt; = <span class="tok-keyword">self</span>.accounts.<span class="tok-fn">iter</span>().<span class="tok-fn">map</span>(lock_recover).<span class="tok-fn">collect</span>();
+        guards.<span class="tok-fn">iter</span>().<span class="tok-fn">map</span>(|g| **g).<span class="tok-fn">sum</span>()
+    }
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">log_len</span>(&amp;<span class="tok-keyword">self</span>) -&gt; <span class="tok-type">usize</span> {
+        <span class="tok-keyword">self</span>.log.<span class="tok-fn">read</span>().<span class="tok-fn">unwrap_or_else</span>(<span class="tok-type">PoisonError</span>::into_inner).<span class="tok-fn">len</span>()
+    }
+}
+
+<span class="tok-comment">/// Runs `rounds` transfers per thread across all account pairs in both directions.</span>
+<span class="tok-keyword">fn</span> <span class="tok-fn">simulate</span>(bank: &amp;<span class="tok-type">Bank</span>, threads: <span class="tok-type">usize</span>, rounds: <span class="tok-type">usize</span>) {
+    <span class="tok-keyword">let</span> n = bank.accounts.<span class="tok-fn">len</span>();
+    thread::<span class="tok-fn">scope</span>(|s| {
+        <span class="tok-keyword">for</span> t <span class="tok-keyword">in</span> <span class="tok-number">0</span>..threads {
+            s.<span class="tok-fn">spawn</span>(<span class="tok-keyword">move</span> || {
+                <span class="tok-keyword">for</span> r <span class="tok-keyword">in</span> <span class="tok-number">0</span>..rounds {
+                    <span class="tok-keyword">let</span> from = (t + r) % n;
+                    <span class="tok-keyword">let</span> to = (t + r * <span class="tok-number">3</span> + <span class="tok-number">1</span>) % n;
+                    <span class="tok-keyword">let</span> _ = bank.<span class="tok-fn">transfer</span>(from, to, <span class="tok-number">1</span> + (r % <span class="tok-number">5</span>) <span class="tok-keyword">as</span> <span class="tok-type">i64</span>);
+                }
+            });
+        }
+        <span class="tok-comment">// An auditor reading concurrently through the RwLock.</span>
+        s.<span class="tok-fn">spawn</span>(|| {
+            <span class="tok-keyword">for</span> _ <span class="tok-keyword">in</span> <span class="tok-number">0</span>..<span class="tok-number">10</span> {
+                <span class="tok-keyword">let</span> _ = bank.<span class="tok-fn">log_len</span>();
+            }
+        });
+    });
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> bank = <span class="tok-type">Bank</span>::<span class="tok-fn">new</span>(&amp;[<span class="tok-number">1_000</span>, <span class="tok-number">1_000</span>, <span class="tok-number">1_000</span>, <span class="tok-number">1_000</span>]);
+    <span class="tok-keyword">let</span> before = bank.<span class="tok-fn">total</span>();
+    <span class="tok-fn">simulate</span>(&amp;bank, <span class="tok-number">8</span>, <span class="tok-number">1_000</span>);
+    <span class="tok-macro">println!</span>(<span class="tok-string">"total before = {before}, after = {}"</span>, bank.<span class="tok-fn">total</span>());
+    <span class="tok-macro">println!</span>(<span class="tok-string">"transfers logged = {}"</span>, bank.<span class="tok-fn">log_len</span>());
+    <span class="tok-keyword">for</span> i <span class="tok-keyword">in</span> <span class="tok-number">0</span>..<span class="tok-number">4</span> {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"account {i}: {}"</span>, bank.<span class="tok-fn">balance</span>(i));
+    }
+    <span class="tok-macro">println!</span>(<span class="tok-string">"{:?}"</span>, bank.<span class="tok-fn">transfer</span>(<span class="tok-number">0</span>, <span class="tok-number">0</span>, <span class="tok-number">1</span>));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"{:?}"</span>, bank.<span class="tok-fn">transfer</span>(<span class="tok-number">0</span>, <span class="tok-number">1</span>, <span class="tok-number">1_000_000</span>));
+
+    <span class="tok-comment">// Poisoning demo: a thread panics while holding the lock.</span>
+    <span class="tok-keyword">let</span> shared = <span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">Mutex</span>::<span class="tok-fn">new</span>(<span class="tok-number">42</span>));
+    <span class="tok-keyword">let</span> s2 = <span class="tok-type">Arc</span>::<span class="tok-fn">clone</span>(&amp;shared);
+    <span class="tok-keyword">let</span> _ = thread::<span class="tok-fn">spawn</span>(<span class="tok-keyword">move</span> || {
+        <span class="tok-keyword">let</span> _guard = s2.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>();
+        <span class="tok-macro">panic!</span>(<span class="tok-string">"simulated crash while holding the lock"</span>);
+    })
+    .<span class="tok-fn">join</span>();
+    <span class="tok-macro">println!</span>(<span class="tok-string">"poisoned = {}"</span>, shared.<span class="tok-fn">is_poisoned</span>());
+    <span class="tok-macro">println!</span>(<span class="tok-string">"recovered value = {}"</span>, *<span class="tok-fn">lock_recover</span>(&amp;shared));
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">money_is_conserved_under_concurrency</span>() {
+        <span class="tok-keyword">let</span> bank = <span class="tok-type">Bank</span>::<span class="tok-fn">new</span>(&amp;[<span class="tok-number">500</span>, <span class="tok-number">500</span>, <span class="tok-number">500</span>]);
+        <span class="tok-fn">simulate</span>(&amp;bank, <span class="tok-number">6</span>, <span class="tok-number">2_000</span>);
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">total</span>(), <span class="tok-number">1_500</span>);
+        <span class="tok-macro">assert!</span>((<span class="tok-number">0</span>..<span class="tok-number">3</span>).<span class="tok-fn">all</span>(|i| bank.<span class="tok-fn">balance</span>(i) &gt;= <span class="tok-number">0</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">transfer_errors</span>() {
+        <span class="tok-keyword">let</span> bank = <span class="tok-type">Bank</span>::<span class="tok-fn">new</span>(&amp;[<span class="tok-number">10</span>, <span class="tok-number">0</span>]);
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">transfer</span>(<span class="tok-number">0</span>, <span class="tok-number">0</span>, <span class="tok-number">1</span>), <span class="tok-type">Err</span>(<span class="tok-type">TransferError</span>::<span class="tok-type">SameAccount</span>));
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">transfer</span>(<span class="tok-number">0</span>, <span class="tok-number">9</span>, <span class="tok-number">1</span>), <span class="tok-type">Err</span>(<span class="tok-type">TransferError</span>::<span class="tok-type">UnknownAccount</span>(<span class="tok-number">9</span>)));
+        <span class="tok-macro">assert_eq!</span>(
+            bank.<span class="tok-fn">transfer</span>(<span class="tok-number">1</span>, <span class="tok-number">0</span>, <span class="tok-number">5</span>),
+            <span class="tok-type">Err</span>(<span class="tok-type">TransferError</span>::<span class="tok-type">InsufficientFunds</span> { account: <span class="tok-number">1</span>, balance: <span class="tok-number">0</span> })
+        );
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">transfer</span>(<span class="tok-number">0</span>, <span class="tok-number">1</span>, <span class="tok-number">10</span>), <span class="tok-type">Ok</span>(()));
+        <span class="tok-macro">assert_eq!</span>((bank.<span class="tok-fn">balance</span>(<span class="tok-number">0</span>), bank.<span class="tok-fn">balance</span>(<span class="tok-number">1</span>)), (<span class="tok-number">0</span>, <span class="tok-number">10</span>));
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">log_len</span>(), <span class="tok-number">1</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">recovers_from_poisoned_mutex</span>() {
+        <span class="tok-keyword">let</span> bank = <span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">Bank</span>::<span class="tok-fn">new</span>(&amp;[<span class="tok-number">100</span>, <span class="tok-number">100</span>]));
+        <span class="tok-keyword">let</span> b = <span class="tok-type">Arc</span>::<span class="tok-fn">clone</span>(&amp;bank);
+        <span class="tok-keyword">let</span> result = thread::<span class="tok-fn">spawn</span>(<span class="tok-keyword">move</span> || {
+            <span class="tok-keyword">let</span> _g = b.accounts[<span class="tok-number">0</span>].<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>();
+            <span class="tok-macro">panic!</span>(<span class="tok-string">"boom"</span>);
+        })
+        .<span class="tok-fn">join</span>();
+        <span class="tok-macro">assert!</span>(result.<span class="tok-fn">is_err</span>());
+        <span class="tok-macro">assert!</span>(bank.accounts[<span class="tok-number">0</span>].<span class="tok-fn">is_poisoned</span>());
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">transfer</span>(<span class="tok-number">0</span>, <span class="tok-number">1</span>, <span class="tok-number">50</span>), <span class="tok-type">Ok</span>(()));
+        <span class="tok-macro">assert_eq!</span>(bank.<span class="tok-fn">total</span>(), <span class="tok-number">200</span>);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 46-shared-state-simulation.rs -o 46-shared-state-simulation &amp;&amp; ./46-shared-state-simulation
+
+# run the unit tests
+rustc --edition 2021 --test 46-shared-state-simulation.rs -o 46-shared-state-simulation-tests &amp;&amp; ./46-shared-state-simulation-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/45-worker-pool.html"><small>← Previous</small>45 · Worker Pool</a><a class="pager-link next" href="../exercises/47-async-timer.html"><small>Next →</small>47 · Async Timer</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rust Study — Zero → Ninja</title>
+<meta name="description" content="A progressive, hands-on Rust course from zero to ninja: chapters, exercises, starter code and reference solutions.">
+<meta property="og:title" content="Rust Study — Zero → Ninja">
+<meta property="og:description" content="A progressive, hands-on Rust course from zero to ninja: chapters, exercises, starter code and reference solutions.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="index.html"><img src="assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home active" href="index.html">🏠 Roadmap</a>
+<a class="side-home" href="guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<section class="hero">
+  <div class="hero-text">
+    <div class="eyebrow">🦀 Learn Rust by building</div>
+    <h1>Rust <span class="accent">Zero → Ninja</span></h1>
+    <p class="lead">19 chapters and 51 hands-on exercises, each with starter code and a reference solution — from <code>let x = 5;</code> to thread pools, async executors, macros and <code>unsafe</code>.</p>
+    <div class="hero-actions">
+      <a class="btn primary" href="levels/00-setup.html">Start at Level 0</a>
+      <a class="btn" href="guide.html">Course guide</a>
+      <a class="btn" id="continue-btn" href="#" hidden>Continue →</a>
+    </div>
+  </div>
+  <div class="hero-progress card">
+    <div class="ring" id="overall-ring" data-total="51"><div><strong id="overall-count">0</strong><small>/ 51</small></div></div>
+    <p>exercises completed</p>
+    <p class="muted small">Progress is saved in this browser.</p>
+  </div>
+</section>
+<section class="search-box">
+  <input type="search" id="search" placeholder="Search exercises — try “HashMap”, “lifetimes”, “threads”…" aria-label="Search exercises" autocomplete="off">
+  <p id="search-empty" class="muted" hidden>No exercises match your search.</p>
+  <div id="search-results" class="grid" hidden><a class="card ex-card" href="exercises/01-temperature-converter.html" data-ex="01" data-search="01 temperature converter variables, numeric types, functions convert celsius to fahrenheit and fahrenheit to celsius. rust fundamentals">
+  <div class="card-top"><span class="ex-num">01</span><span class="badge diff-beginner">Beginner</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Temperature Converter</h3>
+  <span class="card-level">Level 1 · Rust Fundamentals</span><p>Convert Celsius to Fahrenheit and Fahrenheit to Celsius.</p>
+</a><a class="card ex-card" href="exercises/02-rectangle-area.html" data-ex="02" data-search="02 rectangle area calculator function parameters, return values compute area from width and height. rust fundamentals">
+  <div class="card-top"><span class="ex-num">02</span><span class="badge diff-beginner">Beginner</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Rectangle Area Calculator</h3>
+  <span class="card-level">Level 1 · Rust Fundamentals</span><p>Compute area from width and height.</p>
+</a><a class="card ex-card" href="exercises/03-basic-calculator.html" data-ex="03" data-search="03 basic calculator integers, functions, match create reusable arithmetic functions. rust fundamentals">
+  <div class="card-top"><span class="ex-num">03</span><span class="badge diff-beginner">Beginner</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Basic Calculator</h3>
+  <span class="card-level">Level 1 · Rust Fundamentals</span><p>Create reusable arithmetic functions.</p>
+</a><a class="card ex-card" href="exercises/04-unit-converter.html" data-ex="04" data-search="04 unit converter constants, floating-point operations convert kilometers to miles and back. rust fundamentals">
+  <div class="card-top"><span class="ex-num">04</span><span class="badge diff-beginner">Beginner</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Unit Converter</h3>
+  <span class="card-level">Level 1 · Rust Fundamentals</span><p>Convert kilometers to miles and back.</p>
+</a><a class="card ex-card" href="exercises/05-fizzbuzz.html" data-ex="05" data-search="05 fizzbuzz `if`, `else`, `for`, ranges practice conditional branching in loops. control flow">
+  <div class="card-top"><span class="ex-num">05</span><span class="badge diff-beginner">Beginner</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>FizzBuzz</h3>
+  <span class="card-level">Level 2 · Control Flow</span><p>Practice conditional branching in loops.</p>
+</a><a class="card ex-card" href="exercises/06-fibonacci.html" data-ex="06" data-search="06 fibonacci sequence loops, mutable variables generate first `n` fibonacci numbers. control flow">
+  <div class="card-top"><span class="ex-num">06</span><span class="badge diff-beginner">Beginner</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Fibonacci Sequence</h3>
+  <span class="card-level">Level 2 · Control Flow</span><p>Generate first n Fibonacci numbers.</p>
+</a><a class="card ex-card" href="exercises/07-prime-checker.html" data-ex="07" data-search="07 prime number checker loops, early returns, conditions determine if a number is prime. control flow">
+  <div class="card-top"><span class="ex-num">07</span><span class="badge diff-beginner">Beginner</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Prime Number Checker</h3>
+  <span class="card-level">Level 2 · Control Flow</span><p>Determine if a number is prime.</p>
+</a><a class="card ex-card" href="exercises/08-reusable-calculator.html" data-ex="08" data-search="08 reusable functions calculator function decomposition, scope, return values split calculator logic into reusable functions. functions">
+  <div class="card-top"><span class="ex-num">08</span><span class="badge diff-beginner">Beginner</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Reusable Functions Calculator</h3>
+  <span class="card-level">Level 3 · Functions</span><p>Split calculator logic into reusable functions.</p>
+</a><a class="card ex-card" href="exercises/09-move-vs-clone.html" data-ex="09" data-search="09 move vs clone ownership, move semantics, cloning understand ownership moves and fix compiler error `e0382`. ownership and borrowing">
+  <div class="card-top"><span class="ex-num">09</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Move vs Clone</h3>
+  <span class="card-level">Level 4 · Ownership and Borrowing</span><p>Understand ownership moves and fix compiler error E0382.</p>
+</a><a class="card ex-card" href="exercises/10-mutable-borrowing.html" data-ex="10" data-search="10 mutable borrowing string editor mutable references, borrowing rules, `e0502` fix borrowing issues while updating a `string`. ownership and borrowing">
+  <div class="card-top"><span class="ex-num">10</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Mutable Borrowing String Editor</h3>
+  <span class="card-level">Level 4 · Ownership and Borrowing</span><p>Fix borrowing issues while updating a String.</p>
+</a><a class="card ex-card" href="exercises/11-user-model.html" data-ex="11" data-search="11 user model structs, `impl` blocks, associated functions, `&amp;self` / `&amp;mut self` model a user with a struct, an associated constructor, and methods. structs and enums">
+  <div class="card-top"><span class="ex-num">11</span><span class="badge diff-beginner">Beginner</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>User Model</h3>
+  <span class="card-level">Level 5 · Structs and Enums</span><p>Model a user with a struct, an associated constructor, and methods.</p>
+</a><a class="card ex-card" href="exercises/12-rectangle-model.html" data-ex="12" data-search="12 rectangle model methods, associated functions, `#[derive(debug)]`, borrowing `&amp;self` and `&amp;other` add behavior to a `rectangle` struct using methods and associated functions. structs and enums">
+  <div class="card-top"><span class="ex-num">12</span><span class="badge diff-beginner">Beginner</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Rectangle Model</h3>
+  <span class="card-level">Level 5 · Structs and Enums</span><p>Add behavior to a Rectangle struct using methods and associated functions.</p>
+</a><a class="card ex-card" href="exercises/13-bank-account.html" data-ex="13" data-search="13 bank account structs, enums as error types, `result`, `&amp;mut self`, `match` protect an account&#x27;s invariants by validating operations with `result`. structs and enums">
+  <div class="card-top"><span class="ex-num">13</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Bank Account</h3>
+  <span class="card-level">Level 5 · Structs and Enums</span><p>Protect an account&#x27;s invariants by validating operations with Result.</p>
+</a><a class="card ex-card" href="exercises/14-state-machine.html" data-ex="14" data-search="14 order state machine enums with data, consuming `self`, `match` on tuples, `result` model an order lifecycle where only valid transitions are allowed. structs and enums">
+  <div class="card-top"><span class="ex-num">14</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Order State Machine</h3>
+  <span class="card-level">Level 5 · Structs and Enums</span><p>Model an order lifecycle where only valid transitions are allowed.</p>
+</a><a class="card ex-card" href="exercises/15-traffic-light.html" data-ex="15" data-search="15 traffic light enum unit-like enums, `match`, `copy` types, implementing `std::fmt::display` model a traffic light with an enum and attach behavior to each variant. structs and enums">
+  <div class="card-top"><span class="ex-num">15</span><span class="badge diff-beginner">Beginner</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Traffic Light Enum</h3>
+  <span class="card-level">Level 5 · Structs and Enums</span><p>Model a traffic light with an enum and attach behavior to each variant.</p>
+</a><a class="card ex-card" href="exercises/16-option-result-branching.html" data-ex="16" data-search="16 option and result branching `match` on `result`/`option`, nested patterns, `if let`, `parseinterror` combine `option` and `result` values and branch on every outcome explicitly. pattern matching">
+  <div class="card-top"><span class="ex-num">16</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Option and Result Branching</h3>
+  <span class="card-level">Level 6 · Pattern Matching</span><p>Combine Option and Result values and branch on every outcome explicitly.</p>
+</a><a class="card ex-card" href="exercises/17-enum-destructuring.html" data-ex="17" data-search="17 enum destructuring drills struct/tuple variant patterns, `..`, match guards, `@` bindings, `|` alternatives pull data out of enum variants, structs and tuples with patterns. pattern matching">
+  <div class="card-top"><span class="ex-num">17</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Enum Destructuring Drills</h3>
+  <span class="card-level">Level 6 · Pattern Matching</span><p>Pull data out of enum variants, structs and tuples with patterns.</p>
+</a><a class="card ex-card" href="exercises/18-nested-if-to-match.html" data-ex="18" data-search="18 refactor nested ifs into `match` `let ... else`, matching on tuples, match guards, string-literal patterns, refactoring safely with tests replace a deeply nested `if` tree with a flat `match` using guards and `let ... else`. pattern matching">
+  <div class="card-top"><span class="ex-num">18</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Refactor Nested Ifs into `match`</h3>
+  <span class="card-level">Level 6 · Pattern Matching</span><p>Replace a deeply nested if tree with a flat match using guards and let ... else.</p>
+</a><a class="card ex-card" href="exercises/19-word-frequency.html" data-ex="19" data-search="19 word frequency counter `hashmap`, the `entry` api, string normalization, sorting with `sort_by` count how often each word appears in a text and report the most common ones. collections and strings">
+  <div class="card-top"><span class="ex-num">19</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Word Frequency Counter</h3>
+  <span class="card-level">Level 7 · Collections and Strings</span><p>Count how often each word appears in a text and report the most common ones.</p>
+</a><a class="card ex-card" href="exercises/20-grade-tracker.html" data-ex="20" data-search="20 grade tracker `hashmap&lt;string, vec&lt;u32&gt;&gt;`, `entry().or_default()`, `option`, iterator `sum`/`map`, sorting store grades per student and compute averages and letter grades. collections and strings">
+  <div class="card-top"><span class="ex-num">20</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Grade Tracker</h3>
+  <span class="card-level">Level 7 · Collections and Strings</span><p>Store grades per student and compute averages and letter grades.</p>
+</a><a class="card ex-card" href="exercises/21-duplicate-remover.html" data-ex="21" data-search="21 duplicate remover `hashset`, `hashset::insert` return value, `vec::retain`, borrowed `&amp;str` items remove and detect duplicates while preserving the original order. collections and strings">
+  <div class="card-top"><span class="ex-num">21</span><span class="badge diff-beginner">Beginner</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Duplicate Remover</h3>
+  <span class="card-level">Level 7 · Collections and Strings</span><p>Remove and detect duplicates while preserving the original order.</p>
+</a><a class="card ex-card" href="exercises/22-inventory.html" data-ex="22" data-search="22 inventory manager `hashmap&lt;string, item&gt;`, `entry` api, `get_mut`, `result` for invalid updates, iterator aggregation manage stock levels in a `hashmap` with safe updates and reports. collections and strings">
+  <div class="card-top"><span class="ex-num">22</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Inventory Manager</h3>
+  <span class="card-level">Level 7 · Collections and Strings</span><p>Manage stock levels in a HashMap with safe updates and reports.</p>
+</a><a class="card ex-card" href="exercises/23-text-analyzer.html" data-ex="23" data-search="23 text analyzer `chars()` vs bytes, `lines()`, `split_whitespace()`, `btreemap`, `option`, building `string`s compute statistics about a piece of text using `string`, `char` and collection apis. collections and strings">
+  <div class="card-top"><span class="ex-num">23</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Text Analyzer</h3>
+  <span class="card-level">Level 7 · Collections and Strings</span><p>Compute statistics about a piece of text using String, char and collection APIs.</p>
+</a><a class="card ex-card" href="exercises/24-file-reading.html" data-ex="24" data-search="24 safe file reading `std::fs`, `std::io::result`, the `?` operator, `io::errorkind::notfound`, `std::env::temp_dir` read and write files with `std::fs`, propagate i/o errors with `?`, and recover gracefully from a missing file. error handling">
+  <div class="card-top"><span class="ex-num">24</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Safe File Reading</h3>
+  <span class="card-level">Level 8 · Error Handling</span><p>Read and write files with std::fs, propagate I/O errors with ?, and recover gracefully from a missing file.</p>
+</a><a class="card ex-card" href="exercises/25-parsing.html" data-ex="25" data-search="25 parsing with `result` `str::parse`, `parseinterror`, collecting into `result&lt;vec&lt;_&gt;, _&gt;`, `?`, `map_err`, `ok()?` on `option` turn untrusted strings into typed values, propagating or converting errors instead of panicking. error handling">
+  <div class="card-top"><span class="ex-num">25</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Parsing with `Result`</h3>
+  <span class="card-level">Level 8 · Error Handling</span><p>Turn untrusted strings into typed values, propagating or converting errors instead of panicking.</p>
+</a><a class="card ex-card" href="exercises/26-data-validation.html" data-ex="26" data-search="26 signup form validation &quot;parse, don&#x27;t validate&quot;, error enums with data, `impl display`, `?`, collecting multiple errors validate raw user input into a trusted type, reporting either the first error or every error. error handling">
+  <div class="card-top"><span class="ex-num">26</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Signup Form Validation</h3>
+  <span class="card-level">Level 8 · Error Handling</span><p>Validate raw user input into a trusted type, reporting either the first error or every error.</p>
+</a><a class="card ex-card" href="exercises/27-custom-errors.html" data-ex="27" data-search="27 custom error type for a config loader error enums, `impl display`, `impl std::error::error` with `source()`, `from` conversions, `?`, `box&lt;dyn error&gt;` design an application error enum that wraps lower-level errors so `?` works across different error types. error handling">
+  <div class="card-top"><span class="ex-num">27</span><span class="badge diff-advanced">Advanced</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Custom Error Type for a Config Loader</h3>
+  <span class="card-level">Level 8 · Error Handling</span><p>Design an application error enum that wraps lower-level errors so ? works across different error types.</p>
+</a><a class="card ex-card" href="exercises/28-generic-max.html" data-ex="28" data-search="28 generic max generic functions, trait bounds (`partialord`, `ord`, `copy`), `option`, slices, `where` clauses write generic functions that find the largest value in a pair and in a slice. generics, traits and lifetimes">
+  <div class="card-top"><span class="ex-num">28</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Generic Max</h3>
+  <span class="card-level">Level 9 · Generics, Traits and Lifetimes</span><p>Write generic functions that find the largest value in a pair and in a slice.</p>
+</a><a class="card ex-card" href="exercises/29-printable-trait.html" data-ex="29" data-search="29 printable trait traits, default methods, trait bounds, `impl trait`, `dyn trait`, `std::fmt::display` define a custom trait with a required method and a default method, implement it for several types, and use it through generics, `impl trait` and trait objects. generics, traits and lifetimes">
+  <div class="card-top"><span class="ex-num">29</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Printable Trait</h3>
+  <span class="card-level">Level 9 · Generics, Traits and Lifetimes</span><p>Define a custom trait with a required method and a default method, implement it for several types, and use it through generics, impl Trait and trait objects.</p>
+</a><a class="card ex-card" href="exercises/30-shape-trait.html" data-ex="30" data-search="30 shape trait traits, trait objects (`box&lt;dyn trait&gt;`), generic functions with `where` clauses, supertraits, `result` for validation model geometric shapes behind a common trait and compute aggregate values over a heterogeneous collection. generics, traits and lifetimes">
+  <div class="card-top"><span class="ex-num">30</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Shape Trait</h3>
+  <span class="card-level">Level 9 · Generics, Traits and Lifetimes</span><p>Model geometric shapes behind a common trait and compute aggregate values over a heterogeneous collection.</p>
+</a><a class="card ex-card" href="exercises/31-repository-abstraction.html" data-ex="31" data-search="31 repository abstraction generic traits, associated types vs generic parameters, trait bounds, `hashmap`, `result` with a custom error enum, borrowing in return types design a generic `repository&lt;t&gt;` trait and an in-memory implementation that works for any entity type with an id. generics, traits and lifetimes">
+  <div class="card-top"><span class="ex-num">31</span><span class="badge diff-advanced">Advanced</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Repository Abstraction</h3>
+  <span class="card-level">Level 9 · Generics, Traits and Lifetimes</span><p>Design a generic Repository&lt;T&gt; trait and an in-memory implementation that works for any entity type with an id.</p>
+</a><a class="card ex-card" href="exercises/32-reference-returning-apis.html" data-ex="32" data-search="32 reference-returning apis lifetime parameters, lifetime elision rules, structs holding references, `&amp;str` slicing, `option&lt;&amp;t&gt;`, iterators over borrowed data write functions and structs that return borrowed data, using explicit lifetime annotations to describe which input the output borrows from. generics, traits and lifetimes">
+  <div class="card-top"><span class="ex-num">32</span><span class="badge diff-advanced">Advanced</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Reference-Returning APIs</h3>
+  <span class="card-level">Level 9 · Generics, Traits and Lifetimes</span><p>Write functions and structs that return borrowed data, using explicit lifetime annotations to describe which input the output borrows from.</p>
+</a><a class="card ex-card" href="exercises/33-data-transforms.html" data-ex="33" data-search="33 data transforms `iter` vs `into_iter`, `map`, `filter`, `filter_map`, `zip`, `enumerate`, `fold`, `collect` into different collections, closures capturing variables replace manual loops with iterator chains to transform, combine and summarize data. closures and iterators">
+  <div class="card-top"><span class="ex-num">33</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Data Transforms</h3>
+  <span class="card-level">Level 10 · Closures and Iterators</span><p>Replace manual loops with iterator chains to transform, combine and summarize data.</p>
+</a><a class="card ex-card" href="exercises/34-user-filtering.html" data-ex="34" data-search="34 user filtering iterators over structs, borrowing in closures, `filter`, `map`, `any`/`all`, `partition`, `max_by_key`, `sort_by`, grouping with `hashmap`/`btreemap`, boxed closures (`box&lt;dyn fn&gt;`) query a list of users with iterator chains and reusable, composable closure-based filters. closures and iterators">
+  <div class="card-top"><span class="ex-num">34</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>User Filtering</h3>
+  <span class="card-level">Level 10 · Closures and Iterators</span><p>Query a list of users with iterator chains and reusable, composable closure-based filters.</p>
+</a><a class="card ex-card" href="exercises/35-stats.html" data-ex="35" data-search="35 stats `fold`, `sum`, `copied`, `hashmap` counting, sorting floats safely (`total_cmp`), `option` for empty input, structs as return values compute descriptive statistics (mean, median, mode, variance, min/max) using iterators and `fold`, returning `option`/`result` instead of panicking on empty input. closures and iterators">
+  <div class="card-top"><span class="ex-num">35</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Stats</h3>
+  <span class="card-level">Level 10 · Closures and Iterators</span><p>Compute descriptive statistics (mean, median, mode, variance, min/max) using iterators and fold, returning Option/Result instead of panicking on empty input.</p>
+</a><a class="card ex-card" href="exercises/36-word-processing.html" data-ex="36" data-search="36 word processing `split_whitespace`, `chars`, `flat_map`, `windows`, `peekable`, implementing `iterator`, extension traits, returning `impl iterator&lt;item = &amp;str&gt; + &#x27;_` process text with iterator chains and build your own iterator types and adaptors. closures and iterators">
+  <div class="card-top"><span class="ex-num">36</span><span class="badge diff-advanced">Advanced</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Word Processing</h3>
+  <span class="card-level">Level 10 · Closures and Iterators</span><p>Process text with iterator chains and build your own iterator types and adaptors.</p>
+</a><a class="card ex-card" href="exercises/37-multi-module-project.html" data-ex="37" data-search="37 multi-module project `mod`, `pub`, `pub(crate)`, `pub(super)`, private modules, `use`, `self::`, `super::`, `crate::` paths, re-exports (`pub use`), library vs binary crates, workspaces organize a mini bank library into a module tree with deliberate visibility, then map that tree onto a real cargo project layout. modules, crates and project structure">
+  <div class="card-top"><span class="ex-num">37</span><span class="badge diff-advanced">Advanced</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Multi-Module Project</h3>
+  <span class="card-level">Level 11 · Modules, Crates and Project Structure</span><p>Organize a mini bank library into a module tree with deliberate visibility, then map that tree onto a real Cargo project layout.</p>
+</a><a class="card ex-card" href="exercises/38-unit-tests.html" data-ex="38" data-search="38 unit tests `#[cfg(test)]`, `#[test]`, `assert!`, `assert_eq!`, `assert_ne!`, custom failure messages, `#[should_panic(expected = &quot;...&quot;)]`, tests returning `result&lt;(), e&gt;`, `use super::*` write a thorough unit-test suite for already-implemented functions, covering happy paths, edge cases, error values and expected panics. testing">
+  <div class="card-top"><span class="ex-num">38</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Unit Tests</h3>
+  <span class="card-level">Level 12 · Testing</span><p>Write a thorough unit-test suite for already-implemented functions, covering happy paths, edge cases, error values and expected panics.</p>
+</a><a class="card ex-card" href="exercises/39-table-driven-tests.html" data-ex="39" data-search="39 table-driven tests table-driven tests (arrays/slices of tuples), helper assertions with `#[track_caller]`, descriptive failure messages, testing `result` errors and `display` output, regression-driven bug fixing test a small expression calculator and a password checker with data tables, cover every error variant, and use the tests to find and fix real bugs. testing">
+  <div class="card-top"><span class="ex-num">39</span><span class="badge diff-advanced">Advanced</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Table-Driven Tests</h3>
+  <span class="card-level">Level 12 · Testing</span><p>Test a small expression calculator and a password checker with data tables, cover every error variant, and use the tests to find and fix real bugs.</p>
+</a><a class="card ex-card" href="exercises/40-box-recursive-list.html" data-ex="40" data-search="40 box recursive list `box&lt;t&gt;`, recursive enums, pattern matching, recursion, `display` use `box&lt;t&gt;` to build recursive data types: a cons list and an arithmetic expression tree. smart pointers">
+  <div class="card-top"><span class="ex-num">40</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Box Recursive List</h3>
+  <span class="card-level">Level 13 · Smart Pointers</span><p>Use Box&lt;T&gt; to build recursive data types: a cons list and an arithmetic expression tree.</p>
+</a><a class="card ex-card" href="exercises/41-rc-refcell-shared-state.html" data-ex="41" data-search="41 rc + refcell shared state `rc&lt;t&gt;`, `refcell&lt;t&gt;`, interior mutability, `rc::strong_count`, `rc::ptr_eq`, `deref`/`derefmut`, `drop` model a joint bank account shared by several owners, and build a custom smart pointer with `deref` and `drop`. smart pointers">
+  <div class="card-top"><span class="ex-num">41</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Rc + RefCell Shared State</h3>
+  <span class="card-level">Level 13 · Smart Pointers</span><p>Model a joint bank account shared by several owners, and build a custom smart pointer with Deref and Drop.</p>
+</a><a class="card ex-card" href="exercises/42-weak-tree.html" data-ex="42" data-search="42 weak tree `rc&lt;t&gt;`, `weak&lt;t&gt;`, `refcell&lt;t&gt;`, `rc::downgrade`, `weak::upgrade`, `rc::strong_count`, `rc::weak_count` build a parent/child tree where children own nothing upward, using `weak&lt;t&gt;` to avoid reference cycles. smart pointers">
+  <div class="card-top"><span class="ex-num">42</span><span class="badge diff-advanced">Advanced</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Weak Tree</h3>
+  <span class="card-level">Level 13 · Smart Pointers</span><p>Build a parent/child tree where children own nothing upward, using Weak&lt;T&gt; to avoid reference cycles.</p>
+</a><a class="card ex-card" href="exercises/43-parallel-counter.html" data-ex="43" data-search="43 parallel counter `std::thread::spawn`, `joinhandle`, `arc&lt;t&gt;`, `mutex&lt;t&gt;`, `atomicusize`, memory `ordering`, `std::thread::scope` increment a shared counter from many threads safely, first with `arc&lt;mutex&lt;_&gt;&gt;`, then lock-free with `atomicusize`, and sum a slice in parallel with scoped threads. concurrency">
+  <div class="card-top"><span class="ex-num">43</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Parallel Counter</h3>
+  <span class="card-level">Level 14 · Concurrency</span><p>Increment a shared counter from many threads safely, first with Arc&lt;Mutex&lt;_&gt;&gt;, then lock-free with AtomicUsize, and sum a slice in parallel with scoped threads.</p>
+</a><a class="card ex-card" href="exercises/44-producer-consumer.html" data-ex="44" data-search="44 producer / consumer `mpsc::channel`, `mpsc::sync_channel`, cloning `sender`, channel closing semantics, backpressure, `thread::scope` pass messages from multiple producer threads to a consumer using `std::sync::mpsc` channels, both unbounded and bounded. concurrency">
+  <div class="card-top"><span class="ex-num">44</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Producer / Consumer</h3>
+  <span class="card-level">Level 14 · Concurrency</span><p>Pass messages from multiple producer threads to a consumer using std::sync::mpsc channels, both unbounded and bounded.</p>
+</a><a class="card ex-card" href="exercises/45-worker-pool.html" data-ex="45" data-search="45 worker pool `box&lt;dyn fnonce() + send + &#x27;static&gt;`, `mpsc` channels, `arc&lt;mutex&lt;receiver&lt;_&gt;&gt;&gt;`, `drop`, `option::take`, `joinhandle::join` build a fixed-size thread pool that executes boxed closures from a shared job queue and shuts down gracefully when dropped. concurrency">
+  <div class="card-top"><span class="ex-num">45</span><span class="badge diff-advanced">Advanced</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Worker Pool</h3>
+  <span class="card-level">Level 14 · Concurrency</span><p>Build a fixed-size thread pool that executes boxed closures from a shared job queue and shuts down gracefully when dropped.</p>
+</a><a class="card ex-card" href="exercises/46-shared-state-simulation.html" data-ex="46" data-search="46 shared state simulation `mutex&lt;t&gt;`, `rwlock&lt;t&gt;`, lock ordering, deadlock avoidance, `poisonerror::into_inner`, `thread::scope`, `arc&lt;t&gt;` simulate concurrent bank transfers without data races or deadlocks, and recover from a poisoned mutex. concurrency">
+  <div class="card-top"><span class="ex-num">46</span><span class="badge diff-ninja">Ninja</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Shared State Simulation</h3>
+  <span class="card-level">Level 14 · Concurrency</span><p>Simulate concurrent bank transfers without data races or deadlocks, and recover from a poisoned mutex.</p>
+</a><a class="card ex-card" href="exercises/47-async-timer.html" data-ex="47" data-search="47 async timer `future` trait, `poll`, `pin`, `context`, `waker`, `std::task::wake`, thread parking, `async`/`.await` understand how futures, wakers, and executors fit together by writing a minimal `block_on` executor and a `timerfuture` using only the standard library. async rust">
+  <div class="card-top"><span class="ex-num">47</span><span class="badge diff-advanced">Advanced</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Async Timer</h3>
+  <span class="card-level">Level 15 · Async Rust</span><p>Understand how futures, wakers, and executors fit together by writing a minimal block_on executor and a TimerFuture using only the standard library.</p>
+</a><a class="card ex-card" href="exercises/48-concurrent-requests.html" data-ex="48" data-search="48 concurrent requests composing futures, `pin&lt;box&lt;f&gt;&gt;`, `unpin`, polling multiple children, concurrency vs. parallelism, `async fn` run many simulated requests concurrently on a single thread with a hand-written `join_all`, and observe that total time ≈ the slowest request, not the sum. async rust">
+  <div class="card-top"><span class="ex-num">48</span><span class="badge diff-advanced">Advanced</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Concurrent Requests</h3>
+  <span class="card-level">Level 15 · Async Rust</span><p>Run many simulated requests concurrently on a single thread with a hand-written join_all, and observe that total time ≈ the slowest request, not the sum.</p>
+</a><a class="card ex-card" href="exercises/49-async-api-client.html" data-ex="49" data-search="49 async api client async traits via boxed futures, `pin&lt;box&lt;dyn future + send + &#x27;a&gt;&gt;`, select/timeout futures, retry policies, error enums, `async fn` methods build an async api client over a fake in-memory http transport, with timeouts (a select-like future) and retries with backoff. async rust">
+  <div class="card-top"><span class="ex-num">49</span><span class="badge diff-ninja">Ninja</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Async API Client</h3>
+  <span class="card-level">Level 15 · Async Rust</span><p>Build an async API client over a fake in-memory HTTP transport, with timeouts (a select-like future) and retries with backoff.</p>
+</a><a class="card ex-card" href="exercises/50-declarative-macros.html" data-ex="50" data-search="50 declarative macros `macro_rules!`, fragment specifiers (`expr`), repetitions `$(...),*`, optional trailing commas `$(,)?`, recursive macros, macro hygiene write `macro_rules!` macros for collection literals and variadic `max!`/`min!` using recursion. macros">
+  <div class="card-top"><span class="ex-num">50</span><span class="badge diff-intermediate">Intermediate</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Declarative Macros</h3>
+  <span class="card-level">Level 16 · Macros</span><p>Write macro_rules! macros for collection literals and variadic max!/min! using recursion.</p>
+</a><a class="card ex-card" href="exercises/51-repetition-macros.html" data-ex="51" data-search="51 repetition macros `ident`, `ty`, `literal`, `path`, `expr` fragments, item-generating macros, nested repetitions, `stringify!`, code generation for tests use macro repetitions to generate whole items: an enum with `display`/`fromstr`, a config struct with defaults and getters, and a family of test functions. macros">
+  <div class="card-top"><span class="ex-num">51</span><span class="badge diff-advanced">Advanced</span><span class="done-mark" title="Completed">✓</span></div>
+  <h3>Repetition Macros</h3>
+  <span class="card-level">Level 16 · Macros</span><p>Use macro repetitions to generate whole items: an enum with Display/FromStr, a config struct with defaults and getters, and a family of test functions.</p>
+</a></div>
+</section>
+<div id="roadmap"><section class="stage"><div class="stage-head"><h2>ZERO</h2><span>Rust syntax and fundamentals</span></div><div class="grid"><a class="card level-card" href="levels/00-setup.html" data-level-exs="">
+  <div class="card-top"><span class="lvl-big">00</span><span class="badge diff-beginner">Beginner</span></div>
+  <h3>Setup</h3>
+  <p>Rust projects are usually built with Cargo, Rust&#x27;s official package manager and build tool. rustc compiles a single file directly, while Cargo helps manage complete projects.</p>
+  <div class="card-foot"><span>Guide</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/01-basics.html" data-level-exs="01,02,03,04">
+  <div class="card-top"><span class="lvl-big">01</span><span class="badge diff-beginner">Beginner</span></div>
+  <h3>Rust Fundamentals</h3>
+  <p>Rust variables are immutable by default. You explicitly opt into mutability with mut. Rust&#x27;s type system helps catch mistakes early and encourages explicit intent.</p>
+  <div class="card-foot"><span>4 exercises</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/02-control-flow.html" data-level-exs="05,06,07">
+  <div class="card-top"><span class="lvl-big">02</span><span class="badge diff-beginner">Beginner</span></div>
+  <h3>Control Flow</h3>
+  <p>Control flow lets your program decide and repeat behavior. Rust&#x27;s match is exhaustive, which means the compiler forces you to handle all possible cases.</p>
+  <div class="card-foot"><span>3 exercises</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/03-functions.html" data-level-exs="08">
+  <div class="card-top"><span class="lvl-big">03</span><span class="badge diff-beginner">Beginner</span></div>
+  <h3>Functions</h3>
+  <p>Functions help organize logic into reusable units. In Rust, the last expression of a block can be an implicit return value.</p>
+  <div class="card-foot"><span>1 exercise</span><span class="mini-progress"><span></span></span></div>
+</a></div></section><section class="stage"><div class="stage-head"><h2>BEGINNER</h2><span>Ownership, structs, enums, collections</span></div><div class="grid"><a class="card level-card" href="levels/04-ownership-borrowing.html" data-level-exs="09,10">
+  <div class="card-top"><span class="lvl-big">04</span><span class="badge diff-intermediate">Intermediate</span></div>
+  <h3>Ownership and Borrowing</h3>
+  <p>Ownership is Rust&#x27;s core memory-safety model. Every value has one owner, and when ownership moves, the previous binding is no longer valid. Borrowing lets you reference data without taking ownership.</p>
+  <div class="card-foot"><span>2 exercises</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/05-structs-enums.html" data-level-exs="11,12,13,14,15">
+  <div class="card-top"><span class="lvl-big">05</span><span class="badge diff-intermediate">Intermediate</span></div>
+  <h3>Structs and Enums</h3>
+  <p>Structs model data; enums model a value that can be one of multiple variants.</p>
+  <div class="card-foot"><span>5 exercises</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/06-pattern-matching.html" data-level-exs="16,17,18">
+  <div class="card-top"><span class="lvl-big">06</span><span class="badge diff-intermediate">Intermediate</span></div>
+  <h3>Pattern Matching</h3>
+  <p>Pattern matching lets you unpack and validate data in one clear step.</p>
+  <div class="card-foot"><span>3 exercises</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/07-collections.html" data-level-exs="19,20,21,22,23">
+  <div class="card-top"><span class="lvl-big">07</span><span class="badge diff-intermediate">Intermediate</span></div>
+  <h3>Collections and Strings</h3>
+  <p>Collections store multiple values and often own their contents, so ownership rules still apply.</p>
+  <div class="card-foot"><span>5 exercises</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/08-error-handling.html" data-level-exs="24,25,26,27">
+  <div class="card-top"><span class="lvl-big">08</span><span class="badge diff-intermediate">Intermediate</span></div>
+  <h3>Error Handling</h3>
+  <p>Rust distinguishes recoverable errors (Result) from unrecoverable failures (panic!).</p>
+  <div class="card-foot"><span>4 exercises</span><span class="mini-progress"><span></span></span></div>
+</a></div></section><section class="stage"><div class="stage-head"><h2>ADVANCED</h2><span>Traits, lifetimes, iterators, testing</span></div><div class="grid"><a class="card level-card" href="levels/09-generics-traits-lifetimes.html" data-level-exs="28,29,30,31,32">
+  <div class="card-top"><span class="lvl-big">09</span><span class="badge diff-advanced">Advanced</span></div>
+  <h3>Generics, Traits and Lifetimes</h3>
+  <p>Generics remove duplication, traits describe shared behavior, and lifetimes explain reference validity.</p>
+  <div class="card-foot"><span>5 exercises</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/10-iterators-closures.html" data-level-exs="33,34,35,36">
+  <div class="card-top"><span class="lvl-big">10</span><span class="badge diff-advanced">Advanced</span></div>
+  <h3>Closures and Iterators</h3>
+  <p>Iterators transform data lazily and compositionally; closures capture surrounding context.</p>
+  <div class="card-foot"><span>4 exercises</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/11-modules-crates.html" data-level-exs="37">
+  <div class="card-top"><span class="lvl-big">11</span><span class="badge diff-advanced">Advanced</span></div>
+  <h3>Modules, Crates and Project Structure</h3>
+  <p>Modules organize code; crates package code for reuse; workspaces manage multiple crates.</p>
+  <div class="card-foot"><span>1 exercise</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/12-testing.html" data-level-exs="38,39">
+  <div class="card-top"><span class="lvl-big">12</span><span class="badge diff-advanced">Advanced</span></div>
+  <h3>Testing</h3>
+  <p>Tests lock expected behavior and make refactoring safer.</p>
+  <div class="card-foot"><span>2 exercises</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/13-smart-pointers.html" data-level-exs="40,41,42">
+  <div class="card-top"><span class="lvl-big">13</span><span class="badge diff-advanced">Advanced</span></div>
+  <h3>Smart Pointers</h3>
+  <p>Smart pointers add ownership behaviors like shared ownership or runtime borrow checking.</p>
+  <div class="card-foot"><span>3 exercises</span><span class="mini-progress"><span></span></span></div>
+</a></div></section><section class="stage"><div class="stage-head"><h2>NINJA</h2><span>Concurrency, async, macros, unsafe Rust and real projects</span></div><div class="grid"><a class="card level-card" href="levels/14-concurrency.html" data-level-exs="43,44,45,46">
+  <div class="card-top"><span class="lvl-big">14</span><span class="badge diff-advanced">Advanced</span></div>
+  <h3>Concurrency</h3>
+  <p>Concurrency lets multiple tasks make progress, but shared state must be synchronized safely.</p>
+  <div class="card-foot"><span>4 exercises</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/15-async-rust.html" data-level-exs="47,48,49">
+  <div class="card-top"><span class="lvl-big">15</span><span class="badge diff-advanced">Advanced</span></div>
+  <h3>Async Rust</h3>
+  <p>Async handles many waiting tasks efficiently without one OS thread per task.</p>
+  <div class="card-foot"><span>3 exercises</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/16-macros.html" data-level-exs="50,51">
+  <div class="card-top"><span class="lvl-big">16</span><span class="badge diff-advanced">Advanced</span></div>
+  <h3>Macros</h3>
+  <p>Macros generate Rust code, reducing repetitive patterns.</p>
+  <div class="card-foot"><span>2 exercises</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/17-advanced-rust.html" data-level-exs="">
+  <div class="card-top"><span class="lvl-big">17</span><span class="badge diff-ninja">Ninja</span></div>
+  <h3>Advanced Rust</h3>
+  <p>Advanced Rust balances zero-cost abstractions with controlled low-level power when needed.</p>
+  <div class="card-foot"><span>Guide</span><span class="mini-progress"><span></span></span></div>
+</a><a class="card level-card" href="levels/18-projects.html" data-level-exs="">
+  <div class="card-top"><span class="lvl-big">18</span><span class="badge diff-ninja">Ninja</span></div>
+  <h3>Projects</h3>
+  <p>Apply all previous levels in practical projects with increasing complexity.</p>
+  <div class="card-foot"><span>Project briefs</span><span class="mini-progress"><span></span></span></div>
+</a></div></section></div>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>48 · Concurrent Requests · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Run many simulated requests concurrently on a single thread with a hand-written `join_all`, and observe that total time ≈ the slowest request, not the sum.">
+<meta property="og:title" content="48 · Concurrent Requests · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Run many simulated requests concurrently on a single thread with a hand-written `join_all`, and observe that total time ≈ the slowest request, not the sum.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/15-async-rust.html">Level 15 — Async Rust</a><span>/</span><span>Exercise 48</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 48 · Level 15 — Async Rust</div>
+  <h1>Concurrent Requests</h1>
+  <p class="lead">Run many simulated requests concurrently on a single thread with a hand-written <code>join_all</code>, and observe that total time ≈ the slowest request, not the sum.</p>
+  <div class="meta"><span class="badge diff-advanced">Advanced</span><span class="chip">composing futures</span><span class="chip">`Pin&lt;Box&lt;F&gt;&gt;`</span><span class="chip">`Unpin`</span><span class="chip">polling multiple children</span><span class="chip">concurrency vs. parallelism</span><span class="chip">`async fn`</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="48"> Mark as completed</label>
+</header>
+<section class="prose"><blockquote><p><strong>Real projects use a runtime.</strong> With Tokio you'd write <code>tokio::join!(a, b)</code> or <code>futures::future::join_all(v).await</code>. This exercise is std-only so you can see how <code>join_all</code> works under the hood. The tiny <code>block_on</code>/<code>sleep</code> runtime from exercise 47 is provided.</p></blockquote>
+<h2 id="instructions">Instructions</h2>
+<ol><li>Implement <code>struct JoinAll&lt;F: Future&gt; { futures: Vec&lt;Option&lt;Pin&lt;Box&lt;F&gt;&gt;&gt;&gt;, outputs: Vec&lt;Option&lt;F::Output&gt;&gt; }</code> and the constructor:
+<pre class="code" data-lang="rust"><code><span class="tok-keyword">fn</span> join_all&lt;<span class="tok-type">I</span>&gt;(futures: <span class="tok-type">I</span>) -&gt; <span class="tok-type">JoinAll</span>&lt;<span class="tok-type">I</span>::<span class="tok-type">Item</span>&gt; <span class="tok-keyword">where</span> <span class="tok-type">I</span>: <span class="tok-type">IntoIterator</span>, <span class="tok-type">I</span>::<span class="tok-type">Item</span>: <span class="tok-type">Future</span></code></pre></li><li>Implement <code>Future for JoinAll&lt;F&gt;</code> with <code>Output = Vec&lt;F::Output&gt;</code>: poll every still-pending child; store finished outputs and set their slot to <code>None</code>; return <code>Ready</code> with outputs <strong>in the original order</strong> once every child is done.</li><li>Implement <code>async fn fake_request(id: usize, latency: Duration) -&gt; Response</code> (awaits <code>sleep(latency)</code>, returns <code>Response { id, body }</code>).</li><li>Implement: - <code>async fn fetch_sequential(latencies: &amp;[u64]) -&gt; Vec&lt;Response&gt;</code> — <code>.await</code> one after another. - <code>async fn fetch_concurrent(latencies: &amp;[u64]) -&gt; Vec&lt;Response&gt;</code> — build all futures, then <code>join_all(..).await</code>.</li><li>In <code>main</code>, time both versions with <code>Instant</code>.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<p>For latencies <code>[80, 30, 100, 50, 60]</code> ms:</p>
+<pre class="code" data-lang="text"><code>sequential: 5 responses in ~320ms (sum = 320ms)
+concurrent: 5 responses in ~100ms (max = 100ms)</code></pre>
+<ul><li><code>join_all</code> returns outputs in input order, even if later futures finish first.</li><li><code>join_all</code> of an empty <code>Vec</code> resolves immediately to <code>vec![]</code>.</li></ul>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li>Calling an <code>async fn</code> only <em>creates</em> a future; nothing runs until it's polled. Sequential <code>.await</code>s therefore add up.</li><li>Never poll a future again after it returned <code>Ready</code> — that's why completed slots become <code>None</code>.</li><li>Boxing each child (<code>Box::pin</code>) makes <code>JoinAll</code> <code>Unpin</code>, so <code>poll</code> can use <code>&amp;mut *self</code> freely.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>The Tokio equivalent (with <code>tokio</code> and <code>futures</code> crates):</p>
+<pre class="code" data-lang="rust"><code><span class="tok-attr">#[tokio::main]</span>
+<span class="tok-keyword">async</span> <span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> (a, b) = tokio::<span class="tok-macro">join!</span>(<span class="tok-fn">fake_request</span>(<span class="tok-number">0</span>, <span class="tok-fn">ms</span>(<span class="tok-number">80</span>)), <span class="tok-fn">fake_request</span>(<span class="tok-number">1</span>, <span class="tok-fn">ms</span>(<span class="tok-number">30</span>)));
+    <span class="tok-keyword">let</span> all = futures::future::<span class="tok-fn">join_all</span>((<span class="tok-number">0</span>..<span class="tok-number">5</span>).<span class="tok-fn">map</span>(|i| <span class="tok-fn">fake_request</span>(i, <span class="tok-fn">ms</span>(<span class="tok-number">50</span>)))).<span class="tok-keyword">await</span>;
+}</code></pre>
+<p>Write a <code>join2(a, b)</code> future returning <code>(A::Output, B::Output)</code>, and a <code>select2(a, b)</code> that returns whichever finishes first.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">15-async-rust/exercises/48-concurrent-requests.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Afuture%3A%3AFuture%3B%0Ause%20std%3A%3Apin%3A%3A%7Bpin%2C%20Pin%7D%3B%0Ause%20std%3A%3Async%3A%3A%7BArc%2C%20Mutex%7D%3B%0Ause%20std%3A%3Atask%3A%3A%7BContext%2C%20Poll%2C%20Wake%2C%20Waker%7D%3B%0Ause%20std%3A%3Athread%3A%3A%7Bself%2C%20Thread%7D%3B%0Ause%20std%3A%3Atime%3A%3A%7BDuration%2C%20Instant%7D%3B%0A%0A//%20----------%20tiny%20runtime%20%28see%20exercise%2047%29%20----------%0A%0Astruct%20ThreadWaker%28Thread%29%3B%0A%0Aimpl%20Wake%20for%20ThreadWaker%20%7B%0A%20%20%20%20fn%20wake%28self%3A%20Arc%3CSelf%3E%29%20%7B%0A%20%20%20%20%20%20%20%20self.0.unpark%28%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20block_on%3CF%3A%20Future%3E%28fut%3A%20F%29%20-%3E%20F%3A%3AOutput%20%7B%0A%20%20%20%20let%20mut%20fut%20%3D%20pin%21%28fut%29%3B%0A%20%20%20%20let%20waker%20%3D%20Waker%3A%3Afrom%28Arc%3A%3Anew%28ThreadWaker%28thread%3A%3Acurrent%28%29%29%29%29%3B%0A%20%20%20%20let%20mut%20cx%20%3D%20Context%3A%3Afrom_waker%28%26waker%29%3B%0A%20%20%20%20loop%20%7B%0A%20%20%20%20%20%20%20%20if%20let%20Poll%3A%3AReady%28out%29%20%3D%20fut.as_mut%28%29.poll%28%26mut%20cx%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20out%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20thread%3A%3Apark%28%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bderive%28Default%29%5D%0Astruct%20TimerState%20%7B%0A%20%20%20%20completed%3A%20bool%2C%0A%20%20%20%20waker%3A%20Option%3CWaker%3E%2C%0A%7D%0A%0Astruct%20TimerFuture%20%7B%0A%20%20%20%20state%3A%20Arc%3CMutex%3CTimerState%3E%3E%2C%0A%7D%0A%0Afn%20sleep%28duration%3A%20Duration%29%20-%3E%20TimerFuture%20%7B%0A%20%20%20%20let%20state%20%3D%20Arc%3A%3Anew%28Mutex%3A%3Anew%28TimerState%3A%3Adefault%28%29%29%29%3B%0A%20%20%20%20let%20thread_state%20%3D%20Arc%3A%3Aclone%28%26state%29%3B%0A%20%20%20%20thread%3A%3Aspawn%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20thread%3A%3Asleep%28duration%29%3B%0A%20%20%20%20%20%20%20%20let%20mut%20s%20%3D%20thread_state.lock%28%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20s.completed%20%3D%20true%3B%0A%20%20%20%20%20%20%20%20if%20let%20Some%28w%29%20%3D%20s.waker.take%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20w.wake%28%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%29%3B%0A%20%20%20%20TimerFuture%20%7B%20state%20%7D%0A%7D%0A%0Aimpl%20Future%20for%20TimerFuture%20%7B%0A%20%20%20%20type%20Output%20%3D%20%28%29%3B%0A%20%20%20%20fn%20poll%28self%3A%20Pin%3C%26mut%20Self%3E%2C%20cx%3A%20%26mut%20Context%3C%27_%3E%29%20-%3E%20Poll%3C%28%29%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20s%20%3D%20self.state.lock%28%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20if%20s.completed%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Poll%3A%3AReady%28%28%29%29%0A%20%20%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20s.waker%20%3D%20Some%28cx.waker%28%29.clone%28%29%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20Poll%3A%3APending%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0A//%20----------%20join_all%20----------%0A%0A///%20Polls%20every%20child%20future%20each%20time%20it%20is%20woken%3B%20resolves%20once%20all%20are%20done%2C%0A///%20returning%20outputs%20in%20the%20original%20order.%0Astruct%20JoinAll%3CF%3A%20Future%3E%20%7B%0A%20%20%20%20futures%3A%20Vec%3COption%3CPin%3CBox%3CF%3E%3E%3E%3E%2C%0A%20%20%20%20outputs%3A%20Vec%3COption%3CF%3A%3AOutput%3E%3E%2C%0A%7D%0A%0Afn%20join_all%3CI%3E%28futures%3A%20I%29%20-%3E%20JoinAll%3CI%3A%3AItem%3E%0Awhere%0A%20%20%20%20I%3A%20IntoIterator%2C%0A%20%20%20%20I%3A%3AItem%3A%20Future%2C%0A%7B%0A%20%20%20%20//%20TODO%3A%20implement%20%E2%80%94%20Box%3A%3Apin%20each%20future%2C%20and%20create%20one%20%60None%60%20output%20slot%20per%20future%0A%20%20%20%20let%20_%20%3D%20futures%3B%0A%20%20%20%20todo%21%28%22Build%20the%20JoinAll%20struct%22%29%0A%7D%0A%0Aimpl%3CF%3A%20Future%3E%20Unpin%20for%20JoinAll%3CF%3E%20%7B%7D%0A%0Aimpl%3CF%3A%20Future%3E%20Future%20for%20JoinAll%3CF%3E%20%7B%0A%20%20%20%20type%20Output%20%3D%20Vec%3CF%3A%3AOutput%3E%3B%0A%0A%20%20%20%20fn%20poll%28self%3A%20Pin%3C%26mut%20Self%3E%2C%20cx%3A%20%26mut%20Context%3C%27_%3E%29%20-%3E%20Poll%3CSelf%3A%3AOutput%3E%20%7B%0A%20%20%20%20%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20%20%20%20%20//%20-%20poll%20every%20future%20that%20is%20still%20Some%0A%20%20%20%20%20%20%20%20//%20-%20on%20Ready%2C%20store%20the%20output%20and%20set%20the%20slot%20to%20None%0A%20%20%20%20%20%20%20%20//%20-%20when%20every%20slot%20is%20None%2C%20return%20Ready%28outputs%20in%20order%29%0A%20%20%20%20%20%20%20%20let%20_%20%3D%20cx%3B%0A%20%20%20%20%20%20%20%20todo%21%28%22Poll%20all%20pending%20children%22%29%0A%20%20%20%20%7D%0A%7D%0A%0A//%20----------%20fake%20requests%20----------%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Astruct%20Response%20%7B%0A%20%20%20%20id%3A%20usize%2C%0A%20%20%20%20body%3A%20String%2C%0A%7D%0A%0Aasync%20fn%20fake_request%28id%3A%20usize%2C%20latency%3A%20Duration%29%20-%3E%20Response%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%20%E2%80%94%20await%20sleep%28latency%29%2C%20then%20return%20a%20Response%0A%20%20%20%20let%20_%20%3D%20%28id%2C%20latency%29%3B%0A%20%20%20%20todo%21%28%22Simulate%20a%20network%20call%22%29%0A%7D%0A%0Aasync%20fn%20fetch_sequential%28latencies%3A%20%26%5Bu64%5D%29%20-%3E%20Vec%3CResponse%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%20%E2%80%94%20await%20each%20fake_request%20one%20after%20another%0A%20%20%20%20let%20_%20%3D%20latencies%3B%0A%20%20%20%20todo%21%28%22Sequential%20version%22%29%0A%7D%0A%0Aasync%20fn%20fetch_concurrent%28latencies%3A%20%26%5Bu64%5D%29%20-%3E%20Vec%3CResponse%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%20%E2%80%94%20build%20all%20request%20futures%2C%20then%20join_all%28...%29.await%0A%20%20%20%20let%20_%20%3D%20latencies%3B%0A%20%20%20%20todo%21%28%22Concurrent%20version%22%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20latencies%20%3D%20%5B80%2C%2030%2C%20100%2C%2050%2C%2060%5D%3B%0A%20%20%20%20let%20sum%3A%20u64%20%3D%20latencies.iter%28%29.sum%28%29%3B%0A%20%20%20%20let%20max%20%3D%20latencies.iter%28%29.max%28%29.unwrap%28%29%3B%0A%0A%20%20%20%20let%20start%20%3D%20Instant%3A%3Anow%28%29%3B%0A%20%20%20%20let%20seq%20%3D%20block_on%28fetch_sequential%28%26latencies%29%29%3B%0A%20%20%20%20println%21%28%22sequential%3A%20%7B%7D%20responses%20in%20%7B%3A%3F%7D%20%28sum%20%3D%20%7Bsum%7Dms%29%22%2C%20seq.len%28%29%2C%20start.elapsed%28%29%29%3B%0A%0A%20%20%20%20let%20start%20%3D%20Instant%3A%3Anow%28%29%3B%0A%20%20%20%20let%20conc%20%3D%20block_on%28fetch_concurrent%28%26latencies%29%29%3B%0A%20%20%20%20println%21%28%22concurrent%3A%20%7B%7D%20responses%20in%20%7B%3A%3F%7D%20%28max%20%3D%20%7Bmax%7Dms%29%22%2C%20conc.len%28%29%2C%20start.elapsed%28%29%29%3B%0A%20%20%20%20for%20r%20in%20%26conc%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%20%20%5B%7B%7D%5D%20%7B%7D%22%2C%20r.id%2C%20r.body%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20join_all_preserves_order%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20responses%20%3D%20block_on%28fetch_concurrent%28%26%5B40%2C%2010%2C%2020%5D%29%29%3B%0A%20%20%20%20%20%20%20%20let%20ids%3A%20Vec%3Cusize%3E%20%3D%20responses.iter%28%29.map%28%7Cr%7C%20r.id%29.collect%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28ids%2C%20vec%21%5B0%2C%201%2C%202%5D%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20join_all_of_ready_futures%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20out%20%3D%20block_on%28join_all%28%281..%3D4%29.map%28%7Cn%7C%20async%20move%20%7B%20n%20%2A%2010%20%7D%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28out%2C%20vec%21%5B10%2C%2020%2C%2030%2C%2040%5D%29%3B%0A%20%20%20%20%20%20%20%20let%20empty%3A%20Vec%3Ci32%3E%20%3D%20block_on%28join_all%28Vec%3A%3A%3Cstd%3A%3Afuture%3A%3AReady%3Ci32%3E%3E%3A%3Anew%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28empty.is_empty%28%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20concurrent_is_faster_than_sequential_sum%28%29%20%7B%0A%20%20%20%20%20%20%20%20//%20Sum%20is%20400ms%3B%20concurrent%20should%20be%20close%20to%2080ms.%20Bound%20is%20generous.%0A%20%20%20%20%20%20%20%20let%20start%20%3D%20Instant%3A%3Anow%28%29%3B%0A%20%20%20%20%20%20%20%20let%20r%20%3D%20block_on%28fetch_concurrent%28%26%5B80%2C%2080%2C%2080%2C%2080%2C%2080%5D%29%29%3B%0A%20%20%20%20%20%20%20%20let%20elapsed%20%3D%20start.elapsed%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28r.len%28%29%2C%205%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28elapsed%20%3E%3D%20Duration%3A%3Afrom_millis%2880%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28elapsed%20%3C%20Duration%3A%3Afrom_millis%28300%29%2C%20%22took%20%7Belapsed%3A%3F%7D%22%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/15-async-rust/exercises/48-concurrent-requests.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::future::<span class="tok-type">Future</span>;
+<span class="tok-keyword">use</span> std::pin::{pin, <span class="tok-type">Pin</span>};
+<span class="tok-keyword">use</span> std::sync::{<span class="tok-type">Arc</span>, <span class="tok-type">Mutex</span>};
+<span class="tok-keyword">use</span> std::task::{<span class="tok-type">Context</span>, <span class="tok-type">Poll</span>, <span class="tok-type">Wake</span>, <span class="tok-type">Waker</span>};
+<span class="tok-keyword">use</span> std::thread::{<span class="tok-keyword">self</span>, <span class="tok-type">Thread</span>};
+<span class="tok-keyword">use</span> std::time::{<span class="tok-type">Duration</span>, <span class="tok-type">Instant</span>};
+
+<span class="tok-comment">// ---------- tiny runtime (see exercise 47) ----------</span>
+
+<span class="tok-keyword">struct</span> <span class="tok-type">ThreadWaker</span>(<span class="tok-type">Thread</span>);
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Wake</span> <span class="tok-keyword">for</span> <span class="tok-type">ThreadWaker</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">wake</span>(<span class="tok-keyword">self</span>: <span class="tok-type">Arc</span>&lt;<span class="tok-keyword">Self</span>&gt;) {
+        <span class="tok-keyword">self</span>.<span class="tok-number">0</span>.<span class="tok-fn">unpark</span>();
+    }
+}
+
+<span class="tok-keyword">fn</span> block_on&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt;(fut: <span class="tok-type">F</span>) -&gt; <span class="tok-type">F</span>::<span class="tok-type">Output</span> {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> fut = <span class="tok-macro">pin!</span>(fut);
+    <span class="tok-keyword">let</span> waker = <span class="tok-type">Waker</span>::<span class="tok-fn">from</span>(<span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">ThreadWaker</span>(thread::<span class="tok-fn">current</span>())));
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> cx = <span class="tok-type">Context</span>::<span class="tok-fn">from_waker</span>(&amp;waker);
+    <span class="tok-keyword">loop</span> {
+        <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Poll</span>::<span class="tok-type">Ready</span>(out) = fut.<span class="tok-fn">as_mut</span>().<span class="tok-fn">poll</span>(&amp;<span class="tok-keyword">mut</span> cx) {
+            <span class="tok-keyword">return</span> out;
+        }
+        thread::<span class="tok-fn">park</span>();
+    }
+}
+
+<span class="tok-attr">#[derive(Default)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">TimerState</span> {
+    completed: <span class="tok-type">bool</span>,
+    waker: <span class="tok-type">Option</span>&lt;<span class="tok-type">Waker</span>&gt;,
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">TimerFuture</span> {
+    state: <span class="tok-type">Arc</span>&lt;<span class="tok-type">Mutex</span>&lt;<span class="tok-type">TimerState</span>&gt;&gt;,
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">sleep</span>(duration: <span class="tok-type">Duration</span>) -&gt; <span class="tok-type">TimerFuture</span> {
+    <span class="tok-keyword">let</span> state = <span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">Mutex</span>::<span class="tok-fn">new</span>(<span class="tok-type">TimerState</span>::<span class="tok-fn">default</span>()));
+    <span class="tok-keyword">let</span> thread_state = <span class="tok-type">Arc</span>::<span class="tok-fn">clone</span>(&amp;state);
+    thread::<span class="tok-fn">spawn</span>(<span class="tok-keyword">move</span> || {
+        thread::<span class="tok-fn">sleep</span>(duration);
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> s = thread_state.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>();
+        s.completed = <span class="tok-keyword">true</span>;
+        <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span>(w) = s.waker.<span class="tok-fn">take</span>() {
+            w.<span class="tok-fn">wake</span>();
+        }
+    });
+    <span class="tok-type">TimerFuture</span> { state }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Future</span> <span class="tok-keyword">for</span> <span class="tok-type">TimerFuture</span> {
+    <span class="tok-keyword">type</span> <span class="tok-type">Output</span> = ();
+    <span class="tok-keyword">fn</span> <span class="tok-fn">poll</span>(<span class="tok-keyword">self</span>: <span class="tok-type">Pin</span>&lt;&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">Self</span>&gt;, cx: &amp;<span class="tok-keyword">mut</span> <span class="tok-type">Context</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; <span class="tok-type">Poll</span>&lt;()&gt; {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> s = <span class="tok-keyword">self</span>.state.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>();
+        <span class="tok-keyword">if</span> s.completed {
+            <span class="tok-type">Poll</span>::<span class="tok-type">Ready</span>(())
+        } <span class="tok-keyword">else</span> {
+            s.waker = <span class="tok-type">Some</span>(cx.<span class="tok-fn">waker</span>().<span class="tok-fn">clone</span>());
+            <span class="tok-type">Poll</span>::<span class="tok-type">Pending</span>
+        }
+    }
+}
+
+<span class="tok-comment">// ---------- join_all ----------</span>
+
+<span class="tok-comment">/// Polls every child future each time it is woken; resolves once all are done,</span>
+<span class="tok-comment">/// returning outputs in the original order.</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">JoinAll</span>&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt; {
+    futures: <span class="tok-type">Vec</span>&lt;<span class="tok-type">Option</span>&lt;<span class="tok-type">Pin</span>&lt;<span class="tok-type">Box</span>&lt;<span class="tok-type">F</span>&gt;&gt;&gt;&gt;,
+    outputs: <span class="tok-type">Vec</span>&lt;<span class="tok-type">Option</span>&lt;<span class="tok-type">F</span>::<span class="tok-type">Output</span>&gt;&gt;,
+}
+
+<span class="tok-keyword">fn</span> join_all&lt;<span class="tok-type">I</span>&gt;(futures: <span class="tok-type">I</span>) -&gt; <span class="tok-type">JoinAll</span>&lt;<span class="tok-type">I</span>::<span class="tok-type">Item</span>&gt;
+<span class="tok-keyword">where</span>
+    <span class="tok-type">I</span>: <span class="tok-type">IntoIterator</span>,
+    <span class="tok-type">I</span>::<span class="tok-type">Item</span>: <span class="tok-type">Future</span>,
+{
+    <span class="tok-comment">// TODO: implement — Box::pin each future, and create one `None` output slot per future</span>
+    <span class="tok-keyword">let</span> _ = futures;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Build the JoinAll struct"</span>)
+}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt; <span class="tok-type">Unpin</span> <span class="tok-keyword">for</span> <span class="tok-type">JoinAll</span>&lt;<span class="tok-type">F</span>&gt; {}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt; <span class="tok-type">Future</span> <span class="tok-keyword">for</span> <span class="tok-type">JoinAll</span>&lt;<span class="tok-type">F</span>&gt; {
+    <span class="tok-keyword">type</span> <span class="tok-type">Output</span> = <span class="tok-type">Vec</span>&lt;<span class="tok-type">F</span>::<span class="tok-type">Output</span>&gt;;
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">poll</span>(<span class="tok-keyword">self</span>: <span class="tok-type">Pin</span>&lt;&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">Self</span>&gt;, cx: &amp;<span class="tok-keyword">mut</span> <span class="tok-type">Context</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; <span class="tok-type">Poll</span>&lt;<span class="tok-keyword">Self</span>::<span class="tok-type">Output</span>&gt; {
+        <span class="tok-comment">// TODO: implement</span>
+        <span class="tok-comment">// - poll every future that is still Some</span>
+        <span class="tok-comment">// - on Ready, store the output and set the slot to None</span>
+        <span class="tok-comment">// - when every slot is None, return Ready(outputs in order)</span>
+        <span class="tok-keyword">let</span> _ = cx;
+        <span class="tok-macro">todo!</span>(<span class="tok-string">"Poll all pending children"</span>)
+    }
+}
+
+<span class="tok-comment">// ---------- fake requests ----------</span>
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Response</span> {
+    id: <span class="tok-type">usize</span>,
+    body: <span class="tok-type">String</span>,
+}
+
+<span class="tok-keyword">async</span> <span class="tok-keyword">fn</span> <span class="tok-fn">fake_request</span>(id: <span class="tok-type">usize</span>, latency: <span class="tok-type">Duration</span>) -&gt; <span class="tok-type">Response</span> {
+    <span class="tok-comment">// TODO: implement — await sleep(latency), then return a Response</span>
+    <span class="tok-keyword">let</span> _ = (id, latency);
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Simulate a network call"</span>)
+}
+
+<span class="tok-keyword">async</span> <span class="tok-keyword">fn</span> <span class="tok-fn">fetch_sequential</span>(latencies: &amp;[<span class="tok-type">u64</span>]) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">Response</span>&gt; {
+    <span class="tok-comment">// TODO: implement — await each fake_request one after another</span>
+    <span class="tok-keyword">let</span> _ = latencies;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Sequential version"</span>)
+}
+
+<span class="tok-keyword">async</span> <span class="tok-keyword">fn</span> <span class="tok-fn">fetch_concurrent</span>(latencies: &amp;[<span class="tok-type">u64</span>]) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">Response</span>&gt; {
+    <span class="tok-comment">// TODO: implement — build all request futures, then join_all(...).await</span>
+    <span class="tok-keyword">let</span> _ = latencies;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Concurrent version"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> latencies = [<span class="tok-number">80</span>, <span class="tok-number">30</span>, <span class="tok-number">100</span>, <span class="tok-number">50</span>, <span class="tok-number">60</span>];
+    <span class="tok-keyword">let</span> sum: <span class="tok-type">u64</span> = latencies.<span class="tok-fn">iter</span>().<span class="tok-fn">sum</span>();
+    <span class="tok-keyword">let</span> max = latencies.<span class="tok-fn">iter</span>().<span class="tok-fn">max</span>().<span class="tok-fn">unwrap</span>();
+
+    <span class="tok-keyword">let</span> start = <span class="tok-type">Instant</span>::<span class="tok-fn">now</span>();
+    <span class="tok-keyword">let</span> seq = <span class="tok-fn">block_on</span>(<span class="tok-fn">fetch_sequential</span>(&amp;latencies));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"sequential: {} responses in {:?} (sum = {sum}ms)"</span>, seq.<span class="tok-fn">len</span>(), start.<span class="tok-fn">elapsed</span>());
+
+    <span class="tok-keyword">let</span> start = <span class="tok-type">Instant</span>::<span class="tok-fn">now</span>();
+    <span class="tok-keyword">let</span> conc = <span class="tok-fn">block_on</span>(<span class="tok-fn">fetch_concurrent</span>(&amp;latencies));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"concurrent: {} responses in {:?} (max = {max}ms)"</span>, conc.<span class="tok-fn">len</span>(), start.<span class="tok-fn">elapsed</span>());
+    <span class="tok-keyword">for</span> r <span class="tok-keyword">in</span> &amp;conc {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"  [{}] {}"</span>, r.id, r.body);
+    }
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">join_all_preserves_order</span>() {
+        <span class="tok-keyword">let</span> responses = <span class="tok-fn">block_on</span>(<span class="tok-fn">fetch_concurrent</span>(&amp;[<span class="tok-number">40</span>, <span class="tok-number">10</span>, <span class="tok-number">20</span>]));
+        <span class="tok-keyword">let</span> ids: <span class="tok-type">Vec</span>&lt;<span class="tok-type">usize</span>&gt; = responses.<span class="tok-fn">iter</span>().<span class="tok-fn">map</span>(|r| r.id).<span class="tok-fn">collect</span>();
+        <span class="tok-macro">assert_eq!</span>(ids, <span class="tok-macro">vec!</span>[<span class="tok-number">0</span>, <span class="tok-number">1</span>, <span class="tok-number">2</span>]);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">join_all_of_ready_futures</span>() {
+        <span class="tok-keyword">let</span> out = <span class="tok-fn">block_on</span>(<span class="tok-fn">join_all</span>((<span class="tok-number">1</span>..=<span class="tok-number">4</span>).<span class="tok-fn">map</span>(|n| <span class="tok-keyword">async</span> <span class="tok-keyword">move</span> { n * <span class="tok-number">10</span> })));
+        <span class="tok-macro">assert_eq!</span>(out, <span class="tok-macro">vec!</span>[<span class="tok-number">10</span>, <span class="tok-number">20</span>, <span class="tok-number">30</span>, <span class="tok-number">40</span>]);
+        <span class="tok-keyword">let</span> empty: <span class="tok-type">Vec</span>&lt;<span class="tok-type">i32</span>&gt; = <span class="tok-fn">block_on</span>(<span class="tok-fn">join_all</span>(<span class="tok-type">Vec</span>::&lt;std::future::<span class="tok-type">Ready</span>&lt;<span class="tok-type">i32</span>&gt;&gt;::<span class="tok-fn">new</span>()));
+        <span class="tok-macro">assert!</span>(empty.<span class="tok-fn">is_empty</span>());
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">concurrent_is_faster_than_sequential_sum</span>() {
+        <span class="tok-comment">// Sum is 400ms; concurrent should be close to 80ms. Bound is generous.</span>
+        <span class="tok-keyword">let</span> start = <span class="tok-type">Instant</span>::<span class="tok-fn">now</span>();
+        <span class="tok-keyword">let</span> r = <span class="tok-fn">block_on</span>(<span class="tok-fn">fetch_concurrent</span>(&amp;[<span class="tok-number">80</span>, <span class="tok-number">80</span>, <span class="tok-number">80</span>, <span class="tok-number">80</span>, <span class="tok-number">80</span>]));
+        <span class="tok-keyword">let</span> elapsed = start.<span class="tok-fn">elapsed</span>();
+        <span class="tok-macro">assert_eq!</span>(r.<span class="tok-fn">len</span>(), <span class="tok-number">5</span>);
+        <span class="tok-macro">assert!</span>(elapsed &gt;= <span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">80</span>));
+        <span class="tok-macro">assert!</span>(elapsed &lt; <span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">300</span>), <span class="tok-string">"took {elapsed:?}"</span>);
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/15-async-rust/48-concurrent-requests.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Afuture%3A%3AFuture%3B%0Ause%20std%3A%3Apin%3A%3A%7Bpin%2C%20Pin%7D%3B%0Ause%20std%3A%3Async%3A%3A%7BArc%2C%20Mutex%7D%3B%0Ause%20std%3A%3Atask%3A%3A%7BContext%2C%20Poll%2C%20Wake%2C%20Waker%7D%3B%0Ause%20std%3A%3Athread%3A%3A%7Bself%2C%20Thread%7D%3B%0Ause%20std%3A%3Atime%3A%3A%7BDuration%2C%20Instant%7D%3B%0A%0A//%20----------%20tiny%20runtime%20%28see%20exercise%2047%29%20----------%0A%0Astruct%20ThreadWaker%28Thread%29%3B%0A%0Aimpl%20Wake%20for%20ThreadWaker%20%7B%0A%20%20%20%20fn%20wake%28self%3A%20Arc%3CSelf%3E%29%20%7B%0A%20%20%20%20%20%20%20%20self.0.unpark%28%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20block_on%3CF%3A%20Future%3E%28fut%3A%20F%29%20-%3E%20F%3A%3AOutput%20%7B%0A%20%20%20%20let%20mut%20fut%20%3D%20pin%21%28fut%29%3B%0A%20%20%20%20let%20waker%20%3D%20Waker%3A%3Afrom%28Arc%3A%3Anew%28ThreadWaker%28thread%3A%3Acurrent%28%29%29%29%29%3B%0A%20%20%20%20let%20mut%20cx%20%3D%20Context%3A%3Afrom_waker%28%26waker%29%3B%0A%20%20%20%20loop%20%7B%0A%20%20%20%20%20%20%20%20if%20let%20Poll%3A%3AReady%28out%29%20%3D%20fut.as_mut%28%29.poll%28%26mut%20cx%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20out%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20thread%3A%3Apark%28%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bderive%28Default%29%5D%0Astruct%20TimerState%20%7B%0A%20%20%20%20completed%3A%20bool%2C%0A%20%20%20%20waker%3A%20Option%3CWaker%3E%2C%0A%7D%0A%0Astruct%20TimerFuture%20%7B%0A%20%20%20%20state%3A%20Arc%3CMutex%3CTimerState%3E%3E%2C%0A%7D%0A%0Afn%20sleep%28duration%3A%20Duration%29%20-%3E%20TimerFuture%20%7B%0A%20%20%20%20let%20state%20%3D%20Arc%3A%3Anew%28Mutex%3A%3Anew%28TimerState%3A%3Adefault%28%29%29%29%3B%0A%20%20%20%20let%20thread_state%20%3D%20Arc%3A%3Aclone%28%26state%29%3B%0A%20%20%20%20thread%3A%3Aspawn%28move%20%7C%7C%20%7B%0A%20%20%20%20%20%20%20%20thread%3A%3Asleep%28duration%29%3B%0A%20%20%20%20%20%20%20%20let%20mut%20s%20%3D%20thread_state.lock%28%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20s.completed%20%3D%20true%3B%0A%20%20%20%20%20%20%20%20if%20let%20Some%28w%29%20%3D%20s.waker.take%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20w.wake%28%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%29%3B%0A%20%20%20%20TimerFuture%20%7B%20state%20%7D%0A%7D%0A%0Aimpl%20Future%20for%20TimerFuture%20%7B%0A%20%20%20%20type%20Output%20%3D%20%28%29%3B%0A%20%20%20%20fn%20poll%28self%3A%20Pin%3C%26mut%20Self%3E%2C%20cx%3A%20%26mut%20Context%3C%27_%3E%29%20-%3E%20Poll%3C%28%29%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20mut%20s%20%3D%20self.state.lock%28%29.unwrap%28%29%3B%0A%20%20%20%20%20%20%20%20if%20s.completed%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Poll%3A%3AReady%28%28%29%29%0A%20%20%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20s.waker%20%3D%20Some%28cx.waker%28%29.clone%28%29%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20Poll%3A%3APending%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0A//%20----------%20join_all%20----------%0A%0A///%20Polls%20every%20child%20future%20each%20time%20it%20is%20woken%3B%20resolves%20once%20all%20are%20done%2C%0A///%20returning%20outputs%20in%20the%20original%20order.%0Astruct%20JoinAll%3CF%3A%20Future%3E%20%7B%0A%20%20%20%20futures%3A%20Vec%3COption%3CPin%3CBox%3CF%3E%3E%3E%3E%2C%0A%20%20%20%20outputs%3A%20Vec%3COption%3CF%3A%3AOutput%3E%3E%2C%0A%7D%0A%0Afn%20join_all%3CI%3E%28futures%3A%20I%29%20-%3E%20JoinAll%3CI%3A%3AItem%3E%0Awhere%0A%20%20%20%20I%3A%20IntoIterator%2C%0A%20%20%20%20I%3A%3AItem%3A%20Future%2C%0A%7B%0A%20%20%20%20let%20futures%3A%20Vec%3C_%3E%20%3D%20futures.into_iter%28%29.map%28%7Cf%7C%20Some%28Box%3A%3Apin%28f%29%29%29.collect%28%29%3B%0A%20%20%20%20let%20outputs%20%3D%20futures.iter%28%29.map%28%7C_%7C%20None%29.collect%28%29%3B%0A%20%20%20%20JoinAll%20%7B%20futures%2C%20outputs%20%7D%0A%7D%0A%0A//%20Every%20field%20is%20boxed%20or%20plain%20data%2C%20so%20JoinAll%20is%20Unpin%20regardless%20of%20F.%0Aimpl%3CF%3A%20Future%3E%20Unpin%20for%20JoinAll%3CF%3E%20%7B%7D%0A%0Aimpl%3CF%3A%20Future%3E%20Future%20for%20JoinAll%3CF%3E%20%7B%0A%20%20%20%20type%20Output%20%3D%20Vec%3CF%3A%3AOutput%3E%3B%0A%0A%20%20%20%20fn%20poll%28mut%20self%3A%20Pin%3C%26mut%20Self%3E%2C%20cx%3A%20%26mut%20Context%3C%27_%3E%29%20-%3E%20Poll%3CSelf%3A%3AOutput%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20this%20%3D%20%26mut%20%2Aself%3B%0A%20%20%20%20%20%20%20%20let%20mut%20all_done%20%3D%20true%3B%0A%20%20%20%20%20%20%20%20for%20%28slot%2C%20out%29%20in%20this.futures.iter_mut%28%29.zip%28this.outputs.iter_mut%28%29%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20let%20Some%28fut%29%20%3D%20slot%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20match%20fut.as_mut%28%29.poll%28cx%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Poll%3A%3AReady%28v%29%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%2Aout%20%3D%20Some%28v%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%2Aslot%20%3D%20None%3B%20//%20never%20poll%20a%20completed%20future%20again%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Poll%3A%3APending%20%3D%3E%20all_done%20%3D%20false%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20if%20all_done%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Poll%3A%3AReady%28this.outputs.iter_mut%28%29.map%28%7Co%7C%20o.take%28%29.unwrap%28%29%29.collect%28%29%29%0A%20%20%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Poll%3A%3APending%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0A//%20----------%20fake%20requests%20----------%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Astruct%20Response%20%7B%0A%20%20%20%20id%3A%20usize%2C%0A%20%20%20%20body%3A%20String%2C%0A%7D%0A%0Aasync%20fn%20fake_request%28id%3A%20usize%2C%20latency%3A%20Duration%29%20-%3E%20Response%20%7B%0A%20%20%20%20sleep%28latency%29.await%3B%0A%20%20%20%20Response%20%7B%0A%20%20%20%20%20%20%20%20id%2C%0A%20%20%20%20%20%20%20%20body%3A%20format%21%28%22payload%20%23%7Bid%7D%20after%20%7B%7Dms%22%2C%20latency.as_millis%28%29%29%2C%0A%20%20%20%20%7D%0A%7D%0A%0Aasync%20fn%20fetch_sequential%28latencies%3A%20%26%5Bu64%5D%29%20-%3E%20Vec%3CResponse%3E%20%7B%0A%20%20%20%20let%20mut%20out%20%3D%20Vec%3A%3Anew%28%29%3B%0A%20%20%20%20for%20%28id%2C%20%26ms%29%20in%20latencies.iter%28%29.enumerate%28%29%20%7B%0A%20%20%20%20%20%20%20%20out.push%28fake_request%28id%2C%20Duration%3A%3Afrom_millis%28ms%29%29.await%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20out%0A%7D%0A%0Aasync%20fn%20fetch_concurrent%28latencies%3A%20%26%5Bu64%5D%29%20-%3E%20Vec%3CResponse%3E%20%7B%0A%20%20%20%20join_all%28%0A%20%20%20%20%20%20%20%20latencies%0A%20%20%20%20%20%20%20%20%20%20%20%20.iter%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.enumerate%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.map%28%7C%28id%2C%20%26ms%29%7C%20fake_request%28id%2C%20Duration%3A%3Afrom_millis%28ms%29%29%29%2C%0A%20%20%20%20%29%0A%20%20%20%20.await%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20latencies%20%3D%20%5B80%2C%2030%2C%20100%2C%2050%2C%2060%5D%3B%0A%20%20%20%20let%20sum%3A%20u64%20%3D%20latencies.iter%28%29.sum%28%29%3B%0A%20%20%20%20let%20max%20%3D%20latencies.iter%28%29.max%28%29.unwrap%28%29%3B%0A%0A%20%20%20%20let%20start%20%3D%20Instant%3A%3Anow%28%29%3B%0A%20%20%20%20let%20seq%20%3D%20block_on%28fetch_sequential%28%26latencies%29%29%3B%0A%20%20%20%20println%21%28%22sequential%3A%20%7B%7D%20responses%20in%20%7B%3A%3F%7D%20%28sum%20%3D%20%7Bsum%7Dms%29%22%2C%20seq.len%28%29%2C%20start.elapsed%28%29%29%3B%0A%0A%20%20%20%20let%20start%20%3D%20Instant%3A%3Anow%28%29%3B%0A%20%20%20%20let%20conc%20%3D%20block_on%28fetch_concurrent%28%26latencies%29%29%3B%0A%20%20%20%20println%21%28%22concurrent%3A%20%7B%7D%20responses%20in%20%7B%3A%3F%7D%20%28max%20%3D%20%7Bmax%7Dms%29%22%2C%20conc.len%28%29%2C%20start.elapsed%28%29%29%3B%0A%20%20%20%20for%20r%20in%20%26conc%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%20%20%5B%7B%7D%5D%20%7B%7D%22%2C%20r.id%2C%20r.body%29%3B%0A%20%20%20%20%7D%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20join_all_preserves_order%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20responses%20%3D%20block_on%28fetch_concurrent%28%26%5B40%2C%2010%2C%2020%5D%29%29%3B%0A%20%20%20%20%20%20%20%20let%20ids%3A%20Vec%3Cusize%3E%20%3D%20responses.iter%28%29.map%28%7Cr%7C%20r.id%29.collect%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28ids%2C%20vec%21%5B0%2C%201%2C%202%5D%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20join_all_of_ready_futures%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20out%20%3D%20block_on%28join_all%28%281..%3D4%29.map%28%7Cn%7C%20async%20move%20%7B%20n%20%2A%2010%20%7D%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28out%2C%20vec%21%5B10%2C%2020%2C%2030%2C%2040%5D%29%3B%0A%20%20%20%20%20%20%20%20let%20empty%3A%20Vec%3Ci32%3E%20%3D%20block_on%28join_all%28Vec%3A%3A%3Cstd%3A%3Afuture%3A%3AReady%3Ci32%3E%3E%3A%3Anew%28%29%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28empty.is_empty%28%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20concurrent_is_faster_than_sequential_sum%28%29%20%7B%0A%20%20%20%20%20%20%20%20//%20Sum%20is%20400ms%3B%20concurrent%20should%20be%20close%20to%2080ms.%20Bound%20is%20generous.%0A%20%20%20%20%20%20%20%20let%20start%20%3D%20Instant%3A%3Anow%28%29%3B%0A%20%20%20%20%20%20%20%20let%20r%20%3D%20block_on%28fetch_concurrent%28%26%5B80%2C%2080%2C%2080%2C%2080%2C%2080%5D%29%29%3B%0A%20%20%20%20%20%20%20%20let%20elapsed%20%3D%20start.elapsed%28%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28r.len%28%29%2C%205%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28elapsed%20%3E%3D%20Duration%3A%3Afrom_millis%2880%29%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28elapsed%20%3C%20Duration%3A%3Afrom_millis%28300%29%2C%20%22took%20%7Belapsed%3A%3F%7D%22%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/15-async-rust/48-concurrent-requests.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::future::<span class="tok-type">Future</span>;
+<span class="tok-keyword">use</span> std::pin::{pin, <span class="tok-type">Pin</span>};
+<span class="tok-keyword">use</span> std::sync::{<span class="tok-type">Arc</span>, <span class="tok-type">Mutex</span>};
+<span class="tok-keyword">use</span> std::task::{<span class="tok-type">Context</span>, <span class="tok-type">Poll</span>, <span class="tok-type">Wake</span>, <span class="tok-type">Waker</span>};
+<span class="tok-keyword">use</span> std::thread::{<span class="tok-keyword">self</span>, <span class="tok-type">Thread</span>};
+<span class="tok-keyword">use</span> std::time::{<span class="tok-type">Duration</span>, <span class="tok-type">Instant</span>};
+
+<span class="tok-comment">// ---------- tiny runtime (see exercise 47) ----------</span>
+
+<span class="tok-keyword">struct</span> <span class="tok-type">ThreadWaker</span>(<span class="tok-type">Thread</span>);
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Wake</span> <span class="tok-keyword">for</span> <span class="tok-type">ThreadWaker</span> {
+    <span class="tok-keyword">fn</span> <span class="tok-fn">wake</span>(<span class="tok-keyword">self</span>: <span class="tok-type">Arc</span>&lt;<span class="tok-keyword">Self</span>&gt;) {
+        <span class="tok-keyword">self</span>.<span class="tok-number">0</span>.<span class="tok-fn">unpark</span>();
+    }
+}
+
+<span class="tok-keyword">fn</span> block_on&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt;(fut: <span class="tok-type">F</span>) -&gt; <span class="tok-type">F</span>::<span class="tok-type">Output</span> {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> fut = <span class="tok-macro">pin!</span>(fut);
+    <span class="tok-keyword">let</span> waker = <span class="tok-type">Waker</span>::<span class="tok-fn">from</span>(<span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">ThreadWaker</span>(thread::<span class="tok-fn">current</span>())));
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> cx = <span class="tok-type">Context</span>::<span class="tok-fn">from_waker</span>(&amp;waker);
+    <span class="tok-keyword">loop</span> {
+        <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Poll</span>::<span class="tok-type">Ready</span>(out) = fut.<span class="tok-fn">as_mut</span>().<span class="tok-fn">poll</span>(&amp;<span class="tok-keyword">mut</span> cx) {
+            <span class="tok-keyword">return</span> out;
+        }
+        thread::<span class="tok-fn">park</span>();
+    }
+}
+
+<span class="tok-attr">#[derive(Default)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">TimerState</span> {
+    completed: <span class="tok-type">bool</span>,
+    waker: <span class="tok-type">Option</span>&lt;<span class="tok-type">Waker</span>&gt;,
+}
+
+<span class="tok-keyword">struct</span> <span class="tok-type">TimerFuture</span> {
+    state: <span class="tok-type">Arc</span>&lt;<span class="tok-type">Mutex</span>&lt;<span class="tok-type">TimerState</span>&gt;&gt;,
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">sleep</span>(duration: <span class="tok-type">Duration</span>) -&gt; <span class="tok-type">TimerFuture</span> {
+    <span class="tok-keyword">let</span> state = <span class="tok-type">Arc</span>::<span class="tok-fn">new</span>(<span class="tok-type">Mutex</span>::<span class="tok-fn">new</span>(<span class="tok-type">TimerState</span>::<span class="tok-fn">default</span>()));
+    <span class="tok-keyword">let</span> thread_state = <span class="tok-type">Arc</span>::<span class="tok-fn">clone</span>(&amp;state);
+    thread::<span class="tok-fn">spawn</span>(<span class="tok-keyword">move</span> || {
+        thread::<span class="tok-fn">sleep</span>(duration);
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> s = thread_state.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>();
+        s.completed = <span class="tok-keyword">true</span>;
+        <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span>(w) = s.waker.<span class="tok-fn">take</span>() {
+            w.<span class="tok-fn">wake</span>();
+        }
+    });
+    <span class="tok-type">TimerFuture</span> { state }
+}
+
+<span class="tok-keyword">impl</span> <span class="tok-type">Future</span> <span class="tok-keyword">for</span> <span class="tok-type">TimerFuture</span> {
+    <span class="tok-keyword">type</span> <span class="tok-type">Output</span> = ();
+    <span class="tok-keyword">fn</span> <span class="tok-fn">poll</span>(<span class="tok-keyword">self</span>: <span class="tok-type">Pin</span>&lt;&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">Self</span>&gt;, cx: &amp;<span class="tok-keyword">mut</span> <span class="tok-type">Context</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; <span class="tok-type">Poll</span>&lt;()&gt; {
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> s = <span class="tok-keyword">self</span>.state.<span class="tok-fn">lock</span>().<span class="tok-fn">unwrap</span>();
+        <span class="tok-keyword">if</span> s.completed {
+            <span class="tok-type">Poll</span>::<span class="tok-type">Ready</span>(())
+        } <span class="tok-keyword">else</span> {
+            s.waker = <span class="tok-type">Some</span>(cx.<span class="tok-fn">waker</span>().<span class="tok-fn">clone</span>());
+            <span class="tok-type">Poll</span>::<span class="tok-type">Pending</span>
+        }
+    }
+}
+
+<span class="tok-comment">// ---------- join_all ----------</span>
+
+<span class="tok-comment">/// Polls every child future each time it is woken; resolves once all are done,</span>
+<span class="tok-comment">/// returning outputs in the original order.</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">JoinAll</span>&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt; {
+    futures: <span class="tok-type">Vec</span>&lt;<span class="tok-type">Option</span>&lt;<span class="tok-type">Pin</span>&lt;<span class="tok-type">Box</span>&lt;<span class="tok-type">F</span>&gt;&gt;&gt;&gt;,
+    outputs: <span class="tok-type">Vec</span>&lt;<span class="tok-type">Option</span>&lt;<span class="tok-type">F</span>::<span class="tok-type">Output</span>&gt;&gt;,
+}
+
+<span class="tok-keyword">fn</span> join_all&lt;<span class="tok-type">I</span>&gt;(futures: <span class="tok-type">I</span>) -&gt; <span class="tok-type">JoinAll</span>&lt;<span class="tok-type">I</span>::<span class="tok-type">Item</span>&gt;
+<span class="tok-keyword">where</span>
+    <span class="tok-type">I</span>: <span class="tok-type">IntoIterator</span>,
+    <span class="tok-type">I</span>::<span class="tok-type">Item</span>: <span class="tok-type">Future</span>,
+{
+    <span class="tok-keyword">let</span> futures: <span class="tok-type">Vec</span>&lt;_&gt; = futures.<span class="tok-fn">into_iter</span>().<span class="tok-fn">map</span>(|f| <span class="tok-type">Some</span>(<span class="tok-type">Box</span>::<span class="tok-fn">pin</span>(f))).<span class="tok-fn">collect</span>();
+    <span class="tok-keyword">let</span> outputs = futures.<span class="tok-fn">iter</span>().<span class="tok-fn">map</span>(|_| <span class="tok-type">None</span>).<span class="tok-fn">collect</span>();
+    <span class="tok-type">JoinAll</span> { futures, outputs }
+}
+
+<span class="tok-comment">// Every field is boxed or plain data, so JoinAll is Unpin regardless of F.</span>
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt; <span class="tok-type">Unpin</span> <span class="tok-keyword">for</span> <span class="tok-type">JoinAll</span>&lt;<span class="tok-type">F</span>&gt; {}
+
+<span class="tok-keyword">impl</span>&lt;<span class="tok-type">F</span>: <span class="tok-type">Future</span>&gt; <span class="tok-type">Future</span> <span class="tok-keyword">for</span> <span class="tok-type">JoinAll</span>&lt;<span class="tok-type">F</span>&gt; {
+    <span class="tok-keyword">type</span> <span class="tok-type">Output</span> = <span class="tok-type">Vec</span>&lt;<span class="tok-type">F</span>::<span class="tok-type">Output</span>&gt;;
+
+    <span class="tok-keyword">fn</span> <span class="tok-fn">poll</span>(<span class="tok-keyword">mut</span> <span class="tok-keyword">self</span>: <span class="tok-type">Pin</span>&lt;&amp;<span class="tok-keyword">mut</span> <span class="tok-keyword">Self</span>&gt;, cx: &amp;<span class="tok-keyword">mut</span> <span class="tok-type">Context</span>&lt;<span class="tok-lifetime">'_</span>&gt;) -&gt; <span class="tok-type">Poll</span>&lt;<span class="tok-keyword">Self</span>::<span class="tok-type">Output</span>&gt; {
+        <span class="tok-keyword">let</span> this = &amp;<span class="tok-keyword">mut</span> *<span class="tok-keyword">self</span>;
+        <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> all_done = <span class="tok-keyword">true</span>;
+        <span class="tok-keyword">for</span> (slot, out) <span class="tok-keyword">in</span> this.futures.<span class="tok-fn">iter_mut</span>().<span class="tok-fn">zip</span>(this.outputs.<span class="tok-fn">iter_mut</span>()) {
+            <span class="tok-keyword">if</span> <span class="tok-keyword">let</span> <span class="tok-type">Some</span>(fut) = slot {
+                <span class="tok-keyword">match</span> fut.<span class="tok-fn">as_mut</span>().<span class="tok-fn">poll</span>(cx) {
+                    <span class="tok-type">Poll</span>::<span class="tok-type">Ready</span>(v) =&gt; {
+                        *out = <span class="tok-type">Some</span>(v);
+                        *slot = <span class="tok-type">None</span>; <span class="tok-comment">// never poll a completed future again</span>
+                    }
+                    <span class="tok-type">Poll</span>::<span class="tok-type">Pending</span> =&gt; all_done = <span class="tok-keyword">false</span>,
+                }
+            }
+        }
+        <span class="tok-keyword">if</span> all_done {
+            <span class="tok-type">Poll</span>::<span class="tok-type">Ready</span>(this.outputs.<span class="tok-fn">iter_mut</span>().<span class="tok-fn">map</span>(|o| o.<span class="tok-fn">take</span>().<span class="tok-fn">unwrap</span>()).<span class="tok-fn">collect</span>())
+        } <span class="tok-keyword">else</span> {
+            <span class="tok-type">Poll</span>::<span class="tok-type">Pending</span>
+        }
+    }
+}
+
+<span class="tok-comment">// ---------- fake requests ----------</span>
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">Response</span> {
+    id: <span class="tok-type">usize</span>,
+    body: <span class="tok-type">String</span>,
+}
+
+<span class="tok-keyword">async</span> <span class="tok-keyword">fn</span> <span class="tok-fn">fake_request</span>(id: <span class="tok-type">usize</span>, latency: <span class="tok-type">Duration</span>) -&gt; <span class="tok-type">Response</span> {
+    <span class="tok-fn">sleep</span>(latency).<span class="tok-keyword">await</span>;
+    <span class="tok-type">Response</span> {
+        id,
+        body: <span class="tok-macro">format!</span>(<span class="tok-string">"payload #{id} after {}ms"</span>, latency.<span class="tok-fn">as_millis</span>()),
+    }
+}
+
+<span class="tok-keyword">async</span> <span class="tok-keyword">fn</span> <span class="tok-fn">fetch_sequential</span>(latencies: &amp;[<span class="tok-type">u64</span>]) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">Response</span>&gt; {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> out = <span class="tok-type">Vec</span>::<span class="tok-fn">new</span>();
+    <span class="tok-keyword">for</span> (id, &amp;ms) <span class="tok-keyword">in</span> latencies.<span class="tok-fn">iter</span>().<span class="tok-fn">enumerate</span>() {
+        out.<span class="tok-fn">push</span>(<span class="tok-fn">fake_request</span>(id, <span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(ms)).<span class="tok-keyword">await</span>);
+    }
+    out
+}
+
+<span class="tok-keyword">async</span> <span class="tok-keyword">fn</span> <span class="tok-fn">fetch_concurrent</span>(latencies: &amp;[<span class="tok-type">u64</span>]) -&gt; <span class="tok-type">Vec</span>&lt;<span class="tok-type">Response</span>&gt; {
+    <span class="tok-fn">join_all</span>(
+        latencies
+            .<span class="tok-fn">iter</span>()
+            .<span class="tok-fn">enumerate</span>()
+            .<span class="tok-fn">map</span>(|(id, &amp;ms)| <span class="tok-fn">fake_request</span>(id, <span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(ms))),
+    )
+    .<span class="tok-keyword">await</span>
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> latencies = [<span class="tok-number">80</span>, <span class="tok-number">30</span>, <span class="tok-number">100</span>, <span class="tok-number">50</span>, <span class="tok-number">60</span>];
+    <span class="tok-keyword">let</span> sum: <span class="tok-type">u64</span> = latencies.<span class="tok-fn">iter</span>().<span class="tok-fn">sum</span>();
+    <span class="tok-keyword">let</span> max = latencies.<span class="tok-fn">iter</span>().<span class="tok-fn">max</span>().<span class="tok-fn">unwrap</span>();
+
+    <span class="tok-keyword">let</span> start = <span class="tok-type">Instant</span>::<span class="tok-fn">now</span>();
+    <span class="tok-keyword">let</span> seq = <span class="tok-fn">block_on</span>(<span class="tok-fn">fetch_sequential</span>(&amp;latencies));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"sequential: {} responses in {:?} (sum = {sum}ms)"</span>, seq.<span class="tok-fn">len</span>(), start.<span class="tok-fn">elapsed</span>());
+
+    <span class="tok-keyword">let</span> start = <span class="tok-type">Instant</span>::<span class="tok-fn">now</span>();
+    <span class="tok-keyword">let</span> conc = <span class="tok-fn">block_on</span>(<span class="tok-fn">fetch_concurrent</span>(&amp;latencies));
+    <span class="tok-macro">println!</span>(<span class="tok-string">"concurrent: {} responses in {:?} (max = {max}ms)"</span>, conc.<span class="tok-fn">len</span>(), start.<span class="tok-fn">elapsed</span>());
+    <span class="tok-keyword">for</span> r <span class="tok-keyword">in</span> &amp;conc {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"  [{}] {}"</span>, r.id, r.body);
+    }
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">join_all_preserves_order</span>() {
+        <span class="tok-keyword">let</span> responses = <span class="tok-fn">block_on</span>(<span class="tok-fn">fetch_concurrent</span>(&amp;[<span class="tok-number">40</span>, <span class="tok-number">10</span>, <span class="tok-number">20</span>]));
+        <span class="tok-keyword">let</span> ids: <span class="tok-type">Vec</span>&lt;<span class="tok-type">usize</span>&gt; = responses.<span class="tok-fn">iter</span>().<span class="tok-fn">map</span>(|r| r.id).<span class="tok-fn">collect</span>();
+        <span class="tok-macro">assert_eq!</span>(ids, <span class="tok-macro">vec!</span>[<span class="tok-number">0</span>, <span class="tok-number">1</span>, <span class="tok-number">2</span>]);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">join_all_of_ready_futures</span>() {
+        <span class="tok-keyword">let</span> out = <span class="tok-fn">block_on</span>(<span class="tok-fn">join_all</span>((<span class="tok-number">1</span>..=<span class="tok-number">4</span>).<span class="tok-fn">map</span>(|n| <span class="tok-keyword">async</span> <span class="tok-keyword">move</span> { n * <span class="tok-number">10</span> })));
+        <span class="tok-macro">assert_eq!</span>(out, <span class="tok-macro">vec!</span>[<span class="tok-number">10</span>, <span class="tok-number">20</span>, <span class="tok-number">30</span>, <span class="tok-number">40</span>]);
+        <span class="tok-keyword">let</span> empty: <span class="tok-type">Vec</span>&lt;<span class="tok-type">i32</span>&gt; = <span class="tok-fn">block_on</span>(<span class="tok-fn">join_all</span>(<span class="tok-type">Vec</span>::&lt;std::future::<span class="tok-type">Ready</span>&lt;<span class="tok-type">i32</span>&gt;&gt;::<span class="tok-fn">new</span>()));
+        <span class="tok-macro">assert!</span>(empty.<span class="tok-fn">is_empty</span>());
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">concurrent_is_faster_than_sequential_sum</span>() {
+        <span class="tok-comment">// Sum is 400ms; concurrent should be close to 80ms. Bound is generous.</span>
+        <span class="tok-keyword">let</span> start = <span class="tok-type">Instant</span>::<span class="tok-fn">now</span>();
+        <span class="tok-keyword">let</span> r = <span class="tok-fn">block_on</span>(<span class="tok-fn">fetch_concurrent</span>(&amp;[<span class="tok-number">80</span>, <span class="tok-number">80</span>, <span class="tok-number">80</span>, <span class="tok-number">80</span>, <span class="tok-number">80</span>]));
+        <span class="tok-keyword">let</span> elapsed = start.<span class="tok-fn">elapsed</span>();
+        <span class="tok-macro">assert_eq!</span>(r.<span class="tok-fn">len</span>(), <span class="tok-number">5</span>);
+        <span class="tok-macro">assert!</span>(elapsed &gt;= <span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">80</span>));
+        <span class="tok-macro">assert!</span>(elapsed &lt; <span class="tok-type">Duration</span>::<span class="tok-fn">from_millis</span>(<span class="tok-number">300</span>), <span class="tok-string">"took {elapsed:?}"</span>);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 48-concurrent-requests.rs -o 48-concurrent-requests &amp;&amp; ./48-concurrent-requests
+
+# run the unit tests
+rustc --edition 2021 --test 48-concurrent-requests.rs -o 48-concurrent-requests-tests &amp;&amp; ./48-concurrent-requests-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/47-async-timer.html"><small>← Previous</small>47 · Async Timer</a><a class="pager-link next" href="../exercises/49-async-api-client.html"><small>Next →</small>49 · Async API Client</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

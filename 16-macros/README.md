@@ -15,7 +15,10 @@ macro_rules! say_hi { () => { println!("hi"); } }
 Overengineering macros and unclear expansion behavior.
 
 ## Exercises
-Create simple declarative macros for repetitive code patterns.
+- [50 — Declarative Macros](exercises/50-declarative-macros.md)
+- [51 — Repetition Macros](exercises/51-repetition-macros.md)
+
+See `exercises/` for starters and `../solutions/16-macros/` for reference solutions.
 
 ## Hints
 Start with pattern matching tokens and small expansions.

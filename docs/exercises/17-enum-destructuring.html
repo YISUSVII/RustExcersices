@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>17 · Enum Destructuring Drills · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Pull data out of enum variants, structs and tuples with patterns.">
+<meta property="og:title" content="17 · Enum Destructuring Drills · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Pull data out of enum variants, structs and tuples with patterns.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/06-pattern-matching.html">Level 6 — Pattern Matching</a><span>/</span><span>Exercise 17</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 17 · Level 6 — Pattern Matching</div>
+  <h1>Enum Destructuring Drills</h1>
+  <p class="lead">Pull data out of enum variants, structs and tuples with patterns.</p>
+  <div class="meta"><span class="badge diff-intermediate">Intermediate</span><span class="chip">struct/tuple variant patterns</span><span class="chip">`..`</span><span class="chip">match guards</span><span class="chip">`@` bindings</span><span class="chip">`|` alternatives</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="17"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<ol><li>Implement <code>area(shape: &amp;Shape) -&gt; f64</code> for: - <code>Shape::Circle { radius }</code> - <code>Shape::Rectangle { width, height }</code> - <code>Shape::Triangle(a, b, c)</code> (use Heron's formula)</li><li>Implement <code>describe(msg: &amp;Message) -&gt; String</code> for: - <code>Message::Quit</code> → <code>"quit"</code> - <code>Message::Move { x: 0, y: 0 }</code> → <code>"stay"</code> - <code>Message::Move { x, y: 0 }</code> → <code>"move horizontally by &lt;x&gt;"</code> - <code>Message::Move { x: 0, y }</code> → <code>"move vertically by &lt;y&gt;"</code> - <code>Message::Move { x, y }</code> → <code>"move to (&lt;x&gt;, &lt;y&gt;)"</code> - <code>Message::Write(text)</code> → <code>"empty message"</code> when blank (guard), otherwise <code>"write: &lt;text&gt;"</code> - <code>Message::ChangeColor(r, g, b)</code> → <code>"grayscale &lt;r&gt;"</code> when <code>r == g &amp;&amp; g == b</code>, otherwise <code>"color #RRGGBB"</code> (hex)</li><li>Implement <code>classify_age(age: u8) -&gt; String</code> using <code>@</code> bindings with ranges: <code>0..=12</code> child, <code>13..=19</code> teen, others adult — e.g. <code>"teen (15)"</code>.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<pre class="code" data-lang="text"><code>circle area: 3.14
+rect area: 6.00
+triangle area: 6.00
+stay
+move horizontally by 5
+write: hi
+grayscale 128
+color #FF8000
+quit
+teen (15)</code></pre>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li>Order matters: put more specific patterns (like <code>Move { x: 0, y: 0 }</code>) before general ones.</li><li><code>{:02X}</code> formats a byte as two uppercase hex digits.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Add a <code>Shape::Square(f64)</code> variant and handle it with an <code>|</code> pattern together with <code>Rectangle</code>.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">06-pattern-matching/exercises/17-enum-destructuring.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=%23%5Bderive%28Debug%29%5D%0Aenum%20Shape%20%7B%0A%20%20%20%20Circle%20%7B%20radius%3A%20f64%20%7D%2C%0A%20%20%20%20Rectangle%20%7B%20width%3A%20f64%2C%20height%3A%20f64%20%7D%2C%0A%20%20%20%20Triangle%28f64%2C%20f64%2C%20f64%29%2C%0A%7D%0A%0A%23%5Bderive%28Debug%29%5D%0Aenum%20Message%20%7B%0A%20%20%20%20Quit%2C%0A%20%20%20%20Move%20%7B%20x%3A%20i32%2C%20y%3A%20i32%20%7D%2C%0A%20%20%20%20Write%28String%29%2C%0A%20%20%20%20ChangeColor%28u8%2C%20u8%2C%20u8%29%2C%0A%7D%0A%0Afn%20area%28shape%3A%20%26Shape%29%20-%3E%20f64%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20shape%3B%0A%20%20%20%20todo%21%28%22Destructure%20each%20Shape%20variant%3B%20use%20Heron%27s%20formula%20for%20Triangle%22%29%0A%7D%0A%0Afn%20describe%28msg%3A%20%26Message%29%20-%3E%20String%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20msg%3B%0A%20%20%20%20todo%21%28%22Use%20literal%20sub-patterns%20%28x%3A%200%29%2C%20guards%20%28if%20...%29%20and%20specific-first%20ordering%22%29%0A%7D%0A%0Afn%20classify_age%28age%3A%20u8%29%20-%3E%20String%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20age%3B%0A%20%20%20%20todo%21%28%22Use%20n%20%40%200..%3D12%20style%20bindings%22%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20println%21%28%22circle%20area%3A%20%7B%3A.2%7D%22%2C%20area%28%26Shape%3A%3ACircle%20%7B%20radius%3A%201.0%20%7D%29%29%3B%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22rect%20area%3A%20%7B%3A.2%7D%22%2C%0A%20%20%20%20%20%20%20%20area%28%26Shape%3A%3ARectangle%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20width%3A%202.0%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20height%3A%203.0%0A%20%20%20%20%20%20%20%20%7D%29%0A%20%20%20%20%29%3B%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22triangle%20area%3A%20%7B%3A.2%7D%22%2C%0A%20%20%20%20%20%20%20%20area%28%26Shape%3A%3ATriangle%283.0%2C%204.0%2C%205.0%29%29%0A%20%20%20%20%29%3B%0A%0A%20%20%20%20let%20messages%20%3D%20%5B%0A%20%20%20%20%20%20%20%20Message%3A%3AMove%20%7B%20x%3A%200%2C%20y%3A%200%20%7D%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AMove%20%7B%20x%3A%205%2C%20y%3A%200%20%7D%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AWrite%28%22hi%22.to_string%28%29%29%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AChangeColor%28128%2C%20128%2C%20128%29%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AChangeColor%28255%2C%20128%2C%200%29%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AQuit%2C%0A%20%20%20%20%5D%3B%0A%20%20%20%20for%20msg%20in%20%26messages%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%7B%7D%22%2C%20describe%28msg%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%22%7B%7D%22%2C%20classify_age%2815%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20areas%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28%28area%28%26Shape%3A%3ACircle%20%7B%20radius%3A%202.0%20%7D%29%20-%2012.566%29.abs%28%29%20%3C%200.001%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20area%28%26Shape%3A%3ARectangle%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20width%3A%202.0%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20height%3A%205.0%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%2010.0%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%28area%28%26Shape%3A%3ATriangle%283.0%2C%204.0%2C%205.0%29%29%20-%206.0%29.abs%28%29%20%3C%201e-9%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20move_patterns%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28describe%28%26Message%3A%3AMove%20%7B%20x%3A%200%2C%20y%3A%200%20%7D%29%2C%20%22stay%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20describe%28%26Message%3A%3AMove%20%7B%20x%3A%200%2C%20y%3A%20-2%20%7D%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22move%20vertically%20by%20-2%22%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28describe%28%26Message%3A%3AMove%20%7B%20x%3A%201%2C%20y%3A%202%20%7D%29%2C%20%22move%20to%20%281%2C%202%29%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20guards%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28describe%28%26Message%3A%3AWrite%28%22%20%20%20%22.into%28%29%29%29%2C%20%22empty%20message%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28describe%28%26Message%3A%3AChangeColor%280%2C%200%2C%200%29%29%2C%20%22grayscale%200%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20describe%28%26Message%3A%3AChangeColor%28255%2C%20128%2C%200%29%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22color%20%23FF8000%22%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28describe%28%26Message%3A%3AQuit%29%2C%20%22quit%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20age_bindings%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28classify_age%285%29%2C%20%22child%20%285%29%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28classify_age%2819%29%2C%20%22teen%20%2819%29%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28classify_age%2820%29%2C%20%22adult%20%2820%29%22%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/06-pattern-matching/exercises/17-enum-destructuring.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">Shape</span> {
+    <span class="tok-type">Circle</span> { radius: <span class="tok-type">f64</span> },
+    <span class="tok-type">Rectangle</span> { width: <span class="tok-type">f64</span>, height: <span class="tok-type">f64</span> },
+    <span class="tok-type">Triangle</span>(<span class="tok-type">f64</span>, <span class="tok-type">f64</span>, <span class="tok-type">f64</span>),
+}
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">Message</span> {
+    <span class="tok-type">Quit</span>,
+    <span class="tok-type">Move</span> { x: <span class="tok-type">i32</span>, y: <span class="tok-type">i32</span> },
+    <span class="tok-type">Write</span>(<span class="tok-type">String</span>),
+    <span class="tok-type">ChangeColor</span>(<span class="tok-type">u8</span>, <span class="tok-type">u8</span>, <span class="tok-type">u8</span>),
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">area</span>(shape: &amp;<span class="tok-type">Shape</span>) -&gt; <span class="tok-type">f64</span> {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = shape;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Destructure each Shape variant; use Heron's formula for Triangle"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">describe</span>(msg: &amp;<span class="tok-type">Message</span>) -&gt; <span class="tok-type">String</span> {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = msg;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Use literal sub-patterns (x: 0), guards (if ...) and specific-first ordering"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">classify_age</span>(age: <span class="tok-type">u8</span>) -&gt; <span class="tok-type">String</span> {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = age;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Use n @ 0..=12 style bindings"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-macro">println!</span>(<span class="tok-string">"circle area: {:.2}"</span>, <span class="tok-fn">area</span>(&amp;<span class="tok-type">Shape</span>::<span class="tok-type">Circle</span> { radius: <span class="tok-number">1.0</span> }));
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"rect area: {:.2}"</span>,
+        <span class="tok-fn">area</span>(&amp;<span class="tok-type">Shape</span>::<span class="tok-type">Rectangle</span> {
+            width: <span class="tok-number">2.0</span>,
+            height: <span class="tok-number">3.0</span>
+        })
+    );
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"triangle area: {:.2}"</span>,
+        <span class="tok-fn">area</span>(&amp;<span class="tok-type">Shape</span>::<span class="tok-type">Triangle</span>(<span class="tok-number">3.0</span>, <span class="tok-number">4.0</span>, <span class="tok-number">5.0</span>))
+    );
+
+    <span class="tok-keyword">let</span> messages = [
+        <span class="tok-type">Message</span>::<span class="tok-type">Move</span> { x: <span class="tok-number">0</span>, y: <span class="tok-number">0</span> },
+        <span class="tok-type">Message</span>::<span class="tok-type">Move</span> { x: <span class="tok-number">5</span>, y: <span class="tok-number">0</span> },
+        <span class="tok-type">Message</span>::<span class="tok-type">Write</span>(<span class="tok-string">"hi"</span>.<span class="tok-fn">to_string</span>()),
+        <span class="tok-type">Message</span>::<span class="tok-type">ChangeColor</span>(<span class="tok-number">128</span>, <span class="tok-number">128</span>, <span class="tok-number">128</span>),
+        <span class="tok-type">Message</span>::<span class="tok-type">ChangeColor</span>(<span class="tok-number">255</span>, <span class="tok-number">128</span>, <span class="tok-number">0</span>),
+        <span class="tok-type">Message</span>::<span class="tok-type">Quit</span>,
+    ];
+    <span class="tok-keyword">for</span> msg <span class="tok-keyword">in</span> &amp;messages {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"{}"</span>, <span class="tok-fn">describe</span>(msg));
+    }
+    <span class="tok-macro">println!</span>(<span class="tok-string">"{}"</span>, <span class="tok-fn">classify_age</span>(<span class="tok-number">15</span>));
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">areas</span>() {
+        <span class="tok-macro">assert!</span>((<span class="tok-fn">area</span>(&amp;<span class="tok-type">Shape</span>::<span class="tok-type">Circle</span> { radius: <span class="tok-number">2.0</span> }) - <span class="tok-number">12.566</span>).<span class="tok-fn">abs</span>() &lt; <span class="tok-number">0.001</span>);
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">area</span>(&amp;<span class="tok-type">Shape</span>::<span class="tok-type">Rectangle</span> {
+                width: <span class="tok-number">2.0</span>,
+                height: <span class="tok-number">5.0</span>
+            }),
+            <span class="tok-number">10.0</span>
+        );
+        <span class="tok-macro">assert!</span>((<span class="tok-fn">area</span>(&amp;<span class="tok-type">Shape</span>::<span class="tok-type">Triangle</span>(<span class="tok-number">3.0</span>, <span class="tok-number">4.0</span>, <span class="tok-number">5.0</span>)) - <span class="tok-number">6.0</span>).<span class="tok-fn">abs</span>() &lt; <span class="tok-number">1e-9</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">move_patterns</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">describe</span>(&amp;<span class="tok-type">Message</span>::<span class="tok-type">Move</span> { x: <span class="tok-number">0</span>, y: <span class="tok-number">0</span> }), <span class="tok-string">"stay"</span>);
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">describe</span>(&amp;<span class="tok-type">Message</span>::<span class="tok-type">Move</span> { x: <span class="tok-number">0</span>, y: -<span class="tok-number">2</span> }),
+            <span class="tok-string">"move vertically by -2"</span>
+        );
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">describe</span>(&amp;<span class="tok-type">Message</span>::<span class="tok-type">Move</span> { x: <span class="tok-number">1</span>, y: <span class="tok-number">2</span> }), <span class="tok-string">"move to (1, 2)"</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">guards</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">describe</span>(&amp;<span class="tok-type">Message</span>::<span class="tok-type">Write</span>(<span class="tok-string">"   "</span>.<span class="tok-fn">into</span>())), <span class="tok-string">"empty message"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">describe</span>(&amp;<span class="tok-type">Message</span>::<span class="tok-type">ChangeColor</span>(<span class="tok-number">0</span>, <span class="tok-number">0</span>, <span class="tok-number">0</span>)), <span class="tok-string">"grayscale 0"</span>);
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">describe</span>(&amp;<span class="tok-type">Message</span>::<span class="tok-type">ChangeColor</span>(<span class="tok-number">255</span>, <span class="tok-number">128</span>, <span class="tok-number">0</span>)),
+            <span class="tok-string">"color #FF8000"</span>
+        );
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">describe</span>(&amp;<span class="tok-type">Message</span>::<span class="tok-type">Quit</span>), <span class="tok-string">"quit"</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">age_bindings</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">classify_age</span>(<span class="tok-number">5</span>), <span class="tok-string">"child (5)"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">classify_age</span>(<span class="tok-number">19</span>), <span class="tok-string">"teen (19)"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">classify_age</span>(<span class="tok-number">20</span>), <span class="tok-string">"adult (20)"</span>);
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/06-pattern-matching/17-enum-destructuring.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=%23%5Bderive%28Debug%29%5D%0Aenum%20Shape%20%7B%0A%20%20%20%20Circle%20%7B%20radius%3A%20f64%20%7D%2C%0A%20%20%20%20Rectangle%20%7B%20width%3A%20f64%2C%20height%3A%20f64%20%7D%2C%0A%20%20%20%20Triangle%28f64%2C%20f64%2C%20f64%29%2C%0A%7D%0A%0A%23%5Bderive%28Debug%29%5D%0Aenum%20Message%20%7B%0A%20%20%20%20Quit%2C%0A%20%20%20%20Move%20%7B%20x%3A%20i32%2C%20y%3A%20i32%20%7D%2C%0A%20%20%20%20Write%28String%29%2C%0A%20%20%20%20ChangeColor%28u8%2C%20u8%2C%20u8%29%2C%0A%7D%0A%0Afn%20area%28shape%3A%20%26Shape%29%20-%3E%20f64%20%7B%0A%20%20%20%20match%20shape%20%7B%0A%20%20%20%20%20%20%20%20Shape%3A%3ACircle%20%7B%20radius%20%7D%20%3D%3E%20std%3A%3Af64%3A%3Aconsts%3A%3API%20%2A%20radius%20%2A%20radius%2C%0A%20%20%20%20%20%20%20%20Shape%3A%3ARectangle%20%7B%20width%2C%20height%20%7D%20%3D%3E%20width%20%2A%20height%2C%0A%20%20%20%20%20%20%20%20Shape%3A%3ATriangle%28a%2C%20b%2C%20c%29%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20s%20%3D%20%28a%20%2B%20b%20%2B%20c%29%20/%202.0%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%28s%20%2A%20%28s%20-%20a%29%20%2A%20%28s%20-%20b%29%20%2A%20%28s%20-%20c%29%29.sqrt%28%29%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20describe%28msg%3A%20%26Message%29%20-%3E%20String%20%7B%0A%20%20%20%20match%20msg%20%7B%0A%20%20%20%20%20%20%20%20Message%3A%3AQuit%20%3D%3E%20%22quit%22.to_string%28%29%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AMove%20%7B%20x%3A%200%2C%20y%3A%200%20%7D%20%3D%3E%20%22stay%22.to_string%28%29%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AMove%20%7B%20x%2C%20y%3A%200%20%7D%20%3D%3E%20format%21%28%22move%20horizontally%20by%20%7Bx%7D%22%29%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AMove%20%7B%20x%3A%200%2C%20y%20%7D%20%3D%3E%20format%21%28%22move%20vertically%20by%20%7By%7D%22%29%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AMove%20%7B%20x%2C%20y%20%7D%20%3D%3E%20format%21%28%22move%20to%20%28%7Bx%7D%2C%20%7By%7D%29%22%29%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AWrite%28text%29%20if%20text.trim%28%29.is_empty%28%29%20%3D%3E%20%22empty%20message%22.to_string%28%29%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AWrite%28text%29%20%3D%3E%20format%21%28%22write%3A%20%7Btext%7D%22%29%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AChangeColor%28r%2C%20g%2C%20b%29%20if%20r%20%3D%3D%20g%20%26%26%20g%20%3D%3D%20b%20%3D%3E%20format%21%28%22grayscale%20%7Br%7D%22%29%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AChangeColor%28r%2C%20g%2C%20b%29%20%3D%3E%20format%21%28%22color%20%23%7Br%3A02X%7D%7Bg%3A02X%7D%7Bb%3A02X%7D%22%29%2C%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20classify_age%28age%3A%20u8%29%20-%3E%20String%20%7B%0A%20%20%20%20match%20age%20%7B%0A%20%20%20%20%20%20%20%20n%20%40%200..%3D12%20%3D%3E%20format%21%28%22child%20%28%7Bn%7D%29%22%29%2C%0A%20%20%20%20%20%20%20%20n%20%40%2013..%3D19%20%3D%3E%20format%21%28%22teen%20%28%7Bn%7D%29%22%29%2C%0A%20%20%20%20%20%20%20%20n%20%3D%3E%20format%21%28%22adult%20%28%7Bn%7D%29%22%29%2C%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20println%21%28%22circle%20area%3A%20%7B%3A.2%7D%22%2C%20area%28%26Shape%3A%3ACircle%20%7B%20radius%3A%201.0%20%7D%29%29%3B%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22rect%20area%3A%20%7B%3A.2%7D%22%2C%0A%20%20%20%20%20%20%20%20area%28%26Shape%3A%3ARectangle%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20width%3A%202.0%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20height%3A%203.0%0A%20%20%20%20%20%20%20%20%7D%29%0A%20%20%20%20%29%3B%0A%20%20%20%20println%21%28%0A%20%20%20%20%20%20%20%20%22triangle%20area%3A%20%7B%3A.2%7D%22%2C%0A%20%20%20%20%20%20%20%20area%28%26Shape%3A%3ATriangle%283.0%2C%204.0%2C%205.0%29%29%0A%20%20%20%20%29%3B%0A%0A%20%20%20%20let%20messages%20%3D%20%5B%0A%20%20%20%20%20%20%20%20Message%3A%3AMove%20%7B%20x%3A%200%2C%20y%3A%200%20%7D%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AMove%20%7B%20x%3A%205%2C%20y%3A%200%20%7D%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AWrite%28%22hi%22.to_string%28%29%29%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AChangeColor%28128%2C%20128%2C%20128%29%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AChangeColor%28255%2C%20128%2C%200%29%2C%0A%20%20%20%20%20%20%20%20Message%3A%3AQuit%2C%0A%20%20%20%20%5D%3B%0A%20%20%20%20for%20msg%20in%20%26messages%20%7B%0A%20%20%20%20%20%20%20%20println%21%28%22%7B%7D%22%2C%20describe%28msg%29%29%3B%0A%20%20%20%20%7D%0A%20%20%20%20println%21%28%22%7B%7D%22%2C%20classify_age%2815%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20areas%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert%21%28%28area%28%26Shape%3A%3ACircle%20%7B%20radius%3A%202.0%20%7D%29%20-%2012.566%29.abs%28%29%20%3C%200.001%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20area%28%26Shape%3A%3ARectangle%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20width%3A%202.0%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20height%3A%205.0%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%2010.0%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert%21%28%28area%28%26Shape%3A%3ATriangle%283.0%2C%204.0%2C%205.0%29%29%20-%206.0%29.abs%28%29%20%3C%201e-9%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20move_patterns%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28describe%28%26Message%3A%3AMove%20%7B%20x%3A%200%2C%20y%3A%200%20%7D%29%2C%20%22stay%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20describe%28%26Message%3A%3AMove%20%7B%20x%3A%200%2C%20y%3A%20-2%20%7D%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22move%20vertically%20by%20-2%22%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28describe%28%26Message%3A%3AMove%20%7B%20x%3A%201%2C%20y%3A%202%20%7D%29%2C%20%22move%20to%20%281%2C%202%29%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20guards%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28describe%28%26Message%3A%3AWrite%28%22%20%20%20%22.into%28%29%29%29%2C%20%22empty%20message%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28describe%28%26Message%3A%3AChangeColor%280%2C%200%2C%200%29%29%2C%20%22grayscale%200%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%0A%20%20%20%20%20%20%20%20%20%20%20%20describe%28%26Message%3A%3AChangeColor%28255%2C%20128%2C%200%29%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22color%20%23FF8000%22%0A%20%20%20%20%20%20%20%20%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28describe%28%26Message%3A%3AQuit%29%2C%20%22quit%22%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20age_bindings%28%29%20%7B%0A%20%20%20%20%20%20%20%20assert_eq%21%28classify_age%285%29%2C%20%22child%20%285%29%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28classify_age%2819%29%2C%20%22teen%20%2819%29%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28classify_age%2820%29%2C%20%22adult%20%2820%29%22%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/06-pattern-matching/17-enum-destructuring.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">Shape</span> {
+    <span class="tok-type">Circle</span> { radius: <span class="tok-type">f64</span> },
+    <span class="tok-type">Rectangle</span> { width: <span class="tok-type">f64</span>, height: <span class="tok-type">f64</span> },
+    <span class="tok-type">Triangle</span>(<span class="tok-type">f64</span>, <span class="tok-type">f64</span>, <span class="tok-type">f64</span>),
+}
+
+<span class="tok-attr">#[derive(Debug)]</span>
+<span class="tok-keyword">enum</span> <span class="tok-type">Message</span> {
+    <span class="tok-type">Quit</span>,
+    <span class="tok-type">Move</span> { x: <span class="tok-type">i32</span>, y: <span class="tok-type">i32</span> },
+    <span class="tok-type">Write</span>(<span class="tok-type">String</span>),
+    <span class="tok-type">ChangeColor</span>(<span class="tok-type">u8</span>, <span class="tok-type">u8</span>, <span class="tok-type">u8</span>),
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">area</span>(shape: &amp;<span class="tok-type">Shape</span>) -&gt; <span class="tok-type">f64</span> {
+    <span class="tok-keyword">match</span> shape {
+        <span class="tok-type">Shape</span>::<span class="tok-type">Circle</span> { radius } =&gt; std::<span class="tok-type">f64</span>::consts::<span class="tok-type">PI</span> * radius * radius,
+        <span class="tok-type">Shape</span>::<span class="tok-type">Rectangle</span> { width, height } =&gt; width * height,
+        <span class="tok-type">Shape</span>::<span class="tok-type">Triangle</span>(a, b, c) =&gt; {
+            <span class="tok-keyword">let</span> s = (a + b + c) / <span class="tok-number">2.0</span>;
+            (s * (s - a) * (s - b) * (s - c)).<span class="tok-fn">sqrt</span>()
+        }
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">describe</span>(msg: &amp;<span class="tok-type">Message</span>) -&gt; <span class="tok-type">String</span> {
+    <span class="tok-keyword">match</span> msg {
+        <span class="tok-type">Message</span>::<span class="tok-type">Quit</span> =&gt; <span class="tok-string">"quit"</span>.<span class="tok-fn">to_string</span>(),
+        <span class="tok-type">Message</span>::<span class="tok-type">Move</span> { x: <span class="tok-number">0</span>, y: <span class="tok-number">0</span> } =&gt; <span class="tok-string">"stay"</span>.<span class="tok-fn">to_string</span>(),
+        <span class="tok-type">Message</span>::<span class="tok-type">Move</span> { x, y: <span class="tok-number">0</span> } =&gt; <span class="tok-macro">format!</span>(<span class="tok-string">"move horizontally by {x}"</span>),
+        <span class="tok-type">Message</span>::<span class="tok-type">Move</span> { x: <span class="tok-number">0</span>, y } =&gt; <span class="tok-macro">format!</span>(<span class="tok-string">"move vertically by {y}"</span>),
+        <span class="tok-type">Message</span>::<span class="tok-type">Move</span> { x, y } =&gt; <span class="tok-macro">format!</span>(<span class="tok-string">"move to ({x}, {y})"</span>),
+        <span class="tok-type">Message</span>::<span class="tok-type">Write</span>(text) <span class="tok-keyword">if</span> text.<span class="tok-fn">trim</span>().<span class="tok-fn">is_empty</span>() =&gt; <span class="tok-string">"empty message"</span>.<span class="tok-fn">to_string</span>(),
+        <span class="tok-type">Message</span>::<span class="tok-type">Write</span>(text) =&gt; <span class="tok-macro">format!</span>(<span class="tok-string">"write: {text}"</span>),
+        <span class="tok-type">Message</span>::<span class="tok-type">ChangeColor</span>(r, g, b) <span class="tok-keyword">if</span> r == g &amp;&amp; g == b =&gt; <span class="tok-macro">format!</span>(<span class="tok-string">"grayscale {r}"</span>),
+        <span class="tok-type">Message</span>::<span class="tok-type">ChangeColor</span>(r, g, b) =&gt; <span class="tok-macro">format!</span>(<span class="tok-string">"color #{r:02X}{g:02X}{b:02X}"</span>),
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">classify_age</span>(age: <span class="tok-type">u8</span>) -&gt; <span class="tok-type">String</span> {
+    <span class="tok-keyword">match</span> age {
+        n @ <span class="tok-number">0</span>..=<span class="tok-number">12</span> =&gt; <span class="tok-macro">format!</span>(<span class="tok-string">"child ({n})"</span>),
+        n @ <span class="tok-number">13</span>..=<span class="tok-number">19</span> =&gt; <span class="tok-macro">format!</span>(<span class="tok-string">"teen ({n})"</span>),
+        n =&gt; <span class="tok-macro">format!</span>(<span class="tok-string">"adult ({n})"</span>),
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-macro">println!</span>(<span class="tok-string">"circle area: {:.2}"</span>, <span class="tok-fn">area</span>(&amp;<span class="tok-type">Shape</span>::<span class="tok-type">Circle</span> { radius: <span class="tok-number">1.0</span> }));
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"rect area: {:.2}"</span>,
+        <span class="tok-fn">area</span>(&amp;<span class="tok-type">Shape</span>::<span class="tok-type">Rectangle</span> {
+            width: <span class="tok-number">2.0</span>,
+            height: <span class="tok-number">3.0</span>
+        })
+    );
+    <span class="tok-macro">println!</span>(
+        <span class="tok-string">"triangle area: {:.2}"</span>,
+        <span class="tok-fn">area</span>(&amp;<span class="tok-type">Shape</span>::<span class="tok-type">Triangle</span>(<span class="tok-number">3.0</span>, <span class="tok-number">4.0</span>, <span class="tok-number">5.0</span>))
+    );
+
+    <span class="tok-keyword">let</span> messages = [
+        <span class="tok-type">Message</span>::<span class="tok-type">Move</span> { x: <span class="tok-number">0</span>, y: <span class="tok-number">0</span> },
+        <span class="tok-type">Message</span>::<span class="tok-type">Move</span> { x: <span class="tok-number">5</span>, y: <span class="tok-number">0</span> },
+        <span class="tok-type">Message</span>::<span class="tok-type">Write</span>(<span class="tok-string">"hi"</span>.<span class="tok-fn">to_string</span>()),
+        <span class="tok-type">Message</span>::<span class="tok-type">ChangeColor</span>(<span class="tok-number">128</span>, <span class="tok-number">128</span>, <span class="tok-number">128</span>),
+        <span class="tok-type">Message</span>::<span class="tok-type">ChangeColor</span>(<span class="tok-number">255</span>, <span class="tok-number">128</span>, <span class="tok-number">0</span>),
+        <span class="tok-type">Message</span>::<span class="tok-type">Quit</span>,
+    ];
+    <span class="tok-keyword">for</span> msg <span class="tok-keyword">in</span> &amp;messages {
+        <span class="tok-macro">println!</span>(<span class="tok-string">"{}"</span>, <span class="tok-fn">describe</span>(msg));
+    }
+    <span class="tok-macro">println!</span>(<span class="tok-string">"{}"</span>, <span class="tok-fn">classify_age</span>(<span class="tok-number">15</span>));
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">areas</span>() {
+        <span class="tok-macro">assert!</span>((<span class="tok-fn">area</span>(&amp;<span class="tok-type">Shape</span>::<span class="tok-type">Circle</span> { radius: <span class="tok-number">2.0</span> }) - <span class="tok-number">12.566</span>).<span class="tok-fn">abs</span>() &lt; <span class="tok-number">0.001</span>);
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">area</span>(&amp;<span class="tok-type">Shape</span>::<span class="tok-type">Rectangle</span> {
+                width: <span class="tok-number">2.0</span>,
+                height: <span class="tok-number">5.0</span>
+            }),
+            <span class="tok-number">10.0</span>
+        );
+        <span class="tok-macro">assert!</span>((<span class="tok-fn">area</span>(&amp;<span class="tok-type">Shape</span>::<span class="tok-type">Triangle</span>(<span class="tok-number">3.0</span>, <span class="tok-number">4.0</span>, <span class="tok-number">5.0</span>)) - <span class="tok-number">6.0</span>).<span class="tok-fn">abs</span>() &lt; <span class="tok-number">1e-9</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">move_patterns</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">describe</span>(&amp;<span class="tok-type">Message</span>::<span class="tok-type">Move</span> { x: <span class="tok-number">0</span>, y: <span class="tok-number">0</span> }), <span class="tok-string">"stay"</span>);
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">describe</span>(&amp;<span class="tok-type">Message</span>::<span class="tok-type">Move</span> { x: <span class="tok-number">0</span>, y: -<span class="tok-number">2</span> }),
+            <span class="tok-string">"move vertically by -2"</span>
+        );
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">describe</span>(&amp;<span class="tok-type">Message</span>::<span class="tok-type">Move</span> { x: <span class="tok-number">1</span>, y: <span class="tok-number">2</span> }), <span class="tok-string">"move to (1, 2)"</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">guards</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">describe</span>(&amp;<span class="tok-type">Message</span>::<span class="tok-type">Write</span>(<span class="tok-string">"   "</span>.<span class="tok-fn">into</span>())), <span class="tok-string">"empty message"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">describe</span>(&amp;<span class="tok-type">Message</span>::<span class="tok-type">ChangeColor</span>(<span class="tok-number">0</span>, <span class="tok-number">0</span>, <span class="tok-number">0</span>)), <span class="tok-string">"grayscale 0"</span>);
+        <span class="tok-macro">assert_eq!</span>(
+            <span class="tok-fn">describe</span>(&amp;<span class="tok-type">Message</span>::<span class="tok-type">ChangeColor</span>(<span class="tok-number">255</span>, <span class="tok-number">128</span>, <span class="tok-number">0</span>)),
+            <span class="tok-string">"color #FF8000"</span>
+        );
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">describe</span>(&amp;<span class="tok-type">Message</span>::<span class="tok-type">Quit</span>), <span class="tok-string">"quit"</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">age_bindings</span>() {
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">classify_age</span>(<span class="tok-number">5</span>), <span class="tok-string">"child (5)"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">classify_age</span>(<span class="tok-number">19</span>), <span class="tok-string">"teen (19)"</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">classify_age</span>(<span class="tok-number">20</span>), <span class="tok-string">"adult (20)"</span>);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 17-enum-destructuring.rs -o 17-enum-destructuring &amp;&amp; ./17-enum-destructuring
+
+# run the unit tests
+rustc --edition 2021 --test 17-enum-destructuring.rs -o 17-enum-destructuring-tests &amp;&amp; ./17-enum-destructuring-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/16-option-result-branching.html"><small>← Previous</small>16 · Option and Result Branching</a><a class="pager-link next" href="../exercises/18-nested-if-to-match.html"><small>Next →</small>18 · Refactor Nested Ifs into `match`</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

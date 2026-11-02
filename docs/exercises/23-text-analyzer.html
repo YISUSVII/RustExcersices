@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>23 · Text Analyzer · Rust Study — Zero → Ninja</title>
+<meta name="description" content="Compute statistics about a piece of text using `String`, `char` and collection APIs.">
+<meta property="og:title" content="23 · Text Analyzer · Rust Study — Zero → Ninja">
+<meta property="og:description" content="Compute statistics about a piece of text using `String`, `char` and collection APIs.">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem('rust-study-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Toggle chapters" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <a class="brand" href="../index.html"><img src="../assets/favicon.svg" alt="" width="28" height="28">Rust Study<span class="brand-sub">Zero → Ninja</span></a>
+  <div class="top-actions">
+    <a class="top-link" href="https://yisusvii.github.io/">Blog</a>
+    <a class="top-link" href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">GitHub</a>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Toggle light/dark theme">◐</button>
+  </div>
+</header>
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Chapters">
+<a class="side-home" href="../index.html">🏠 Roadmap</a>
+<a class="side-home" href="../guide.html">📘 Course guide</a>
+<div class="side-title">Chapters</div>
+<a class="side-level single" href="../levels/00-setup.html"><span class="lvl-num">00</span><span class="lvl-name">Setup</span></a>
+<details><summary class="side-level"><span class="lvl-num">01</span><span class="lvl-name">Rust Fundamentals</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/01-basics.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="01" href="../exercises/01-temperature-converter.html"><span class="done-dot" aria-hidden="true"></span>01 · Temperature Converter</a></li>
+<li><a class="side-ex" data-ex="02" href="../exercises/02-rectangle-area.html"><span class="done-dot" aria-hidden="true"></span>02 · Rectangle Area Calculator</a></li>
+<li><a class="side-ex" data-ex="03" href="../exercises/03-basic-calculator.html"><span class="done-dot" aria-hidden="true"></span>03 · Basic Calculator</a></li>
+<li><a class="side-ex" data-ex="04" href="../exercises/04-unit-converter.html"><span class="done-dot" aria-hidden="true"></span>04 · Unit Converter</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">02</span><span class="lvl-name">Control Flow</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/02-control-flow.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="05" href="../exercises/05-fizzbuzz.html"><span class="done-dot" aria-hidden="true"></span>05 · FizzBuzz</a></li>
+<li><a class="side-ex" data-ex="06" href="../exercises/06-fibonacci.html"><span class="done-dot" aria-hidden="true"></span>06 · Fibonacci Sequence</a></li>
+<li><a class="side-ex" data-ex="07" href="../exercises/07-prime-checker.html"><span class="done-dot" aria-hidden="true"></span>07 · Prime Number Checker</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">03</span><span class="lvl-name">Functions</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/03-functions.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="08" href="../exercises/08-reusable-calculator.html"><span class="done-dot" aria-hidden="true"></span>08 · Reusable Functions Calculator</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">04</span><span class="lvl-name">Ownership and Borrowing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/04-ownership-borrowing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="09" href="../exercises/09-move-vs-clone.html"><span class="done-dot" aria-hidden="true"></span>09 · Move vs Clone</a></li>
+<li><a class="side-ex" data-ex="10" href="../exercises/10-mutable-borrowing.html"><span class="done-dot" aria-hidden="true"></span>10 · Mutable Borrowing String Editor</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">05</span><span class="lvl-name">Structs and Enums</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/05-structs-enums.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="11" href="../exercises/11-user-model.html"><span class="done-dot" aria-hidden="true"></span>11 · User Model</a></li>
+<li><a class="side-ex" data-ex="12" href="../exercises/12-rectangle-model.html"><span class="done-dot" aria-hidden="true"></span>12 · Rectangle Model</a></li>
+<li><a class="side-ex" data-ex="13" href="../exercises/13-bank-account.html"><span class="done-dot" aria-hidden="true"></span>13 · Bank Account</a></li>
+<li><a class="side-ex" data-ex="14" href="../exercises/14-state-machine.html"><span class="done-dot" aria-hidden="true"></span>14 · Order State Machine</a></li>
+<li><a class="side-ex" data-ex="15" href="../exercises/15-traffic-light.html"><span class="done-dot" aria-hidden="true"></span>15 · Traffic Light Enum</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">06</span><span class="lvl-name">Pattern Matching</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/06-pattern-matching.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="16" href="../exercises/16-option-result-branching.html"><span class="done-dot" aria-hidden="true"></span>16 · Option and Result Branching</a></li>
+<li><a class="side-ex" data-ex="17" href="../exercises/17-enum-destructuring.html"><span class="done-dot" aria-hidden="true"></span>17 · Enum Destructuring Drills</a></li>
+<li><a class="side-ex" data-ex="18" href="../exercises/18-nested-if-to-match.html"><span class="done-dot" aria-hidden="true"></span>18 · Refactor Nested Ifs into `match`</a></li>
+</ul></details>
+<details open><summary class="side-level"><span class="lvl-num">07</span><span class="lvl-name">Collections and Strings</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/07-collections.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="19" href="../exercises/19-word-frequency.html"><span class="done-dot" aria-hidden="true"></span>19 · Word Frequency Counter</a></li>
+<li><a class="side-ex" data-ex="20" href="../exercises/20-grade-tracker.html"><span class="done-dot" aria-hidden="true"></span>20 · Grade Tracker</a></li>
+<li><a class="side-ex" data-ex="21" href="../exercises/21-duplicate-remover.html"><span class="done-dot" aria-hidden="true"></span>21 · Duplicate Remover</a></li>
+<li><a class="side-ex" data-ex="22" href="../exercises/22-inventory.html"><span class="done-dot" aria-hidden="true"></span>22 · Inventory Manager</a></li>
+<li><a class="side-ex active" aria-current="page" data-ex="23" href="../exercises/23-text-analyzer.html"><span class="done-dot" aria-hidden="true"></span>23 · Text Analyzer</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">08</span><span class="lvl-name">Error Handling</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/08-error-handling.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="24" href="../exercises/24-file-reading.html"><span class="done-dot" aria-hidden="true"></span>24 · Safe File Reading</a></li>
+<li><a class="side-ex" data-ex="25" href="../exercises/25-parsing.html"><span class="done-dot" aria-hidden="true"></span>25 · Parsing with `Result`</a></li>
+<li><a class="side-ex" data-ex="26" href="../exercises/26-data-validation.html"><span class="done-dot" aria-hidden="true"></span>26 · Signup Form Validation</a></li>
+<li><a class="side-ex" data-ex="27" href="../exercises/27-custom-errors.html"><span class="done-dot" aria-hidden="true"></span>27 · Custom Error Type for a Config Loader</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">09</span><span class="lvl-name">Generics, Traits and Lifetimes</span><span class="count">5</span></summary><ul>
+<li><a href="../levels/09-generics-traits-lifetimes.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="28" href="../exercises/28-generic-max.html"><span class="done-dot" aria-hidden="true"></span>28 · Generic Max</a></li>
+<li><a class="side-ex" data-ex="29" href="../exercises/29-printable-trait.html"><span class="done-dot" aria-hidden="true"></span>29 · Printable Trait</a></li>
+<li><a class="side-ex" data-ex="30" href="../exercises/30-shape-trait.html"><span class="done-dot" aria-hidden="true"></span>30 · Shape Trait</a></li>
+<li><a class="side-ex" data-ex="31" href="../exercises/31-repository-abstraction.html"><span class="done-dot" aria-hidden="true"></span>31 · Repository Abstraction</a></li>
+<li><a class="side-ex" data-ex="32" href="../exercises/32-reference-returning-apis.html"><span class="done-dot" aria-hidden="true"></span>32 · Reference-Returning APIs</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">10</span><span class="lvl-name">Closures and Iterators</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/10-iterators-closures.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="33" href="../exercises/33-data-transforms.html"><span class="done-dot" aria-hidden="true"></span>33 · Data Transforms</a></li>
+<li><a class="side-ex" data-ex="34" href="../exercises/34-user-filtering.html"><span class="done-dot" aria-hidden="true"></span>34 · User Filtering</a></li>
+<li><a class="side-ex" data-ex="35" href="../exercises/35-stats.html"><span class="done-dot" aria-hidden="true"></span>35 · Stats</a></li>
+<li><a class="side-ex" data-ex="36" href="../exercises/36-word-processing.html"><span class="done-dot" aria-hidden="true"></span>36 · Word Processing</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">11</span><span class="lvl-name">Modules, Crates and Project Structure</span><span class="count">1</span></summary><ul>
+<li><a href="../levels/11-modules-crates.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="37" href="../exercises/37-multi-module-project.html"><span class="done-dot" aria-hidden="true"></span>37 · Multi-Module Project</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">12</span><span class="lvl-name">Testing</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/12-testing.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="38" href="../exercises/38-unit-tests.html"><span class="done-dot" aria-hidden="true"></span>38 · Unit Tests</a></li>
+<li><a class="side-ex" data-ex="39" href="../exercises/39-table-driven-tests.html"><span class="done-dot" aria-hidden="true"></span>39 · Table-Driven Tests</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">13</span><span class="lvl-name">Smart Pointers</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/13-smart-pointers.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="40" href="../exercises/40-box-recursive-list.html"><span class="done-dot" aria-hidden="true"></span>40 · Box Recursive List</a></li>
+<li><a class="side-ex" data-ex="41" href="../exercises/41-rc-refcell-shared-state.html"><span class="done-dot" aria-hidden="true"></span>41 · Rc + RefCell Shared State</a></li>
+<li><a class="side-ex" data-ex="42" href="../exercises/42-weak-tree.html"><span class="done-dot" aria-hidden="true"></span>42 · Weak Tree</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">14</span><span class="lvl-name">Concurrency</span><span class="count">4</span></summary><ul>
+<li><a href="../levels/14-concurrency.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="43" href="../exercises/43-parallel-counter.html"><span class="done-dot" aria-hidden="true"></span>43 · Parallel Counter</a></li>
+<li><a class="side-ex" data-ex="44" href="../exercises/44-producer-consumer.html"><span class="done-dot" aria-hidden="true"></span>44 · Producer / Consumer</a></li>
+<li><a class="side-ex" data-ex="45" href="../exercises/45-worker-pool.html"><span class="done-dot" aria-hidden="true"></span>45 · Worker Pool</a></li>
+<li><a class="side-ex" data-ex="46" href="../exercises/46-shared-state-simulation.html"><span class="done-dot" aria-hidden="true"></span>46 · Shared State Simulation</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">15</span><span class="lvl-name">Async Rust</span><span class="count">3</span></summary><ul>
+<li><a href="../levels/15-async-rust.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="47" href="../exercises/47-async-timer.html"><span class="done-dot" aria-hidden="true"></span>47 · Async Timer</a></li>
+<li><a class="side-ex" data-ex="48" href="../exercises/48-concurrent-requests.html"><span class="done-dot" aria-hidden="true"></span>48 · Concurrent Requests</a></li>
+<li><a class="side-ex" data-ex="49" href="../exercises/49-async-api-client.html"><span class="done-dot" aria-hidden="true"></span>49 · Async API Client</a></li>
+</ul></details>
+<details><summary class="side-level"><span class="lvl-num">16</span><span class="lvl-name">Macros</span><span class="count">2</span></summary><ul>
+<li><a href="../levels/16-macros.html" class="side-ex side-overview">Overview</a></li>
+<li><a class="side-ex" data-ex="50" href="../exercises/50-declarative-macros.html"><span class="done-dot" aria-hidden="true"></span>50 · Declarative Macros</a></li>
+<li><a class="side-ex" data-ex="51" href="../exercises/51-repetition-macros.html"><span class="done-dot" aria-hidden="true"></span>51 · Repetition Macros</a></li>
+</ul></details>
+<a class="side-level single" href="../levels/17-advanced-rust.html"><span class="lvl-num">17</span><span class="lvl-name">Advanced Rust</span></a>
+<a class="side-level single" href="../levels/18-projects.html"><span class="lvl-num">18</span><span class="lvl-name">Projects</span></a>
+<a class="side-home" href="../resources.html">📚 Resources</a>
+</nav>
+<main class="content" id="content">
+<nav class="breadcrumb"><a href="../index.html">Roadmap</a><span>/</span><a href="../levels/07-collections.html">Level 7 — Collections and Strings</a><span>/</span><span>Exercise 23</span></nav>
+<article class="exercise">
+<header class="page-head">
+  <div class="eyebrow">Exercise 23 · Level 7 — Collections and Strings</div>
+  <h1>Text Analyzer</h1>
+  <p class="lead">Compute statistics about a piece of text using <code>String</code>, <code>char</code> and collection APIs.</p>
+  <div class="meta"><span class="badge diff-intermediate">Intermediate</span><span class="chip">`chars()` vs bytes</span><span class="chip">`lines()`</span><span class="chip">`split_whitespace()`</span><span class="chip">`BTreeMap`</span><span class="chip">`Option`</span><span class="chip">building `String`s</span></div>
+  <label class="done-toggle"><input type="checkbox" class="done-check" data-ex="23"> Mark as completed</label>
+</header>
+<section class="prose"><h2 id="instructions">Instructions</h2>
+<ol><li>Implement <code>analyze(text: &amp;str) -&gt; TextStats</code> filling: - <code>chars</code> — number of Unicode scalar values (<code>chars().count()</code>, <strong>not</strong> <code>len()</code>), - <code>words</code> — whitespace-separated words, - <code>lines</code> — number of lines, - <code>sentences</code> — count of <code>.</code>, <code>!</code> and <code>?</code> characters, - <code>longest_word: Option&lt;String&gt;</code> — first longest word with surrounding punctuation trimmed (<code>None</code> for empty text), - <code>avg_word_len: f64</code> — average length (in chars) of trimmed words, <code>0.0</code> for empty text.</li><li>Implement <code>letter_histogram(text: &amp;str) -&gt; BTreeMap&lt;char, usize&gt;</code> — lowercase alphabetic characters only.</li><li>Implement <code>capitalize_words(text: &amp;str) -&gt; String</code> — capitalize the first letter of every word, joined with single spaces.</li></ol>
+<h2 id="expected-behavior">Expected behavior</h2>
+<pre class="code" data-lang="text"><code>TextStats { chars: 52, words: 9, lines: 2, sentences: 2, longest_word: Some("Tienes"), avg_word_len: 4.56 }
+top letters: [('e', 6), ('a', 5), ('s', 5)]
+Rust Makes Café Code Safe</code></pre>
+<p>Output for <code>"Rust makes café code safe.\n¿Tienes tiempo para Rust?"</code> (<code>avg_word_len</code> rounded to 2 decimals in <code>main</code>).</p>
+<p>(The sample text contains non-ASCII characters on purpose — check <code>chars</code> vs <code>len()</code>.)</p>
+<h2 id="optional-hints">Optional hints</h2>
+<ul><li><code>word.trim_matches(|c: char| !c.is_alphanumeric())</code></li><li><code>max_by_key</code> returns the <strong>last</strong> max on ties — use a fold or <code>reduce</code> to keep the first.</li><li>Capitalize with <code>first.to_uppercase().chain(rest)</code>.</li></ul>
+<h2 id="bonus-challenge">Bonus challenge</h2>
+<p>Return the top-N letters by frequency without collecting into an intermediate <code>Vec</code> twice.</p></section>
+<section class="code-section" aria-label="Code">
+  <div class="tabs" role="tablist">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="starter">Starter code</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="solution">Solution</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="run">How to run</button>
+  </div>
+  <div class="tab-panel" role="tabpanel" data-panel="starter"><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">07-collections/exercises/23-text-analyzer.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Acollections%3A%3ABTreeMap%3B%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Astruct%20TextStats%20%7B%0A%20%20%20%20chars%3A%20usize%2C%0A%20%20%20%20words%3A%20usize%2C%0A%20%20%20%20lines%3A%20usize%2C%0A%20%20%20%20sentences%3A%20usize%2C%0A%20%20%20%20longest_word%3A%20Option%3CString%3E%2C%0A%20%20%20%20avg_word_len%3A%20f64%2C%0A%7D%0A%0Afn%20analyze%28text%3A%20%26str%29%20-%3E%20TextStats%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20text%3B%0A%20%20%20%20todo%21%28%22Use%20chars%28%29.count%28%29%2C%20split_whitespace%28%29%2C%20lines%28%29%20and%20trimmed%20words%22%29%0A%7D%0A%0Afn%20letter_histogram%28text%3A%20%26str%29%20-%3E%20BTreeMap%3Cchar%2C%20usize%3E%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20text%3B%0A%20%20%20%20todo%21%28%22Count%20lowercase%20alphabetic%20chars%20with%20entry%28%29.or_insert%280%29%22%29%0A%7D%0A%0Afn%20capitalize_words%28text%3A%20%26str%29%20-%3E%20String%20%7B%0A%20%20%20%20//%20TODO%3A%20implement%0A%20%20%20%20let%20_%20%3D%20text%3B%0A%20%20%20%20todo%21%28%22Uppercase%20the%20first%20char%20of%20each%20word%20and%20join%20with%20single%20spaces%22%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20text%20%3D%20%22Rust%20makes%20caf%C3%A9%20code%20safe.%5Cn%C2%BFTienes%20tiempo%20para%20Rust%3F%22%3B%0A%20%20%20%20let%20mut%20stats%20%3D%20analyze%28text%29%3B%0A%20%20%20%20stats.avg_word_len%20%3D%20%28stats.avg_word_len%20%2A%20100.0%29.round%28%29%20/%20100.0%3B%0A%20%20%20%20println%21%28%22%7Bstats%3A%3F%7D%22%29%3B%0A%0A%20%20%20%20let%20mut%20top%3A%20Vec%3C%28char%2C%20usize%29%3E%20%3D%20letter_histogram%28text%29.into_iter%28%29.collect%28%29%3B%0A%20%20%20%20top.sort_by%28%7Ca%2C%20b%7C%20b.1.cmp%28%26a.1%29.then%28a.0.cmp%28%26b.0%29%29%29%3B%0A%20%20%20%20top.truncate%283%29%3B%0A%20%20%20%20println%21%28%22top%20letters%3A%20%7Btop%3A%3F%7D%22%29%3B%0A%0A%20%20%20%20println%21%28%22%7B%7D%22%2C%20capitalize_words%28%22rust%20makes%20%20%20caf%C3%A9%20code%20safe%22%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20counts_unicode_chars_not_bytes%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20s%20%3D%20analyze%28%22caf%C3%A9%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.chars%2C%204%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%22caf%C3%A9%22.len%28%29%2C%205%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20basic_stats%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20s%20%3D%20analyze%28%22Hi%20there.%20How%20are%20you%3F%5CnFine%21%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.words%2C%206%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.lines%2C%202%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.sentences%2C%203%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.longest_word.as_deref%28%29%2C%20Some%28%22there%22%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20empty_text%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20s%20%3D%20analyze%28%22%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.words%2C%200%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.longest_word%2C%20None%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.avg_word_len%2C%200.0%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20histogram_and_capitalize%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20h%20%3D%20letter_histogram%28%22AaB%21%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28h.get%28%26%27a%27%29%2C%20Some%28%262%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28h.get%28%26%27b%27%29%2C%20Some%28%261%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28h.len%28%29%2C%202%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28capitalize_words%28%22%C3%A9lan%20%20vital%22%29%2C%20%22%C3%89lan%20Vital%22%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/07-collections/exercises/23-text-analyzer.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::collections::<span class="tok-type">BTreeMap</span>;
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">TextStats</span> {
+    chars: <span class="tok-type">usize</span>,
+    words: <span class="tok-type">usize</span>,
+    lines: <span class="tok-type">usize</span>,
+    sentences: <span class="tok-type">usize</span>,
+    longest_word: <span class="tok-type">Option</span>&lt;<span class="tok-type">String</span>&gt;,
+    avg_word_len: <span class="tok-type">f64</span>,
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">analyze</span>(text: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">TextStats</span> {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = text;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Use chars().count(), split_whitespace(), lines() and trimmed words"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">letter_histogram</span>(text: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">BTreeMap</span>&lt;<span class="tok-type">char</span>, <span class="tok-type">usize</span>&gt; {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = text;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Count lowercase alphabetic chars with entry().or_insert(0)"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">capitalize_words</span>(text: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">String</span> {
+    <span class="tok-comment">// TODO: implement</span>
+    <span class="tok-keyword">let</span> _ = text;
+    <span class="tok-macro">todo!</span>(<span class="tok-string">"Uppercase the first char of each word and join with single spaces"</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> text = <span class="tok-string">"Rust makes café code safe.\n¿Tienes tiempo para Rust?"</span>;
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> stats = <span class="tok-fn">analyze</span>(text);
+    stats.avg_word_len = (stats.avg_word_len * <span class="tok-number">100.0</span>).<span class="tok-fn">round</span>() / <span class="tok-number">100.0</span>;
+    <span class="tok-macro">println!</span>(<span class="tok-string">"{stats:?}"</span>);
+
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> top: <span class="tok-type">Vec</span>&lt;(<span class="tok-type">char</span>, <span class="tok-type">usize</span>)&gt; = <span class="tok-fn">letter_histogram</span>(text).<span class="tok-fn">into_iter</span>().<span class="tok-fn">collect</span>();
+    top.<span class="tok-fn">sort_by</span>(|a, b| b.<span class="tok-number">1</span>.<span class="tok-fn">cmp</span>(&amp;a.<span class="tok-number">1</span>).<span class="tok-fn">then</span>(a.<span class="tok-number">0</span>.<span class="tok-fn">cmp</span>(&amp;b.<span class="tok-number">0</span>)));
+    top.<span class="tok-fn">truncate</span>(<span class="tok-number">3</span>);
+    <span class="tok-macro">println!</span>(<span class="tok-string">"top letters: {top:?}"</span>);
+
+    <span class="tok-macro">println!</span>(<span class="tok-string">"{}"</span>, <span class="tok-fn">capitalize_words</span>(<span class="tok-string">"rust makes   café code safe"</span>));
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">counts_unicode_chars_not_bytes</span>() {
+        <span class="tok-keyword">let</span> s = <span class="tok-fn">analyze</span>(<span class="tok-string">"café"</span>);
+        <span class="tok-macro">assert_eq!</span>(s.chars, <span class="tok-number">4</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-string">"café"</span>.<span class="tok-fn">len</span>(), <span class="tok-number">5</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">basic_stats</span>() {
+        <span class="tok-keyword">let</span> s = <span class="tok-fn">analyze</span>(<span class="tok-string">"Hi there. How are you?\nFine!"</span>);
+        <span class="tok-macro">assert_eq!</span>(s.words, <span class="tok-number">6</span>);
+        <span class="tok-macro">assert_eq!</span>(s.lines, <span class="tok-number">2</span>);
+        <span class="tok-macro">assert_eq!</span>(s.sentences, <span class="tok-number">3</span>);
+        <span class="tok-macro">assert_eq!</span>(s.longest_word.<span class="tok-fn">as_deref</span>(), <span class="tok-type">Some</span>(<span class="tok-string">"there"</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">empty_text</span>() {
+        <span class="tok-keyword">let</span> s = <span class="tok-fn">analyze</span>(<span class="tok-string">""</span>);
+        <span class="tok-macro">assert_eq!</span>(s.words, <span class="tok-number">0</span>);
+        <span class="tok-macro">assert_eq!</span>(s.longest_word, <span class="tok-type">None</span>);
+        <span class="tok-macro">assert_eq!</span>(s.avg_word_len, <span class="tok-number">0.0</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">histogram_and_capitalize</span>() {
+        <span class="tok-keyword">let</span> h = <span class="tok-fn">letter_histogram</span>(<span class="tok-string">"AaB!"</span>);
+        <span class="tok-macro">assert_eq!</span>(h.<span class="tok-fn">get</span>(&amp;<span class="tok-string">'a'</span>), <span class="tok-type">Some</span>(&amp;<span class="tok-number">2</span>));
+        <span class="tok-macro">assert_eq!</span>(h.<span class="tok-fn">get</span>(&amp;<span class="tok-string">'b'</span>), <span class="tok-type">Some</span>(&amp;<span class="tok-number">1</span>));
+        <span class="tok-macro">assert_eq!</span>(h.<span class="tok-fn">len</span>(), <span class="tok-number">2</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">capitalize_words</span>(<span class="tok-string">"élan  vital"</span>), <span class="tok-string">"Élan Vital"</span>);
+    }
+}</code></pre>
+</div></div>
+  <div class="tab-panel" role="tabpanel" data-panel="solution" id="solution" hidden><div class="spoiler" id="spoiler">
+  <p>🧠 Try it yourself first — compile, read the errors, iterate. That's how Rust sticks.</p>
+  <button class="btn primary" id="reveal-btn" type="button">Reveal solution</button>
+</div>
+<div id="solution-body" hidden><div class="code-panel">
+  <div class="code-toolbar">
+    <span class="file-name">solutions/07-collections/23-text-analyzer.rs</span>
+    <span class="code-actions">
+      <button class="btn small copy-btn" type="button">Copy</button>
+      <a class="btn small" href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;code=use%20std%3A%3Acollections%3A%3ABTreeMap%3B%0A%0A%23%5Bderive%28Debug%2C%20PartialEq%29%5D%0Astruct%20TextStats%20%7B%0A%20%20%20%20chars%3A%20usize%2C%0A%20%20%20%20words%3A%20usize%2C%0A%20%20%20%20lines%3A%20usize%2C%0A%20%20%20%20sentences%3A%20usize%2C%0A%20%20%20%20longest_word%3A%20Option%3CString%3E%2C%0A%20%20%20%20avg_word_len%3A%20f64%2C%0A%7D%0A%0Afn%20clean_words%28text%3A%20%26str%29%20-%3E%20impl%20Iterator%3CItem%20%3D%20%26str%3E%20%7B%0A%20%20%20%20text.split_whitespace%28%29%0A%20%20%20%20%20%20%20%20.map%28%7Cw%7C%20w.trim_matches%28%7Cc%3A%20char%7C%20%21c.is_alphanumeric%28%29%29%29%0A%20%20%20%20%20%20%20%20.filter%28%7Cw%7C%20%21w.is_empty%28%29%29%0A%7D%0A%0Afn%20analyze%28text%3A%20%26str%29%20-%3E%20TextStats%20%7B%0A%20%20%20%20let%20words%3A%20Vec%3C%26str%3E%20%3D%20clean_words%28text%29.collect%28%29%3B%0A%20%20%20%20let%20total_len%3A%20usize%20%3D%20words.iter%28%29.map%28%7Cw%7C%20w.chars%28%29.count%28%29%29.sum%28%29%3B%0A%0A%20%20%20%20//%20reduce%20keeps%20the%20first%20word%20on%20ties%20%28max_by_key%20would%20keep%20the%20last%29.%0A%20%20%20%20let%20longest_word%20%3D%20words%0A%20%20%20%20%20%20%20%20.iter%28%29%0A%20%20%20%20%20%20%20%20.copied%28%29%0A%20%20%20%20%20%20%20%20.reduce%28%7Cbest%2C%20w%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20w.chars%28%29.count%28%29%20%3E%20best.chars%28%29.count%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20w%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20best%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%29%0A%20%20%20%20%20%20%20%20.map%28str%3A%3Ato_string%29%3B%0A%0A%20%20%20%20let%20avg_word_len%20%3D%20if%20words.is_empty%28%29%20%7B%0A%20%20%20%20%20%20%20%200.0%0A%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20total_len%20as%20f64%20/%20words.len%28%29%20as%20f64%0A%20%20%20%20%7D%3B%0A%0A%20%20%20%20TextStats%20%7B%0A%20%20%20%20%20%20%20%20chars%3A%20text.chars%28%29.count%28%29%2C%0A%20%20%20%20%20%20%20%20words%3A%20text.split_whitespace%28%29.count%28%29%2C%0A%20%20%20%20%20%20%20%20lines%3A%20text.lines%28%29.count%28%29%2C%0A%20%20%20%20%20%20%20%20sentences%3A%20text%0A%20%20%20%20%20%20%20%20%20%20%20%20.chars%28%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.filter%28%7Cc%7C%20matches%21%28c%2C%20%27.%27%20%7C%20%27%21%27%20%7C%20%27%3F%27%29%29%0A%20%20%20%20%20%20%20%20%20%20%20%20.count%28%29%2C%0A%20%20%20%20%20%20%20%20longest_word%2C%0A%20%20%20%20%20%20%20%20avg_word_len%2C%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20letter_histogram%28text%3A%20%26str%29%20-%3E%20BTreeMap%3Cchar%2C%20usize%3E%20%7B%0A%20%20%20%20let%20mut%20hist%20%3D%20BTreeMap%3A%3Anew%28%29%3B%0A%20%20%20%20for%20c%20in%20text.chars%28%29.filter%28%7Cc%7C%20c.is_alphabetic%28%29%29%20%7B%0A%20%20%20%20%20%20%20%20for%20lower%20in%20c.to_lowercase%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%2Ahist.entry%28lower%29.or_insert%280%29%20%2B%3D%201%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%20%20hist%0A%7D%0A%0Afn%20capitalize_words%28text%3A%20%26str%29%20-%3E%20String%20%7B%0A%20%20%20%20text.split_whitespace%28%29%0A%20%20%20%20%20%20%20%20.map%28%7Cword%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20mut%20chars%20%3D%20word.chars%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20match%20chars.next%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Some%28first%29%20%3D%3E%20first.to_uppercase%28%29.chain%28chars%29.collect%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20None%20%3D%3E%20String%3A%3Anew%28%29%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%29%0A%20%20%20%20%20%20%20%20.collect%3A%3A%3CVec%3CString%3E%3E%28%29%0A%20%20%20%20%20%20%20%20.join%28%22%20%22%29%0A%7D%0A%0Afn%20main%28%29%20%7B%0A%20%20%20%20let%20text%20%3D%20%22Rust%20makes%20caf%C3%A9%20code%20safe.%5Cn%C2%BFTienes%20tiempo%20para%20Rust%3F%22%3B%0A%20%20%20%20let%20mut%20stats%20%3D%20analyze%28text%29%3B%0A%20%20%20%20stats.avg_word_len%20%3D%20%28stats.avg_word_len%20%2A%20100.0%29.round%28%29%20/%20100.0%3B%0A%20%20%20%20println%21%28%22%7Bstats%3A%3F%7D%22%29%3B%0A%0A%20%20%20%20let%20mut%20top%3A%20Vec%3C%28char%2C%20usize%29%3E%20%3D%20letter_histogram%28text%29.into_iter%28%29.collect%28%29%3B%0A%20%20%20%20top.sort_by%28%7Ca%2C%20b%7C%20b.1.cmp%28%26a.1%29.then%28a.0.cmp%28%26b.0%29%29%29%3B%0A%20%20%20%20top.truncate%283%29%3B%0A%20%20%20%20println%21%28%22top%20letters%3A%20%7Btop%3A%3F%7D%22%29%3B%0A%0A%20%20%20%20println%21%28%22%7B%7D%22%2C%20capitalize_words%28%22rust%20makes%20%20%20caf%C3%A9%20code%20safe%22%29%29%3B%0A%7D%0A%0A%23%5Bcfg%28test%29%5D%0Amod%20tests%20%7B%0A%20%20%20%20use%20super%3A%3A%2A%3B%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20counts_unicode_chars_not_bytes%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20s%20%3D%20analyze%28%22caf%C3%A9%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.chars%2C%204%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28%22caf%C3%A9%22.len%28%29%2C%205%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20basic_stats%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20s%20%3D%20analyze%28%22Hi%20there.%20How%20are%20you%3F%5CnFine%21%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.words%2C%206%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.lines%2C%202%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.sentences%2C%203%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.longest_word.as_deref%28%29%2C%20Some%28%22there%22%29%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20empty_text%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20s%20%3D%20analyze%28%22%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.words%2C%200%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.longest_word%2C%20None%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28s.avg_word_len%2C%200.0%29%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%23%5Btest%5D%0A%20%20%20%20fn%20histogram_and_capitalize%28%29%20%7B%0A%20%20%20%20%20%20%20%20let%20h%20%3D%20letter_histogram%28%22AaB%21%22%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28h.get%28%26%27a%27%29%2C%20Some%28%262%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28h.get%28%26%27b%27%29%2C%20Some%28%261%29%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28h.len%28%29%2C%202%29%3B%0A%20%20%20%20%20%20%20%20assert_eq%21%28capitalize_words%28%22%C3%A9lan%20%20vital%22%29%2C%20%22%C3%89lan%20Vital%22%29%3B%0A%20%20%20%20%7D%0A%7D%0A" target="_blank" rel="noopener">▶ Playground</a>
+      <a class="btn small ghost" href="https://github.com/YISUSVII/RustExcersices/blob/main/solutions/07-collections/23-text-analyzer.rs" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+  <pre class="code" data-lang="rust"><code><span class="tok-keyword">use</span> std::collections::<span class="tok-type">BTreeMap</span>;
+
+<span class="tok-attr">#[derive(Debug, PartialEq)]</span>
+<span class="tok-keyword">struct</span> <span class="tok-type">TextStats</span> {
+    chars: <span class="tok-type">usize</span>,
+    words: <span class="tok-type">usize</span>,
+    lines: <span class="tok-type">usize</span>,
+    sentences: <span class="tok-type">usize</span>,
+    longest_word: <span class="tok-type">Option</span>&lt;<span class="tok-type">String</span>&gt;,
+    avg_word_len: <span class="tok-type">f64</span>,
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">clean_words</span>(text: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-keyword">impl</span> <span class="tok-type">Iterator</span>&lt;<span class="tok-type">Item</span> = &amp;<span class="tok-type">str</span>&gt; {
+    text.<span class="tok-fn">split_whitespace</span>()
+        .<span class="tok-fn">map</span>(|w| w.<span class="tok-fn">trim_matches</span>(|c: <span class="tok-type">char</span>| !c.<span class="tok-fn">is_alphanumeric</span>()))
+        .<span class="tok-fn">filter</span>(|w| !w.<span class="tok-fn">is_empty</span>())
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">analyze</span>(text: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">TextStats</span> {
+    <span class="tok-keyword">let</span> words: <span class="tok-type">Vec</span>&lt;&amp;<span class="tok-type">str</span>&gt; = <span class="tok-fn">clean_words</span>(text).<span class="tok-fn">collect</span>();
+    <span class="tok-keyword">let</span> total_len: <span class="tok-type">usize</span> = words.<span class="tok-fn">iter</span>().<span class="tok-fn">map</span>(|w| w.<span class="tok-fn">chars</span>().<span class="tok-fn">count</span>()).<span class="tok-fn">sum</span>();
+
+    <span class="tok-comment">// reduce keeps the first word on ties (max_by_key would keep the last).</span>
+    <span class="tok-keyword">let</span> longest_word = words
+        .<span class="tok-fn">iter</span>()
+        .<span class="tok-fn">copied</span>()
+        .<span class="tok-fn">reduce</span>(|best, w| {
+            <span class="tok-keyword">if</span> w.<span class="tok-fn">chars</span>().<span class="tok-fn">count</span>() &gt; best.<span class="tok-fn">chars</span>().<span class="tok-fn">count</span>() {
+                w
+            } <span class="tok-keyword">else</span> {
+                best
+            }
+        })
+        .<span class="tok-fn">map</span>(<span class="tok-type">str</span>::to_string);
+
+    <span class="tok-keyword">let</span> avg_word_len = <span class="tok-keyword">if</span> words.<span class="tok-fn">is_empty</span>() {
+        <span class="tok-number">0.0</span>
+    } <span class="tok-keyword">else</span> {
+        total_len <span class="tok-keyword">as</span> <span class="tok-type">f64</span> / words.<span class="tok-fn">len</span>() <span class="tok-keyword">as</span> <span class="tok-type">f64</span>
+    };
+
+    <span class="tok-type">TextStats</span> {
+        chars: text.<span class="tok-fn">chars</span>().<span class="tok-fn">count</span>(),
+        words: text.<span class="tok-fn">split_whitespace</span>().<span class="tok-fn">count</span>(),
+        lines: text.<span class="tok-fn">lines</span>().<span class="tok-fn">count</span>(),
+        sentences: text
+            .<span class="tok-fn">chars</span>()
+            .<span class="tok-fn">filter</span>(|c| <span class="tok-macro">matches!</span>(c, <span class="tok-string">'.'</span> | <span class="tok-string">'!'</span> | <span class="tok-string">'?'</span>))
+            .<span class="tok-fn">count</span>(),
+        longest_word,
+        avg_word_len,
+    }
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">letter_histogram</span>(text: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">BTreeMap</span>&lt;<span class="tok-type">char</span>, <span class="tok-type">usize</span>&gt; {
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> hist = <span class="tok-type">BTreeMap</span>::<span class="tok-fn">new</span>();
+    <span class="tok-keyword">for</span> c <span class="tok-keyword">in</span> text.<span class="tok-fn">chars</span>().<span class="tok-fn">filter</span>(|c| c.<span class="tok-fn">is_alphabetic</span>()) {
+        <span class="tok-keyword">for</span> lower <span class="tok-keyword">in</span> c.<span class="tok-fn">to_lowercase</span>() {
+            *hist.<span class="tok-fn">entry</span>(lower).<span class="tok-fn">or_insert</span>(<span class="tok-number">0</span>) += <span class="tok-number">1</span>;
+        }
+    }
+    hist
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">capitalize_words</span>(text: &amp;<span class="tok-type">str</span>) -&gt; <span class="tok-type">String</span> {
+    text.<span class="tok-fn">split_whitespace</span>()
+        .<span class="tok-fn">map</span>(|word| {
+            <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> chars = word.<span class="tok-fn">chars</span>();
+            <span class="tok-keyword">match</span> chars.<span class="tok-fn">next</span>() {
+                <span class="tok-type">Some</span>(first) =&gt; first.<span class="tok-fn">to_uppercase</span>().<span class="tok-fn">chain</span>(chars).<span class="tok-fn">collect</span>(),
+                <span class="tok-type">None</span> =&gt; <span class="tok-type">String</span>::<span class="tok-fn">new</span>(),
+            }
+        })
+        .collect::&lt;<span class="tok-type">Vec</span>&lt;<span class="tok-type">String</span>&gt;&gt;()
+        .<span class="tok-fn">join</span>(<span class="tok-string">" "</span>)
+}
+
+<span class="tok-keyword">fn</span> <span class="tok-fn">main</span>() {
+    <span class="tok-keyword">let</span> text = <span class="tok-string">"Rust makes café code safe.\n¿Tienes tiempo para Rust?"</span>;
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> stats = <span class="tok-fn">analyze</span>(text);
+    stats.avg_word_len = (stats.avg_word_len * <span class="tok-number">100.0</span>).<span class="tok-fn">round</span>() / <span class="tok-number">100.0</span>;
+    <span class="tok-macro">println!</span>(<span class="tok-string">"{stats:?}"</span>);
+
+    <span class="tok-keyword">let</span> <span class="tok-keyword">mut</span> top: <span class="tok-type">Vec</span>&lt;(<span class="tok-type">char</span>, <span class="tok-type">usize</span>)&gt; = <span class="tok-fn">letter_histogram</span>(text).<span class="tok-fn">into_iter</span>().<span class="tok-fn">collect</span>();
+    top.<span class="tok-fn">sort_by</span>(|a, b| b.<span class="tok-number">1</span>.<span class="tok-fn">cmp</span>(&amp;a.<span class="tok-number">1</span>).<span class="tok-fn">then</span>(a.<span class="tok-number">0</span>.<span class="tok-fn">cmp</span>(&amp;b.<span class="tok-number">0</span>)));
+    top.<span class="tok-fn">truncate</span>(<span class="tok-number">3</span>);
+    <span class="tok-macro">println!</span>(<span class="tok-string">"top letters: {top:?}"</span>);
+
+    <span class="tok-macro">println!</span>(<span class="tok-string">"{}"</span>, <span class="tok-fn">capitalize_words</span>(<span class="tok-string">"rust makes   café code safe"</span>));
+}
+
+<span class="tok-attr">#[cfg(test)]</span>
+<span class="tok-keyword">mod</span> tests {
+    <span class="tok-keyword">use</span> <span class="tok-keyword">super</span>::*;
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">counts_unicode_chars_not_bytes</span>() {
+        <span class="tok-keyword">let</span> s = <span class="tok-fn">analyze</span>(<span class="tok-string">"café"</span>);
+        <span class="tok-macro">assert_eq!</span>(s.chars, <span class="tok-number">4</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-string">"café"</span>.<span class="tok-fn">len</span>(), <span class="tok-number">5</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">basic_stats</span>() {
+        <span class="tok-keyword">let</span> s = <span class="tok-fn">analyze</span>(<span class="tok-string">"Hi there. How are you?\nFine!"</span>);
+        <span class="tok-macro">assert_eq!</span>(s.words, <span class="tok-number">6</span>);
+        <span class="tok-macro">assert_eq!</span>(s.lines, <span class="tok-number">2</span>);
+        <span class="tok-macro">assert_eq!</span>(s.sentences, <span class="tok-number">3</span>);
+        <span class="tok-macro">assert_eq!</span>(s.longest_word.<span class="tok-fn">as_deref</span>(), <span class="tok-type">Some</span>(<span class="tok-string">"there"</span>));
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">empty_text</span>() {
+        <span class="tok-keyword">let</span> s = <span class="tok-fn">analyze</span>(<span class="tok-string">""</span>);
+        <span class="tok-macro">assert_eq!</span>(s.words, <span class="tok-number">0</span>);
+        <span class="tok-macro">assert_eq!</span>(s.longest_word, <span class="tok-type">None</span>);
+        <span class="tok-macro">assert_eq!</span>(s.avg_word_len, <span class="tok-number">0.0</span>);
+    }
+
+    <span class="tok-attr">#[test]</span>
+    <span class="tok-keyword">fn</span> <span class="tok-fn">histogram_and_capitalize</span>() {
+        <span class="tok-keyword">let</span> h = <span class="tok-fn">letter_histogram</span>(<span class="tok-string">"AaB!"</span>);
+        <span class="tok-macro">assert_eq!</span>(h.<span class="tok-fn">get</span>(&amp;<span class="tok-string">'a'</span>), <span class="tok-type">Some</span>(&amp;<span class="tok-number">2</span>));
+        <span class="tok-macro">assert_eq!</span>(h.<span class="tok-fn">get</span>(&amp;<span class="tok-string">'b'</span>), <span class="tok-type">Some</span>(&amp;<span class="tok-number">1</span>));
+        <span class="tok-macro">assert_eq!</span>(h.<span class="tok-fn">len</span>(), <span class="tok-number">2</span>);
+        <span class="tok-macro">assert_eq!</span>(<span class="tok-fn">capitalize_words</span>(<span class="tok-string">"élan  vital"</span>), <span class="tok-string">"Élan Vital"</span>);
+    }
+}</code></pre>
+</div></div></div>
+  <div class="tab-panel prose" role="tabpanel" data-panel="run" hidden>
+    <p>Every exercise is a single standalone file — no Cargo project needed. Save it locally and run:</p>
+    <pre class="code" data-lang="bash"><code>rustc --edition 2021 23-text-analyzer.rs -o 23-text-analyzer &amp;&amp; ./23-text-analyzer
+
+# run the unit tests
+rustc --edition 2021 --test 23-text-analyzer.rs -o 23-text-analyzer-tests &amp;&amp; ./23-text-analyzer-tests</code></pre>
+    <p>Or click <strong>▶ Playground</strong> to run it in your browser on the official Rust Playground.</p>
+  </div>
+</section>
+<nav class="pager" aria-label="Pagination"><a class="pager-link prev" href="../exercises/22-inventory.html"><small>← Previous</small>22 · Inventory Manager</a><a class="pager-link next" href="../exercises/24-file-reading.html"><small>Next →</small>24 · Safe File Reading</a></nav>
+</article>
+<footer class="footer">Generated from <a href="https://github.com/YISUSVII/RustExcersices" target="_blank" rel="noopener">the course repository</a> · Learn Rust by building 🦀</footer>
+</main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
