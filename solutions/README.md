@@ -16,4 +16,4 @@ rustc --edition 2021 --test solutions/05-structs-enums/11-user-model.rs -o tests
 ```
 
 Verify every starter and solution at once with `python3 scripts/check_exercises.py`.
-You can also browse all solutions on the course website: <https://yisusvii.github.io/rust-study/>.
+You can also browse all solutions on the course website: <https://yisusvii.github.io/RustExcersices/>.

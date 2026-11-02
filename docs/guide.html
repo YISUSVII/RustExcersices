@@ -137,7 +137,7 @@
 <header class="page-head"><h1>Course guide</h1></header>
 <section class="prose"><p>A practical, progressive Rust course repository designed to take you from <strong>absolute beginner</strong> to <strong>advanced/professional</strong> level through hands-on exercises.</p>
 <p>This repo is focused on <strong>learning Rust by building</strong> (not interview drills or DevOps-heavy content).</p>
-<p>🌐 <strong>Browse the course online:</strong> <a href="https://yisusvii.github.io/rust-study/" target="_blank" rel="noopener">https://yisusvii.github.io/rust-study/</a> — navigate every chapter, read each exercise, and explore starter code and reference solutions (with one-click Rust Playground links).</p>
+<p>🌐 <strong>Browse the course online:</strong> <a href="https://yisusvii.github.io/RustExcersices/" target="_blank" rel="noopener">https://yisusvii.github.io/RustExcersices/</a> — navigate every chapter, read each exercise, and explore starter code and reference solutions (with one-click Rust Playground links).</p>
 <h2 id="prerequisites">Prerequisites</h2>
 <ul><li>A computer with macOS, Linux, or Windows</li><li>Basic command line familiarity</li><li>Motivation to practice consistently</li></ul>
 <h2 id="installation">Installation</h2>
@@ -194,7 +194,7 @@ Concurrency, async, macros, unsafe Rust and real projects</code></pre>
 <pre class="code" data-lang="bash"><code>python3 scripts/check_exercises.py   # every solution builds with -D warnings, runs, and passes its tests
 python3 scripts/build_site.py        # regenerate docs/
 python3 -m http.server -d docs 8000  # preview at http://localhost:8000</code></pre>
-<p>The <code>Validate exercises and deploy site</code> workflow (<code>.github/workflows/pages.yml</code>) runs the checks on every pull request and deploys <code>docs/</code> to GitHub Pages on pushes to <code>main</code>. In <strong>Settings → Pages</strong>, set the source to <strong>GitHub Actions</strong>. Pages serves a project site at <code>/&lt;repository-name&gt;/</code>, so the repository must be named <code>rust-study</code> for the site to live at <code>https://yisusvii.github.io/rust-study/</code>.</p>
+<p>The <code>Validate exercises and deploy site</code> workflow (<code>.github/workflows/pages.yml</code>) runs the checks on every pull request and deploys <code>docs/</code> to GitHub Pages on pushes to <code>main</code>. In <strong>Settings → Pages</strong>, set the source to <strong>GitHub Actions</strong>. Pages serves a project site at <code>/&lt;repository-name&gt;/</code>, so <code>SITE_BASE</code> in <code>scripts/build_site.py</code> must match the repository name (<code>/RustExcersices/</code>) for the site to live at <code>https://yisusvii.github.io/RustExcersices/</code>.</p>
 <h2 id="progress-checklist">Progress checklist</h2>
 <ul><li><input type="checkbox" disabled> Complete Level 0 setup and Hello World</li><li><input type="checkbox" disabled> Complete Levels 1–4 (fundamentals + ownership)</li><li><input type="checkbox" disabled> Complete Levels 5–10 (core intermediate concepts)</li><li><input type="checkbox" disabled> Complete Levels 11–17 (advanced and ninja topics)</li><li><input type="checkbox" disabled> Complete at least 5 projects from <code>18-projects</code></li></ul>
 <h2 id="rust-style-in-this-repository">Rust style in this repository</h2>
